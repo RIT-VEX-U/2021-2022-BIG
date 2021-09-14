@@ -16,12 +16,15 @@ SRC_C += $(wildcard core/src/*.cpp)
 SRC_C += $(wildcard core/src/*.c)
 SRC_C += $(wildcard core/src/*/*.cpp) 
 SRC_C += $(wildcard core/src/*/*.c)
+SRC_C += $(wildcard core/src/*/*/*.c)
+SRC_C += $(wildcard core/src/*/*/*.cpp)
 
 OBJ = $(addprefix $(BUILD)/, $(addsuffix .o, $(basename $(SRC_C))) )
 
 # location of include files that c and cpp files depend on
 SRC_H  = $(wildcard include/*.h)
 SRC_H += $(wildcard core/include/*.h)
+SRC_H += $(wildcard core/include/*/*.h)
 
 # additional dependancies
 SRC_A  = makefile
