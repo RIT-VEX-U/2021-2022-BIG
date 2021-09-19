@@ -8,7 +8,7 @@ extern brain Brain;
 
 extern controller main_controller;
 
-extern motor lf, lr, lr2, rf, rr, rr2;
+extern motor lf, lr, rf, rr;
 
 extern motor_group left_motors, right_motors;
 
