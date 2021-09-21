@@ -242,7 +242,7 @@ double TankDrive::modify_inputs(double input, int power)
   * Returns points of the intersections of a line segment and a circle. The line 
   * segment is defined by two points, and the circle is defined by a center and radius.
   */
-std::vector<Vector::point_t> TankDrive::line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2)
+std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2)
 {
   std::vector<Vector::point_t> intersections = {};
 
@@ -285,4 +285,42 @@ std::vector<Vector::point_t> TankDrive::line_circle_intersections(Vector::point_
   }
 
   return intersections;
+}
+
+/**
+  Selects a look ahead from all the intersections in the path.
+  */
+Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
+{
+  //Default: the end of the path
+  Vector::point_t target = path.back();
+  
+  //Check each line segment of the path for potential targets
+  for(int i = 0; i < path.size() - 1; i++)
+  {
+    Vector::point_t start = path[i];
+    Vector::point_t end = path[i+1];
+
+    std::vector<Vector::point_t> intersections = line_circle_intersections(robot_loc, radius, start, end);
+    //Choose the intersection that is closest to the end of the line segment
+    //This prioritizes the closest intersection to the end of the path
+    for(Vector::point_t intersection: intersections)
+    {
+      double intersection_dist_to_end = sqrt(pow(intersection.x - end.x, 2) + pow(intersection.y - end.y, 2));
+      double target_dist_to_end = sqrt(pow(target.x - end.x, 2) + pow(target.y - end.y, 2));
+      if(intersection_dist_to_end < target_dist_to_end)
+        target = intersection;
+    }
+  }
+
+  return target;
+}
+
+/**
+  Drives through a path using pure pursuit.
+*/
+void pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
+{
+  Vector::point_t lookahead = get_lookahead(path, robot_loc, radius);
+  // Travel towards target :)
 }

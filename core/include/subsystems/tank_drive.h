@@ -83,6 +83,8 @@ public:
     */
   std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2);
 
+  Vector::point_t get_target(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
+
 private:
   motor_group &left_motors;
   motor_group &right_motors;
