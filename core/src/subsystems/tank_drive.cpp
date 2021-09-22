@@ -288,8 +288,8 @@ std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, d
 }
 
 /**
-  Selects a look ahead from all the intersections in the path.
-  */
+ * Selects a look ahead from all the intersections in the path.
+ */
 Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
 {
   //Default: the end of the path
@@ -314,6 +314,39 @@ Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t
   }
 
   return target;
+}
+
+/**
+ Injects points in a path without changing the curvature with a certain spacing.
+*/
+std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing)
+{
+  std::vector<Vector::point_t> new_path;
+
+  //Injecting points for each line segment
+  for(int i = 0; i < path.size() - 1; i++)
+  {
+    Vector::point_t start = path[i];
+    Vector::point_t end = path[i+1];
+
+    Vector::point_t diff = end - start;
+    Vector vector = Vector(diff);
+    
+    int num_points = ceil(vector.get_mag() / spacing);
+
+    //This is the vector between each point
+    vector = vector.normalize() * spacing;
+
+    for(int j = 0; j < num_points; j++)
+    {
+      //We take the start point and add additional vectors
+      Vector::point_t path_point = (Vector(start) + vector * j).point();
+      new_path.push_back(path_point);
+    }
+  }
+  //Adds the last point
+  new_path.push_back(path.back());
+  return new_path;
 }
 
 /**

@@ -83,7 +83,16 @@ public:
     */
   std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2);
 
-  Vector::point_t get_target(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
+  /**
+    * Selects a look ahead from all the intersections in the path.
+    */
+  Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
+
+  /**
+   * Injects points in a path without changing the curvature with a certain spacing.
+   */
+  std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing);
+
 
 private:
   motor_group &left_motors;
