@@ -53,6 +53,27 @@ return mag * cos(dir);
 }
 
 /**
+ * Changes the magnetude of the vector to 1
+*/
+Vector Vector::normalize()
+{
+  return Vector(this->dir, 1);
+}
+
+/**
+ * Returns a point from the vector
+*/
+Vector::point_t Vector::point()
+{
+  point_t p = 
+  {
+    .x = this->mag * cos(this->dir),
+    .y = this->mag * sin(this->dir)
+  };
+  return p;
+}
+
+/**
  * Correctly add vectors together with the + operator
  */
 Vector Vector::operator+(const Vector &other)
@@ -101,12 +122,4 @@ double deg2rad(double deg)
 double rad2deg(double rad)
 {
     return rad * (180.0 / PI);
-}
-
-/**
- * Changes the magnetude of the vector to 1
-*/
-Vector Vector::normalize()
-{
-  return Vector(this->dir, 1);
 }
