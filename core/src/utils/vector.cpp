@@ -94,3 +94,11 @@ double rad2deg(double rad)
 {
     return rad * (180.0 / PI);
 }
+
+/**
+ * Changes the magnetude of the vector to 1
+*/
+void Vector::normalize()
+{
+  this->mag = 1;
+}

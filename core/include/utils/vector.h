@@ -54,6 +54,11 @@ public:
      */
     double get_y() const;
 
+    /**
+     * Changes the magnetude of the vector to 1
+    */
+    void normalize();
+
 
     Vector operator+(const Vector &other);
     Vector operator-(const Vector &other);
