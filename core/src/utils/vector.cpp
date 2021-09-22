@@ -80,6 +80,14 @@ Vector Vector::operator-(const Vector &other)
 }
 
 /**
+ * Multiplies a vector by a double with the * operator
+*/
+Vector Vector::operator*(const double &x)
+{
+  return Vector(this->dir, this->mag * x);
+}
+
+/**
  * General function for converting degrees to radians
  */
 double deg2rad(double deg)

@@ -59,7 +59,7 @@ public:
     */
     Vector normalize();
 
-
+    Vector operator*(const double &x);
     Vector operator+(const Vector &other);
     Vector operator-(const Vector &other);
 
