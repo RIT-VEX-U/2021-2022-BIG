@@ -57,7 +57,7 @@ public:
     /**
      * Changes the magnetude of the vector to 1
     */
-    void normalize();
+    Vector normalize();
 
 
     Vector operator+(const Vector &other);

@@ -98,7 +98,7 @@ double rad2deg(double rad)
 /**
  * Changes the magnetude of the vector to 1
 */
-void Vector::normalize()
+Vector Vector::normalize()
 {
-  this->mag = 1;
+  return Vector(this->dir, 1);
 }
