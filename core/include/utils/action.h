@@ -37,9 +37,7 @@ class Action {
 };
 
 /**
- * The Action superclass. Meant to be extended to make purpose-built
- * reusable actions, or construct an Action directly for a one-off
- * action.
+ * The DriveAction class. Extends Action to be an Action Factory.
  */
 class DriveAction:Action {
   private:
