@@ -257,7 +257,7 @@ double TankDrive::modify_inputs(double input, int power)
   * Returns points of the intersections of a line segment and a circle. The line 
   * segment is defined by two points, and the circle is defined by a center and radius.
   */
-std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2)
+std::vector<Vector::point_t> TankDrive::line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2)
 {
   std::vector<Vector::point_t> intersections = {};
 
@@ -305,7 +305,7 @@ std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, d
 /**
  * Selects a look ahead from all the intersections in the path.
  */
-Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
+Vector::point_t TankDrive::get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
 {
   //Default: the end of the path
   Vector::point_t target = path.back();
@@ -316,7 +316,7 @@ Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t
     Vector::point_t start = path[i];
     Vector::point_t end = path[i+1];
 
-    std::vector<Vector::point_t> intersections = line_circle_intersections(robot_loc, radius, start, end);
+    std::vector<Vector::point_t> intersections = TankDrive::line_circle_intersections(robot_loc, radius, start, end);
     //Choose the intersection that is closest to the end of the line segment
     //This prioritizes the closest intersection to the end of the path
     for(Vector::point_t intersection: intersections)
@@ -334,7 +334,7 @@ Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t
 /**
  Injects points in a path without changing the curvature with a certain spacing.
 */
-std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing)
+std::vector<Vector::point_t> TankDrive::inject_path(std::vector<Vector::point_t> path, double spacing)
 {
   std::vector<Vector::point_t> new_path;
 
@@ -365,10 +365,42 @@ std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, doub
 }
 
 /**
+ * Returns a smoothed path maintaining the start and end of the path.
+ *
+ * Weight data is how much weight to update the data (alpha)
+ * Weight smooth is how much weight to smooth the coordinates (beta)
+ * Tolerance is how much change per iteration is necessary to continue iterating.
+ *
+ * Honestly have no idea if/how this works.
+*/
+
+std::vector<Vector::point_t> TankDrive::smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance)
+{
+  std::vector<Vector::point_t> new_path = path;
+  double change = tolerance;
+  while(change >= tolerance)
+  {
+    change = 0;
+    for(int i = 1; i < path.size() - 1; i++)
+    {
+      Vector::point_t point_inital = path[i];
+      Vector::point_t point_cur = new_path[i], point_prev = new_path[i-1], point_next = new_path[i+1];
+      Vector::point_t point_saved = point_cur;
+
+      new_path[i].x += weight_data * (point_inital.x - point_cur.x) + weight_smooth * (point_next.x + point_prev.x - (2 * point_cur.x));
+      new_path[i].y += weight_data * (point_inital.y - point_cur.y) + weight_smooth * (point_next.y + point_prev.y - (2 * point_cur.y)); 
+
+      change += point_cur.dist(point_saved);
+    }
+  }
+  return new_path;
+}
+
+/**
   Drives through a path using pure pursuit.
 */
 void pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
 {
-  Vector::point_t lookahead = get_lookahead(path, robot_loc, radius);
+  Vector::point_t lookahead = TankDrive::get_lookahead(path, robot_loc, radius);
   // Travel towards target :)
 }

@@ -15,6 +15,11 @@ public:
     {
         double x, y;
 
+        double dist(const point_t other)
+        {
+          return sqrt(pow(this->x - other.x, 2) + pow(this->y - other.y, 2));
+        }
+
         point_t operator+(const point_t &other)
         {
           point_t p 

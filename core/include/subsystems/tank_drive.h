@@ -87,17 +87,20 @@ public:
     * Returns points of the intersections of a line segment and a circle. The line 
     * segment is defined by two points, and the circle is defined by a center and radius.
     */
-  std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2);
+  static std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2);
 
   /**
     * Selects a look ahead from all the intersections in the path.
     */
-  Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
+  static Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
+
+  static std::vector<Vector::point_t> smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance);
 
   /**
    * Injects points in a path without changing the curvature with a certain spacing.
    */
-  std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing);
+  static std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing);
+
 
 
 private:
