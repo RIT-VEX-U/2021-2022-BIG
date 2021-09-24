@@ -17,6 +17,11 @@ using namespace vex;
  */
 typedef std::function<int()> action_ptr;
 
+/**
+ * The Action superclass. Meant to be extended to make purpose-built
+ * reusable actions, or construct an Action directly for a one-off
+ * action.
+ */
 class Action {
   protected:
     action_ptr myFnPtr;
@@ -27,21 +32,28 @@ class Action {
     Action(action_ptr fnPtr);
 
     int run();
+    bool isRunning();
     void stop();
 };
 
+/**
+ * The Action superclass. Meant to be extended to make purpose-built
+ * reusable actions, or construct an Action directly for a one-off
+ * action.
+ */
 class DriveAction:Action {
   private:
-    DriveAction(TankDrive td);
-    DriveAction(TankDrive td, directionType dir, double inches, double pct_speed);
-    DriveAction(TankDrive td, double degrees, double pct_speed);
+    TankDrive &td;
+    DriveAction(TankDrive &td);
+    DriveAction(TankDrive &td, directionType dir, double inches, double pct_speed);
+    DriveAction(TankDrive &td, double degrees, double pct_speed);
 
   public:
-    static DriveAction stop_drive(TankDrive td);
-    static DriveAction drive_forward(TankDrive td, double dist, double pct_speed);
-    static DriveAction drive_reverse(TankDrive td, double dist, double pct_speed);
-    static DriveAction turn_clockwise(TankDrive td, double degrees, double pct_speed);
-    static DriveAction turn_counterclockwise(TankDrive td, double degrees, double pct_speed);
+    void stop();
+    static DriveAction drive_forward(TankDrive &td, double dist, double pct_speed);
+    static DriveAction drive_reverse(TankDrive &td, double dist, double pct_speed);
+    static DriveAction turn_cw(TankDrive &td, double degrees, double pct_speed);
+    static DriveAction turn_ccw(TankDrive &td, double degrees, double pct_speed);
 };
 
 #endif
