@@ -10,12 +10,30 @@ void OpControl::opcontrol()
 {
   // ========== INIT ==========
   imu.calibrate();
-  while(imu.isCalibrating()) {vexDelay(100);}
+  while(imu.isCalibrating()) {
+    vexDelay(20);
+    }
 
-   // while(!drive.drive_forward(24, .5))
+
+    while(!drive.drive_to_point(24, 24, .5)){vexDelay(20);}
+    while(!drive.turn_to_heading(180, .5)){vexDelay(20);}
+    while(!drive.drive_to_point(24, 0, .5)){vexDelay(20);}
+    while(!drive.turn_to_heading(90, .5)){vexDelay(20);}
+    while(!drive.drive_to_point(48, 0, .5)){vexDelay(20);}
+    while(!drive.turn_to_heading(-45, .5)){vexDelay(20);}
+    while(!drive.drive_to_point(0, 48, .5)){vexDelay(20);}
+    while(!drive.turn_to_heading(180, .5)){vexDelay(20);}
+    while(!drive.drive_to_point(0, 0, .5)){vexDelay(20);}
+    while(!drive.turn_to_heading(0, .5)){vexDelay(20);}
+
+
+  //  while(!drive.turn_to_heading(90, .5))
   // {
+  //   if(main_controller.ButtonA.pressing())
+  //     break;
+
   //   printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
-  //   vexDelay(100);
+  //   vexDelay(20);
   // }
 
 
