@@ -8,7 +8,7 @@
 class Command 
 {
 private:
-  Action action;
+  Action* action;
   bool (*end_condition)(int[]);
 
   Command* next;
@@ -44,6 +44,11 @@ public:
   *   A Command object to queue.
   */
   void add_next(Command _next);
+
+  /**
+  * Executes cleanup code which should correspond to the action used
+  */
+  void term_action();
 };
 
 #endif

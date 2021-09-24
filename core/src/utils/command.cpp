@@ -5,3 +5,12 @@ Command::Command(std::string _name, bool (*_end_condition)(int[]))
 {
 }
 
+/**
+  * Executes cleanup code which should correspond to the action used
+  */
+void Command::term_action()
+{
+  action->stop();
+  
+}
+
