@@ -271,10 +271,10 @@ std::vector<Vector::point_t> TankDrive::line_circle_intersections(Vector::point_
   //Handling an infinite slope using mx+b and x^2 + y^2 = r^2
   if(point1.x - point2.x == 0)
   {
-    y1 = point1.y;
-    x1 = sqrt(pow(r, 2) - pow(y1, 2));
-    y2 = point1.y; 
-    x2 = -sqrt(pow(r, 2) - pow(y1, 2));
+    x1 = point1.x;
+    y1 = sqrt(pow(r, 2) - pow(x1, 2));
+    x2 = point1.x;
+    y2 = -sqrt(pow(r, 2) - pow(x2, 2));
   }
   //Non-infinite slope using mx+b and x^2 + y^2 = r^2
   else
@@ -399,8 +399,9 @@ std::vector<Vector::point_t> TankDrive::smooth_path(std::vector<Vector::point_t>
 /**
   Drives through a path using pure pursuit.
 */
-void pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
+void TankDrive::pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
 {
   Vector::point_t lookahead = TankDrive::get_lookahead(path, robot_loc, radius);
-  // Travel towards target :)
+  printf("x %f y: %f\n", lookahead.x, lookahead.y);
+  this->drive_to_point(lookahead.x, lookahead.y, speed);
 }
