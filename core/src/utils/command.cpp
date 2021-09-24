@@ -11,6 +11,5 @@ Command::Command(std::string _name, bool (*_end_condition)(int[]))
 void Command::term_action()
 {
   action->stop();
-  
 }
 
