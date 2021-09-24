@@ -2,12 +2,13 @@
 #define _COMMAND_
 
 #include "vex.h"
+#include "action.h"
 #include <stdlib.h>
 
 class Command 
 {
 private:
-  //Action action;
+  Action action;
   bool (*end_condition)(int[]);
 
   Command* next;
@@ -18,7 +19,7 @@ public:
   Command(std::string _name, bool (*_end_condition)(int[]));
 
   /**
-  * Runs the action stored in this command.
+  * Runs the action object stored in this command.
   */
   int execute_action();
 
@@ -27,13 +28,13 @@ public:
   * @param _action
   *   The action to store.
   */
-  //void set_action(Action _action);
+  void set_action(Action _action);
 
   /**
   * Assigns the set of conditions that, when satisfied, ends the command.
-  * There are multiple conditions for OR and AND logic.
+  * The array accommodates multiple conditions for OR and AND logic.
   * @param (*_end_condition)(int[])
-  *   An array of conditions that the command may meet.
+  *   An array of (two) conditions that the command may meet.
   */
   void set_end_condition(bool (*_end_condition)(int[]));
 
