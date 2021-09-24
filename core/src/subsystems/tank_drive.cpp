@@ -70,6 +70,7 @@ bool TankDrive::drive_forward(double inches, double percent_speed)
   // On the first run of the funciton, reset the motor position and PID
   if (!func_initialized)
   {
+    printf("tank_drive.cpp: First Run of TankDrive::drive_forward\n");
     saved_pos = odometry->get_position();
     drive_pid.reset();
 
@@ -78,6 +79,7 @@ bool TankDrive::drive_forward(double inches, double percent_speed)
 
     func_initialized = true;
   }
+  printf("tank_drive.cpp: Continuing TankDrive::drive_forward\n");
 
   double position_diff = odometry->get_position().y - saved_pos.y;
 

@@ -8,6 +8,8 @@ using namespace vex;
   
 // Action class
 
+Action::Action() {}
+
 /**
   * Create an Action with an action_ptr.
   *
@@ -68,8 +70,8 @@ DriveAction::DriveAction(TankDrive &td, directionType dir, double inches, double
     inches = -inches;
   }
   myFnPtr = [&]() {
-    while (td.drive_forward(inches, pct_speed) != true && this->running) {
-      task::sleep(20);
+    while (!td.drive_forward(inches, pct_speed)) {
+      task::sleep(50);
     }
     this->running = false;
     return true;
@@ -85,7 +87,7 @@ DriveAction::DriveAction(TankDrive &td, directionType dir, double inches, double
   */
 DriveAction::DriveAction(TankDrive &td, double degrees, double pct_speed):td(td) {
   myFnPtr = [&]() {
-    while(td.turn_degrees(degrees, pct_speed) && this->running) {
+    while(!td.turn_degrees(degrees, pct_speed) && this->running) {
       task::sleep(20);
     }
     this->running = false;
@@ -102,6 +104,7 @@ void DriveAction::stop() {
   * Drive forward with TankDrive a set distance at a defined speed.
   */
 DriveAction DriveAction::drive_forward(TankDrive &td, double dist, double pct_speed) {
+  printf("action.cpp: Creating drive forward action for %f inches at %f power\n", dist, pct_speed);
   return DriveAction(td, directionType::fwd, dist, pct_speed);
 }
 /**

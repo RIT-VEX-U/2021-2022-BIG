@@ -39,7 +39,7 @@ class Action {
 /**
  * The DriveAction class. Extends Action to be an Action Factory.
  */
-class DriveAction:Action {
+class DriveAction:public Action {
   private:
     TankDrive &td;
     DriveAction(TankDrive &td);
