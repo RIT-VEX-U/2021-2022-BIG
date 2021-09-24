@@ -21,9 +21,9 @@ TankDrive::tankdrive_config_t tank_cfg =
 {
   .drive_pid = (PID::pid_config_t) 
   {
-    .p = .1,
+    .p = .15,
     .i = 0,
-    .d = 0,
+    .d = .01,
     .f = 0,
     .deadband = 0.1,
     .on_target_time = 0.1
@@ -31,14 +31,23 @@ TankDrive::tankdrive_config_t tank_cfg =
 
   .turn_pid = (PID::pid_config_t)
   {
-    .p = 0.008,
+    // Oscillation pt: 0.045
+    // Ku = 0.055
+    // Tu = .48
+    .p = 0.044,
     .i = 0,
-    .d = 0.0001,
+    .d = 0.00264,
     .f = 0,
     .deadband = 1,
     .on_target_time = 0.1
+  },
+  
+  .correction_pid = (PID::pid_config_t)
+  {
+    .p = 0.01
   }
 };
+
 
 odometry_config_t odom_cfg = 
 {
