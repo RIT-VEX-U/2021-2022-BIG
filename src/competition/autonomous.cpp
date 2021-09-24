@@ -20,13 +20,23 @@ void Autonomous::autonomous()
       task::sleep(50);
     }
     printf("autonomous.cpp: Completed Test Drive\n");
-    Command c = Command("Test", [](int arr[]) {
+    Command c = Command("Test1", [](int arr[]) {
       return false;
     });
     Action a = DriveAction::drive_forward(drive, 5, 1);
     c.set_action(a);
+    
+    //BEGIN UNTESTED CHANGES
+    Command c2 = Command("Test2", [](int arr[]) {
+      return false;
+    });
+    Action a2 = DriveAction::turn_cw(drive, 360, 1);
+    c2.set_action(a2);
+    c.add_next(c2);
+    //END UNTESTED CHANGES
+
     int i = c.execute_action();
-    printf("autonomous.cpp: Got result %i from action\n", i);
+    printf("autonomous.cpp: Got result %i from command\n", i);
     fflush(stdout);
     fflush(stderr);
     break;

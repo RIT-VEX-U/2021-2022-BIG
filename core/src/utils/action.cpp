@@ -117,6 +117,7 @@ DriveAction DriveAction::drive_reverse(TankDrive &td, double dist, double pct_sp
   * Turn CW with TankDrive a set # of degrees at a defined speed.
   */
 DriveAction DriveAction::turn_cw(TankDrive &td, double degrees, double pct_speed) {
+  printf("action.cpp: Creating turn clockwise action for %f degrees at %f power\n", degrees, pct_speed);
   return DriveAction(td, degrees, pct_speed);
 }
 /**
