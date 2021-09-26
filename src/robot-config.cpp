@@ -52,12 +52,13 @@ TankDrive::tankdrive_config_t tank_cfg =
 odometry_config_t odom_cfg = 
 {
   .wheel_diam = 4.125,
-  .gear_ratio = 2.333333
+  .gear_ratio = 2.333333,
+  .dist_between_wheels = 9.75
 };
 
 OdometryTank odom(left_motors, right_motors, imu, odom_cfg);
 
-TankDrive drive(left_motors, right_motors, imu, tank_cfg, &odom);
+TankDrive drive(left_motors, right_motors, tank_cfg, &odom);
 
 controller main_controller;
 
