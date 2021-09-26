@@ -94,14 +94,25 @@ public:
     */
   static Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
 
-  static std::vector<Vector::point_t> smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance);
-
   /**
    * Injects points in a path without changing the curvature with a certain spacing.
    */
   static std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing);
 
-  bool pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed);
+  /**
+  * Returns a smoothed path maintaining the start and end of the path.
+  *
+  * Weight data is how much weight to update the data (alpha)
+  * Weight smooth is how much weight to smooth the coordinates (beta)
+  * Tolerance is how much change per iteration is necessary to continue iterating.
+  *
+  * Honestly have no idea if/how this works.
+  * https://medium.com/@jaems33/understanding-robot-motion-path-smoothing-5970c8363bc4
+  */
+
+  static std::vector<Vector::point_t> smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance);
+
+  bool pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed, double spacing, double weight_data, double weight_smooth);
 
 
 

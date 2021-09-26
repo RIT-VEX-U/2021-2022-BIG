@@ -306,10 +306,15 @@ std::vector<Vector::point_t> TankDrive::line_circle_intersections(Vector::point_
  * Selects a look ahead from all the intersections in the path.
  */
 Vector::point_t TankDrive::get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
-{
+{ 
   //Default: the end of the path
   Vector::point_t target = path.back();
-  
+
+  if(target.dist(robot_loc) <= radius)
+  {
+    return target;
+  }
+
   //Check each line segment of the path for potential targets
   for(int i = 0; i < path.size() - 1; i++)
   {
@@ -370,6 +375,7 @@ std::vector<Vector::point_t> TankDrive::inject_path(std::vector<Vector::point_t>
  * Tolerance is how much change per iteration is necessary to continue iterating.
  *
  * Honestly have no idea if/how this works.
+ * https://medium.com/@jaems33/understanding-robot-motion-path-smoothing-5970c8363bc4
 */
 
 std::vector<Vector::point_t> TankDrive::smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance)
@@ -381,14 +387,18 @@ std::vector<Vector::point_t> TankDrive::smooth_path(std::vector<Vector::point_t>
     change = 0;
     for(int i = 1; i < path.size() - 1; i++)
     {
-      Vector::point_t point_inital = path[i];
-      Vector::point_t point_cur = new_path[i], point_prev = new_path[i-1], point_next = new_path[i+1];
-      Vector::point_t point_saved = point_cur;
-
-      new_path[i].x += weight_data * (point_inital.x - point_cur.x) + weight_smooth * (point_next.x + point_prev.x - (2 * point_cur.x));
-      new_path[i].y += weight_data * (point_inital.y - point_cur.y) + weight_smooth * (point_next.y + point_prev.y - (2 * point_cur.y));
-
-      change += point_cur.dist(point_saved);
+        Vector::point_t x_i = path[i];
+        Vector::point_t y_i = new_path[i];
+        Vector::point_t y_prev = new_path[i-1];
+        Vector::point_t y_next = new_path[i+1];
+        
+        Vector::point_t y_i_saved = y_i;
+        
+        y_i.x += weight_data * (x_i.x - y_i.x) + weight_smooth * (y_next.x + y_prev.x - (2 * y_i.x));
+        y_i.y += weight_data * (x_i.y - y_i.y) + weight_smooth * (y_next.y + y_prev.y - (2 * y_i.y));
+        new_path[i] = y_i;
+        
+        change += y_i.dist(y_i_saved);
     }
   }
   return new_path;
@@ -397,9 +407,12 @@ std::vector<Vector::point_t> TankDrive::smooth_path(std::vector<Vector::point_t>
 /**
   Drives through a path using pure pursuit.
 */
-bool TankDrive::pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
+bool TankDrive::pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed, double spacing, double weight_data, double weight_smooth)
 {
-  Vector::point_t lookahead = TankDrive::get_lookahead(path, robot_loc, radius);
+  std::vector<Vector::point_t> injected_path = TankDrive::inject_path(path, spacing);
+  std::vector<Vector::point_t> smoothed_path = TankDrive::smooth_path(injected_path, weight_data, weight_smooth, .0001);
+  Vector::point_t lookahead = TankDrive::get_lookahead(smoothed_path, robot_loc, radius);
+
   printf("look ahead x %f y: %f\n", lookahead.x, lookahead.y);
   return this->drive_to_point(lookahead.x, lookahead.y, speed, speed);
 }
