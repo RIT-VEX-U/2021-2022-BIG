@@ -101,7 +101,7 @@ public:
    */
   static std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing);
 
-  void pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed);
+  bool pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed);
 
 
 

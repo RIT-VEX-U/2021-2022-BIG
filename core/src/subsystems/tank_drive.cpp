@@ -321,9 +321,7 @@ Vector::point_t TankDrive::get_lookahead(std::vector<Vector::point_t> path, Vect
     //This prioritizes the closest intersection to the end of the path
     for(Vector::point_t intersection: intersections)
     {
-      double intersection_dist_to_end = sqrt(pow(intersection.x - end.x, 2) + pow(intersection.y - end.y, 2));
-      double target_dist_to_end = sqrt(pow(target.x - end.x, 2) + pow(target.y - end.y, 2));
-      if(intersection_dist_to_end < target_dist_to_end)
+      if(intersection.dist(end) < target.dist(end))
         target = intersection;
     }
   }
@@ -388,7 +386,7 @@ std::vector<Vector::point_t> TankDrive::smooth_path(std::vector<Vector::point_t>
       Vector::point_t point_saved = point_cur;
 
       new_path[i].x += weight_data * (point_inital.x - point_cur.x) + weight_smooth * (point_next.x + point_prev.x - (2 * point_cur.x));
-      new_path[i].y += weight_data * (point_inital.y - point_cur.y) + weight_smooth * (point_next.y + point_prev.y - (2 * point_cur.y)); 
+      new_path[i].y += weight_data * (point_inital.y - point_cur.y) + weight_smooth * (point_next.y + point_prev.y - (2 * point_cur.y));
 
       change += point_cur.dist(point_saved);
     }
@@ -399,9 +397,9 @@ std::vector<Vector::point_t> TankDrive::smooth_path(std::vector<Vector::point_t>
 /**
   Drives through a path using pure pursuit.
 */
-void TankDrive::pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
+bool TankDrive::pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
 {
   Vector::point_t lookahead = TankDrive::get_lookahead(path, robot_loc, radius);
-  printf("x %f y: %f\n", lookahead.x, lookahead.y);
-  this->drive_to_point(lookahead.x, lookahead.y, speed);
+  printf("look ahead x %f y: %f\n", lookahead.x, lookahead.y);
+  return this->drive_to_point(lookahead.x, lookahead.y, speed);
 }
