@@ -401,5 +401,5 @@ bool TankDrive::pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t 
 {
   Vector::point_t lookahead = TankDrive::get_lookahead(path, robot_loc, radius);
   printf("look ahead x %f y: %f\n", lookahead.x, lookahead.y);
-  return this->drive_to_point(lookahead.x, lookahead.y, speed);
+  return this->drive_to_point(lookahead.x, lookahead.y, speed, speed);
 }
