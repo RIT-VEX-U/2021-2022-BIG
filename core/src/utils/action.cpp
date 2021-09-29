@@ -8,7 +8,9 @@ using namespace vex;
   
 // Action class
 
-Action::Action() {}
+Action::Action() {
+  myFnPtr = NULL;
+}
 
 /**
   * Create an Action with an action_ptr.
@@ -24,7 +26,8 @@ Action::Action(action_ptr fnPtr) {
   */
 int Action::run() {
   this->running = true;
-  return this->myFnPtr();
+  int result = this->myFnPtr();
+  return result;
 }
 
 /**

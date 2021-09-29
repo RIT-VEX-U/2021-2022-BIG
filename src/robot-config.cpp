@@ -25,7 +25,7 @@ TankDrive::tankdrive_config_t tank_cfg =
     .i = 0,
     .d = .01,
     .f = 0,
-    .deadband = 10,
+    .deadband = 20,
     .on_target_time = 0.1
   },
 

@@ -16,6 +16,7 @@ private:
   std::string name;
 
 public:
+  Command(std::string _name);
   Command(std::string _name, bool (*_end_condition)(int[]));
 
   /**
