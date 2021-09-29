@@ -22,7 +22,7 @@ TankDrive::tankdrive_config_t tank_cfg =
   .drive_pid = (PID::pid_config_t) 
   {
     .p = .15,
-    .i = 0,
+    .i = .001,
     .d = .01,
     .f = 0,
     .deadband = 0.1,
@@ -35,7 +35,7 @@ TankDrive::tankdrive_config_t tank_cfg =
     // Ku = 0.06
     // Tu = .52
     .p = 0.025,
-    .i = 0.001,
+    .i = 0.0015,
     .d = 0.0015,
     .f = 0,
     .deadband = 1,

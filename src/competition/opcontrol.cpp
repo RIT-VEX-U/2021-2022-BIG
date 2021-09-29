@@ -1,7 +1,6 @@
 #include "competition/opcontrol.h"
 #include "robot-config.h"
-
-position_t reset_pos = {0,0,0};
+#include "../core/include/utils/generic_auto.h"
 
 /**
  * Contains the main loop of the robot code while running in the driver-control period.
@@ -15,24 +14,39 @@ void OpControl::opcontrol()
     }
 
 
-    // while(!drive.drive_to_point(24, 24, .5)){vexDelay(20);}
+    // while(!drive.drive_to_point(24, 24, .5, .25)){vexDelay(20);}
+    // while(!drive.turn_to_heading(270, .5)){vexDelay(20);}
+    // while(!drive.drive_to_point(24, 0, .5, .25)){vexDelay(20);}
     // while(!drive.turn_to_heading(180, .5)){vexDelay(20);}
-    // while(!drive.drive_to_point(24, 0, .5)){vexDelay(20);}
-    // while(!drive.turn_to_heading(90, .5)){vexDelay(20);}
-    // while(!drive.drive_to_point(48, 0, .5)){vexDelay(20);}
+    // while(!drive.drive_to_point(48, 0, .5, .25)){vexDelay(20);}
     // while(!drive.turn_to_heading(-45, .5)){vexDelay(20);}
-    // while(!drive.drive_to_point(0, 48, .5)){vexDelay(20);}
-    // while(!drive.turn_to_heading(180, .5)){vexDelay(20);}
-    // while(!drive.drive_to_point(0, 0, .5)){vexDelay(20);}
-    // while(!drive.turn_to_heading(0, .5)){vexDelay(20);}
+    // while(!drive.drive_to_point(0, 48, .5, .25)){vexDelay(20);}
+    // while(!drive.turn_to_heading(270, .5)){vexDelay(20);}
+    // while(!drive.drive_to_point(0, 0, .5, .25)){vexDelay(20);}
+    // while(!drive.turn_to_heading(90, .5)){vexDelay(20);}
+
+    GenericAuto a1;
+    a1.add([](){return drive.turn_to_heading(45, .5);}); 
+    a1.add([](){return drive.drive_to_point(24, 24, .5, .5);});
+    a1.add([](){return drive.turn_to_heading(270, .5);});
+    a1.add([](){return drive.drive_to_point(24, 0, .5, .5);});
+    a1.add([](){return drive.turn_to_heading(0, .5);});
+    a1.add([](){return drive.drive_to_point(48, 0, .5, .5);});
+    a1.add([](){return drive.turn_to_heading(90, .5);});
+    a1.add([](){return drive.drive_to_point(48, 48, .5, .5);});
+    a1.add([](){return drive.turn_to_heading(225, .5);});
+    a1.add([](){return drive.drive_to_point(0, 0, .5, .5);});
+    a1.add([](){return drive.turn_to_heading(90, .5);});
+
+    a1.run(true);
 
 
-  //  while(!drive.turn_to_heading(90, .5))
+  //  while(!drive.drive_to_point(24, -24, .5, .25))
   // {
   //   if(main_controller.ButtonA.pressing())
   //     break;
 
-  //   // printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+  //   printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
   //   vexDelay(20);
   // }
 
@@ -45,7 +59,7 @@ void OpControl::opcontrol()
     drive.drive_arcade( .5 * main_controller.Axis3.position() / 100.0, .5 * main_controller.Axis1.position() / 100.0, 2);
 
     if(main_controller.ButtonB.pressing())
-      odom.set_position(reset_pos);
+      odom.set_position(OdometryBase::zero_pos);
 
     // ========== MANIPULATING CONTROLS ==========
 
