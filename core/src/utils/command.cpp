@@ -49,7 +49,7 @@ int Command::execute_action() {
 /**
  * Sets the action for this command.
  */
-void Command::set_action(Action _action) {
+void Command::set_action(Action &_action) {
   action = &_action;
   printf("command.cpp: Setting action %p on command %s\n", action, name.c_str());
   printf("command.cpp: Pointers: %p %p %p\n", next, end_condition, action);
@@ -62,7 +62,7 @@ void Command::set_end_condition(bool (*_end_condition)(int[])) {
 /**
  * Sets the command to run after this one completes successfully.
  */
-void Command::add_next(Command _next) {
+void Command::add_next(Command &_next) {
   next = &_next;
   printf("command.cpp: Setting next command: %p on command %s\n", next, name.c_str());
   printf("command.cpp: Pointers: %p %p %p\n", next, end_condition, action);

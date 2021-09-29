@@ -29,7 +29,7 @@ public:
   * @param _action
   *   The action to store.
   */
-  void set_action(Action _action);
+  void set_action(Action &_action);
 
   /**
   * Assigns the set of conditions that, when satisfied, ends the command.
@@ -44,7 +44,7 @@ public:
   * @param _next
   *   A Command object to queue.
   */
-  void add_next(Command _next);
+  void add_next(Command &_next);
 
   /**
   * Executes cleanup code which should correspond to the action used
