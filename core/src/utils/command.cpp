@@ -34,7 +34,8 @@ int Command::execute_action() {
     printf("command.cpp: Action %p completed successfully in command %s!\n", action, name.c_str());
     if (next != NULL) { //If the next action is set
       printf("command.cpp: Running next command %p from %s!\n", next, name.c_str());
-      return next->execute_action(); //Return the value of the next command
+      //return next->execute_action(); //Return the value of the next command
+      return true;
     } else { //Otherwise
       printf("command.cpp: No further commands in sequence from %s\n", name.c_str());
       return true; //This command is last in chain, and has completed successfully
