@@ -38,7 +38,7 @@ void OpControl::opcontrol()
     a1.add([](){return drive.drive_to_point(0, 0, .5, .5);});
     a1.add([](){return drive.turn_to_heading(90, .5);});
 
-    // a1.run(true);
+    a1.run(true);
 
 
 
