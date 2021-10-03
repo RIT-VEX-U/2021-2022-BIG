@@ -41,7 +41,8 @@ void OpControl::opcontrol()
     a1.run(true);
 
 
-  //  while(!drive.drive_to_point(24, -24, .5, .25))
+
+  //  while(!drive.drive_forward(24, .5))
   // {
   //   if(main_controller.ButtonA.pressing())
   //     break;
@@ -49,6 +50,8 @@ void OpControl::opcontrol()
   //   printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
   //   vexDelay(20);
   // }
+
+  position_t test_pos = {.x=24, .y=24};
 
 
   // ========== LOOP ==========
@@ -61,6 +64,9 @@ void OpControl::opcontrol()
     if(main_controller.ButtonB.pressing())
       odom.set_position(OdometryBase::zero_pos);
 
+    
+
+
     // ========== MANIPULATING CONTROLS ==========
 
     
@@ -69,7 +75,10 @@ void OpControl::opcontrol()
 
     // ========== AUTOMATION ==========
 
-    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    double dist_norm = OdometryBase::pos_diff(odom.get_position(), test_pos, true);
+    double dist_axis = OdometryBase::pos_diff(odom.get_position(), test_pos, true, true);
+
+    printf("dist (axis): %f, dist (norm): %f, X: %f  Y: %f  rot: %f\n",dist_axis, dist_norm, odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     fflush(stdout);
     fflush(stderr);
     // Wait 50 milliseconds for control loops to calculate time correctly
