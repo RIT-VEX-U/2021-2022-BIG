@@ -11,6 +11,9 @@ class Vector
 {
 public:
 
+    /**
+     * Data structure representing an X,Y coordinate
+     */
     struct point_t
     {
         double x, y;
@@ -20,6 +23,7 @@ public:
           return sqrt(pow(this->x - other.x, 2) + pow(this->y - other.y, 2));
         }
 
+        // Vector addition operation on points
         point_t operator+(const point_t &other)
         {
           point_t p 
@@ -30,6 +34,7 @@ public:
           return p;
         }
 
+        // Vector subtraction operation on points
         point_t operator-(const point_t &other)
         {
           point_t p 
