@@ -21,9 +21,9 @@ TankDrive::tankdrive_config_t tank_cfg =
 {
   .drive_pid = (PID::pid_config_t) 
   {
-    .p = .15,
-    .i = 0,
-    .d = .01,
+    .p = .5,
+    .i = .00,
+    .d = .02,
     .f = 0,
     .deadband = 0.1,
     .on_target_time = 0.1
@@ -34,11 +34,11 @@ TankDrive::tankdrive_config_t tank_cfg =
     // Oscillation pt: 0.045
     // Ku = 0.06
     // Tu = .52
-    .p = 0.025,
-    .i = 0.001,
+    .p = 0.03,
+    .i = 0.0,
     .d = 0.0015,
     .f = 0,
-    .deadband = 1,
+    .deadband = 2,
     .on_target_time = 0.1
   },
   
@@ -51,13 +51,14 @@ TankDrive::tankdrive_config_t tank_cfg =
 
 odometry_config_t odom_cfg = 
 {
-  .wheel_diam = 4.125,
-  .gear_ratio = 2.333333
+  .wheel_diam = 4.25,
+  .gear_ratio = 2.333333,
+  .dist_between_wheels = 9.75
 };
 
 OdometryTank odom(left_motors, right_motors, imu, odom_cfg);
 
-TankDrive drive(left_motors, right_motors, imu, tank_cfg, &odom);
+TankDrive drive(left_motors, right_motors, tank_cfg, &odom);
 
 controller main_controller;
 
