@@ -7,7 +7,6 @@
 #include "vex.h"
 #include "../core/include/utils/pid.h"
 #include "../core/include/subsystems/odometry/odometry_tank.h"
-#include <vector>
 
 using namespace vex;
 
@@ -82,39 +81,6 @@ public:
   void reset_auto();
 
   static double modify_inputs(double input, int power=2);
-
-  /**
-    * Returns points of the intersections of a line segment and a circle. The line 
-    * segment is defined by two points, and the circle is defined by a center and radius.
-    */
-  static std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2);
-
-  /**
-    * Selects a look ahead from all the intersections in the path.
-    */
-  static Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
-
-  /**
-   * Injects points in a path without changing the curvature with a certain spacing.
-   */
-  static std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing);
-
-  /**
-  * Returns a smoothed path maintaining the start and end of the path.
-  *
-  * Weight data is how much weight to update the data (alpha)
-  * Weight smooth is how much weight to smooth the coordinates (beta)
-  * Tolerance is how much change per iteration is necessary to continue iterating.
-  *
-  * Honestly have no idea if/how this works.
-  * https://medium.com/@jaems33/understanding-robot-motion-path-smoothing-5970c8363bc4
-  */
-
-  static std::vector<Vector::point_t> smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance);
-
-  bool pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed, double spacing, double weight_data, double weight_smooth);
-
-
 
 private:
   motor_group &left_motors;
