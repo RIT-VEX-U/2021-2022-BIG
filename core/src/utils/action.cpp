@@ -79,10 +79,11 @@ PrintAction PrintAction::print_str(std::string &str) {
   * @param pct_speed double percent (0.0-1.0) of power to apply
   */
 DriveAction::DriveAction(TankDrive &td, directionType dir, double inches, double pct_speed):td(td) {
+  printf("action.cpp: DriveAction::DriveAction(td, %i, %f, %f)\n", dir, inches, pct_speed);
   if (dir == directionType::rev) {
     inches = -inches;
   }
-  Action::myFnPtr = [&]() {
+  Action::myFnPtr = [this, &td, inches, pct_speed]() {
     while (!td.drive_forward(inches, pct_speed)) {
       task::sleep(50);
     }
@@ -99,7 +100,8 @@ DriveAction::DriveAction(TankDrive &td, directionType dir, double inches, double
   * @param pct_speed double percent (0.0-1.0) of power to apply
   */
 DriveAction::DriveAction(TankDrive &td, double degrees, double pct_speed):td(td) {
-  Action::myFnPtr = [&]() {
+  printf("action.cpp: DriveAction::DriveAction(td, %f, %f)\n", degrees, pct_speed);
+  Action::myFnPtr = [this, &td, degrees, pct_speed]() {
     while(!td.turn_degrees(degrees, pct_speed) && Action::running) {
       task::sleep(20);
     }

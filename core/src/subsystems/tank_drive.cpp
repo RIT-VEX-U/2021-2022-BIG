@@ -70,6 +70,7 @@ bool TankDrive::drive_forward(double inches, double percent_speed)
   // On the first run of the funciton, reset the motor position and PID
   if (!func_initialized)
   {
+    printf("tank_drive.cpp: TankDrive::drive_forward(%f, %f)\n", inches, percent_speed);
     printf("tank_drive.cpp: First Run of TankDrive::drive_forward\n");
     saved_pos = odometry->get_position();
     drive_pid.reset();
@@ -82,6 +83,8 @@ bool TankDrive::drive_forward(double inches, double percent_speed)
   printf("tank_drive.cpp: Continuing TankDrive::drive_forward\n");
 
   double position_diff = odometry->get_position().y - saved_pos.y;
+
+  printf("tank_drive.cpp: position_diff: %f\n", position_diff);
 
   // Update PID loop and drive the robot based on it's output
   drive_pid.update(position_diff);
@@ -111,6 +114,8 @@ bool TankDrive::turn_degrees(double degrees, double percent_speed)
   // On the first run of the funciton, reset the gyro position and PID
   if (!func_initialized)
   {
+    printf("tank_drive.cpp: TankDrive::turn_degrees(%f, %f)\n", degrees, percent_speed);
+    printf("tank_drive.cpp: First Run of TankDrive::turn_degrees\n");
     saved_pos = odometry->get_position();
     turn_pid.reset();
 
@@ -119,8 +124,10 @@ bool TankDrive::turn_degrees(double degrees, double percent_speed)
 
     func_initialized = true;
   }
+  printf("tank_drive.cpp: Continuing TankDrive::turn_degrees\n");
   double heading = odometry->get_position().rot - saved_pos.rot;
   double delta_heading = OdometryBase::smallest_angle(heading, degrees);
+  printf("tank_drive.cpp: heading: %f, delta_heading: %f\n", heading, delta_heading);
   turn_pid.update(delta_heading);
 
   // printf("heading: %f, delta_heading: %f\n", heading, delta_heading);
