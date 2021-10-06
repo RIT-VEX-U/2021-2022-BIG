@@ -5,11 +5,13 @@
 #include "action.h"
 #include <stdlib.h>
 
+typedef std::function<bool()> endcond_ptr;
+
 class Command 
 {
 private:
   Action* action;
-  bool (*end_condition)(int[]);
+  endcond_ptr end_condition;
 
   Command* next;
   bool is_running;
@@ -17,7 +19,7 @@ private:
 
 public:
   Command(std::string _name);
-  Command(std::string _name, bool (*_end_condition)(int[]));
+  Command(std::string _name, endcond_ptr _end_condition);
 
   /**
   * Runs the action object stored in this command.
@@ -37,7 +39,7 @@ public:
   * @param (*_end_condition)(int[])
   *   An array of (two) conditions that the command may meet.
   */
-  void set_end_condition(bool (*_end_condition)(int[]));
+  void set_end_condition(endcond_ptr _end_condition);
 
   /**
   * Assigns the command to be run when this command ends.

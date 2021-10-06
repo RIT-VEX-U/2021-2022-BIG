@@ -36,13 +36,22 @@ class Action {
     void stop();
 };
 
+class PrintAction:public Action {
+private:
+    std::string &str;
+    PrintAction(std::string &str);
+
+public:
+    void stop();
+    static PrintAction print_str(std::string &str);
+};
+
 /**
  * The DriveAction class. Extends Action to be an Action Factory.
  */
 class DriveAction:public Action {
   private:
     TankDrive &td;
-    DriveAction(TankDrive &td);
     DriveAction(TankDrive &td, directionType dir, double inches, double pct_speed);
     DriveAction(TankDrive &td, double degrees, double pct_speed);
 

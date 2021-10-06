@@ -8,15 +8,15 @@ Command::Command(std::string _name)
   next = NULL;
   end_condition = NULL;
   action = NULL;
-  printf("command.cpp: Pointers: %p %p %p\n", next, end_condition, action);
-  this->end_condition = [](int arr[]) {
+  printf("command.cpp: Pointers: %p %p\n", next, /*end_condition,*/ action);
+  this->end_condition = []() {
     return false;
   };
-  printf("command.cpp: Pointers: %p %p %p\n", next, end_condition, action);
+  printf("command.cpp: Pointers: %p %p\n", next, /*end_condition,*/ action);
   
 }
 
-Command::Command(std::string _name, bool (*_end_condition)(int[]))
+Command::Command(std::string _name, endcond_ptr _end_condition)
   : name(_name), end_condition(_end_condition)
 {
   next = NULL;
@@ -28,14 +28,13 @@ Command::Command(std::string _name, bool (*_end_condition)(int[]))
  */
 int Command::execute_action() {
   printf("command.cpp: Running action %p in command %s\n", action, name.c_str());
-  printf("command.cpp: Pointers: %p %p %p\n", next, end_condition, action);
+  printf("command.cpp: Pointers: %p %p\n", next/*, end_condition*/, action);
   int result = action->run(); //Actions should block until complete, so we only run action->run() once
   if (result == 1) { //If the action completed successfully
     printf("command.cpp: Action %p completed successfully in command %s!\n", action, name.c_str());
     if (next != NULL) { //If the next action is set
       printf("command.cpp: Running next command %p from %s!\n", next, name.c_str());
-      //return next->execute_action(); //Return the value of the next command
-      return true;
+      return next->execute_action(); //Return the value of the next command
     } else { //Otherwise
       printf("command.cpp: No further commands in sequence from %s\n", name.c_str());
       return true; //This command is last in chain, and has completed successfully
@@ -52,10 +51,10 @@ int Command::execute_action() {
 void Command::set_action(Action &_action) {
   action = &_action;
   printf("command.cpp: Setting action %p on command %s\n", action, name.c_str());
-  printf("command.cpp: Pointers: %p %p %p\n", next, end_condition, action);
+  printf("command.cpp: Pointers: %p %p\n", next/*, end_condition*/, action);
 }
 
-void Command::set_end_condition(bool (*_end_condition)(int[])) {
+void Command::set_end_condition(endcond_ptr _end_condition) {
  //TODO: Implement End Conditions after a Command supports multiple Actions. 
 }
 
@@ -65,7 +64,7 @@ void Command::set_end_condition(bool (*_end_condition)(int[])) {
 void Command::add_next(Command &_next) {
   next = &_next;
   printf("command.cpp: Setting next command: %p on command %s\n", next, name.c_str());
-  printf("command.cpp: Pointers: %p %p %p\n", next, end_condition, action);
+  printf("command.cpp: Pointers: %p %p\n", next/*, end_condition*/, action);
 }
 
 /**

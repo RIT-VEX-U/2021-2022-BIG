@@ -9,7 +9,7 @@ using namespace vex;
 // Action class
 
 Action::Action() {
-  myFnPtr = NULL;
+  Action::myFnPtr = NULL;
 }
 
 /**
@@ -18,15 +18,15 @@ Action::Action() {
   * @param fnPtr action_ptr to run when Action::run() is called.
   */
 Action::Action(action_ptr fnPtr) {
-  this->myFnPtr = fnPtr;  
+  Action::myFnPtr = fnPtr;  
 }
 
 /**
   * Run and get the result of the function pointed to by myFnPtr.
   */
 int Action::run() {
-  this->running = true;
-  int result = this->myFnPtr();
+  Action::running = true;
+  int result = Action::myFnPtr();
   return result;
 }
 
@@ -34,31 +34,41 @@ int Action::run() {
   * Get whether this Action is currently running.
   */
 bool Action::isRunning() {
-  return this->running;
+  return Action::running;
 }
 
 /**
   * Stop this Action prematurely.
   */
 void Action::stop() {
-  this->running = false;
+  Action::running = false;
+}
+
+// PrintAction Class
+
+/**
+  * Create a PrintAction
+  *
+  * @param str string instance
+  */
+PrintAction::PrintAction(std::string &str):str(str) {
+    myFnPtr = [&]() {
+        printf(str.c_str());
+        this->running = false;
+        return true;
+    };
+}
+
+void PrintAction::stop() {
+    this->running = false;
+}
+
+PrintAction PrintAction::print_str(std::string &str) {
+    printf("action.cpp: Creating print string action for %s\n", str.c_str());
+    return PrintAction(str);
 }
 
 // DriveAction Class
-
-/**
-  * Create a DriveAction to halt and reinitialize TankDrive.
-  *
-  * @param td TankDrive instance
-  */
-DriveAction::DriveAction(TankDrive &td):td(td) {
-  myFnPtr = [&]() {
-    td.stop();
-    td.reset_auto();
-    this->running = false;
-    return true;
-  };
-}
 
 /**
   * Create a DriveAction for linear fwd/rev movement in inches.
@@ -72,11 +82,11 @@ DriveAction::DriveAction(TankDrive &td, directionType dir, double inches, double
   if (dir == directionType::rev) {
     inches = -inches;
   }
-  myFnPtr = [&]() {
+  Action::myFnPtr = [&]() {
     while (!td.drive_forward(inches, pct_speed)) {
       task::sleep(50);
     }
-    this->running = false;
+    Action::running = false;
     return true;
   };
 }
@@ -89,17 +99,17 @@ DriveAction::DriveAction(TankDrive &td, directionType dir, double inches, double
   * @param pct_speed double percent (0.0-1.0) of power to apply
   */
 DriveAction::DriveAction(TankDrive &td, double degrees, double pct_speed):td(td) {
-  myFnPtr = [&]() {
-    while(!td.turn_degrees(degrees, pct_speed) && this->running) {
+  Action::myFnPtr = [&]() {
+    while(!td.turn_degrees(degrees, pct_speed) && Action::running) {
       task::sleep(20);
     }
-    this->running = false;
+    Action::running = false;
     return true;
   };
 }
 
 void DriveAction::stop() {
-  this->running = false;
+  Action::running = false;
   this->td.stop();
 }
 

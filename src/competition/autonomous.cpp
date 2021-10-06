@@ -24,15 +24,19 @@ void Autonomous::autonomous()
     Command c("Test1");
     printf("autonomous.cpp: Test1 Pointer: %p\n", &c);
     Action a = DriveAction::drive_forward(drive, 5, 1);
+    //std::string s1 = "TestString1\n";
+    //Action a = PrintAction::print_str(s1);
     c.set_action(a);
     fflush(stdout);
     
     //BEGIN UNTESTED CHANGES
     Command c2("Test2");
     printf("autonomous.cpp: Test2 Pointer: %p\n", &c2);
-    //Action a2 = DriveAction::turn_cw(drive, 360, 1);
-    //c2.set_action(a2);
-    //c.add_next(c2);
+    Action a2 = DriveAction::turn_cw(drive, 360, 1);
+    //std::string s2 = "TestString2\n";
+    //Action a2 = PrintAction::print_str(s2);
+    c2.set_action(a2);
+    c.add_next(c2);
     //END UNTESTED CHANGES
 
     int i = c.execute_action();
