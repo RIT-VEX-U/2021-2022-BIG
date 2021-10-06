@@ -1,6 +1,6 @@
 #include "../core/include/subsystems/tank_drive.h"
 
-TankDrive::TankDrive(motor_group &left_motors, motor_group &right_motors, inertial &gyro_sensor, TankDrive::tankdrive_config_t &config, OdometryTank *odom)
+TankDrive::TankDrive(motor_group &left_motors, motor_group &right_motors, TankDrive::tankdrive_config_t &config, OdometryTank *odom)
     : left_motors(left_motors), right_motors(right_motors),
      drive_pid(config.drive_pid), turn_pid(config.turn_pid), correction_pid(config.correction_pid), odometry(odom)
 {
@@ -123,7 +123,7 @@ bool TankDrive::turn_degrees(double degrees, double percent_speed)
   double delta_heading = OdometryBase::smallest_angle(heading, degrees);
   turn_pid.update(delta_heading);
 
-  printf("heading: %f, delta_heading: %f\n", heading, delta_heading);
+  // printf("heading: %f, delta_heading: %f\n", heading, delta_heading);
 
   drive_tank(-turn_pid.get(), turn_pid.get());
 
@@ -144,7 +144,7 @@ bool TankDrive::turn_degrees(double degrees, double percent_speed)
   *
   * Returns whether or not the robot has reached it's destination.
   */
-bool TankDrive::drive_to_point(double x, double y, double speed)
+bool TankDrive::drive_to_point(double x, double y, double speed, double correction_speed)
 {
   if(!func_initialized)
   {
@@ -153,7 +153,7 @@ bool TankDrive::drive_to_point(double x, double y, double speed)
     correction_pid.reset();
 
     drive_pid.set_limits(-fabs(speed), fabs(speed));
-    correction_pid.set_limits(-fabs(speed), fabs(speed));
+    correction_pid.set_limits(-fabs(correction_speed), fabs(correction_speed));
 
     // Set the targets to 0, because we update with the change in distance and angle between the current point
     // and the new point.
@@ -177,20 +177,24 @@ bool TankDrive::drive_to_point(double x, double y, double speed)
   Vector point_vec(pos_diff_pt);
 
   // Get the distance between 2 points
-  double dist_left = -OdometryBase::pos_diff(current_pos, end_pos, true);
+  double dist_left = -OdometryBase::pos_diff(current_pos, end_pos, true, true);
 
   // Get the heading difference between where we are and where we want to be
   // Optimize that heading so we don't turn clockwise all the time
   double heading = rad2deg(point_vec.get_dir());
-  double delta_heading = -OdometryBase::smallest_angle(current_pos.rot, heading);
+  double delta_heading = OdometryBase::smallest_angle(current_pos.rot, heading);
 
   // Update the PID controllers with new information
   correction_pid.update(delta_heading);
   drive_pid.update(dist_left);
 
+  printf("~DRIVE~ ");
+  printf("Correction: %f, Drive: %f, Corr_PID: %f, Drive_PID: %f \n", delta_heading, dist_left, correction_pid.get(), drive_pid.get());
+  fflush(stdout);
+
   // Combine the two pid outputs
-  double lside = drive_pid.get() + correction_pid.get();
-  double rside = drive_pid.get() - correction_pid.get();
+  double lside = drive_pid.get() + ((fabs(dist_left) > 2) ? correction_pid.get() : 0);
+  double rside = drive_pid.get() - ((fabs(dist_left) > 2) ? correction_pid.get() : 0);
 
   // limit the outputs between -1 and +1
   lside = (lside > 1) ? 1 : (lside < -1) ? -1 : lside;
@@ -231,9 +235,11 @@ bool TankDrive::turn_to_heading(double heading_deg, double speed)
   double delta_heading = OdometryBase::smallest_angle(odometry->get_position().rot, heading_deg);
   turn_pid.update(delta_heading);
 
-  printf("delta heading: %f, pid: %f, ", delta_heading, turn_pid.get());
+  printf("~TURN~ delta: %f\n", delta_heading);
+  // printf("delta heading: %f, pid: %f\n", delta_heading, turn_pid.get());
+  fflush(stdout);
 
-  drive_tank(-turn_pid.get(), turn_pid.get());
+  drive_tank(turn_pid.get(), -turn_pid.get());
 
   // When the robot has reached it's angle, return true.
   if(turn_pid.is_on_target())
@@ -305,8 +311,8 @@ std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, d
 }
 
 /**
-  Selects a look ahead from all the intersections in the path.
-  */
+ * Selects a look ahead from all the intersections in the path.
+ */
 Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
 {
   //Default: the end of the path
@@ -331,6 +337,39 @@ Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t
   }
 
   return target;
+}
+
+/**
+ Injects points in a path without changing the curvature with a certain spacing.
+*/
+std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing)
+{
+  std::vector<Vector::point_t> new_path;
+
+  //Injecting points for each line segment
+  for(int i = 0; i < path.size() - 1; i++)
+  {
+    Vector::point_t start = path[i];
+    Vector::point_t end = path[i+1];
+
+    Vector::point_t diff = end - start;
+    Vector vector = Vector(diff);
+    
+    int num_points = ceil(vector.get_mag() / spacing);
+
+    //This is the vector between each point
+    vector = vector.normalize() * spacing;
+
+    for(int j = 0; j < num_points; j++)
+    {
+      //We take the start point and add additional vectors
+      Vector::point_t path_point = (Vector(start) + vector * j).point();
+      new_path.push_back(path_point);
+    }
+  }
+  //Adds the last point
+  new_path.push_back(path.back());
+  return new_path;
 }
 
 /**

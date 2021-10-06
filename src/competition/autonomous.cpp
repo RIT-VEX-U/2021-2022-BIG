@@ -16,14 +16,14 @@ void Autonomous::autonomous()
   while(true)
   {
     printf("autonomous.cpp: Running\n");
-    printf("autonomous.cpp: Starting Test Drive\n");
-    while (!drive.drive_forward(-5, 1)) {
-      task::sleep(20);
-    }
-    printf("autonomous.cpp: Completed Test Drive\n");
+    // printf("autonomous.cpp: Starting Test Drive\n");
+    // while (!drive.drive_forward(-5, 1)) {
+    //   task::sleep(20);
+    // }
+    // printf("autonomous.cpp: Completed Test Drive\n");
     Command c("Test1");
     printf("autonomous.cpp: Test1 Pointer: %p\n", &c);
-    Action a = DriveAction::drive_forward(drive, 5, 1);
+    Action a = DriveAction::drive_forward(drive, 20, 1);
     //std::string s1 = "TestString1\n";
     //Action a = PrintAction::print_str(s1);
     c.set_action(a);

@@ -19,7 +19,7 @@ Vector::Vector(double dir, double mag)
  */
 Vector::Vector(point_t &p)
 {
-    this->dir = atan2(p.x, p.y);
+    this->dir = atan2(p.y, p.x);
     this->mag = sqrt( (p.x*p.x) + (p.y*p.y) );
 }
 
@@ -41,7 +41,7 @@ double Vector::get_mag() const { return mag; }
  */
 double Vector::get_x() const
 {
-return mag * sin(dir);
+return mag * cos(dir);
 }
 
 /**
@@ -49,7 +49,28 @@ return mag * sin(dir);
  */
 double Vector::get_y() const
 {
-return mag * cos(dir);
+return mag * sin(dir);
+}
+
+/**
+ * Changes the magnetude of the vector to 1
+*/
+Vector Vector::normalize()
+{
+  return Vector(this->dir, 1);
+}
+
+/**
+ * Returns a point from the vector
+*/
+Vector::point_t Vector::point()
+{
+  point_t p = 
+  {
+    .x = this->mag * cos(this->dir),
+    .y = this->mag * sin(this->dir)
+  };
+  return p;
 }
 
 /**
@@ -77,6 +98,14 @@ Vector Vector::operator-(const Vector &other)
         .y = this->get_y() - other.get_y()
     };
     return Vector( p );
+}
+
+/**
+ * Multiplies a vector by a double with the * operator
+*/
+Vector Vector::operator*(const double &x)
+{
+  return Vector(this->dir, this->mag * x);
 }
 
 /**

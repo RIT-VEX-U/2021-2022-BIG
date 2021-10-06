@@ -25,7 +25,7 @@ public:
   /**
    * Create the TankDrive object 
    */
-  TankDrive(motor_group &left_motors, motor_group &right_motors, inertial &gyro_sensor, tankdrive_config_t &config, OdometryTank *odom=NULL);
+  TankDrive(motor_group &left_motors, motor_group &right_motors, tankdrive_config_t &config, OdometryTank *odom=NULL);
 
   /**
    * Stops rotation of all the motors using their "brake mode"
@@ -68,7 +68,7 @@ public:
    * Use odometry to automatically drive the robot to a point on the field.
    * X and Y is the final point we want the robot.
    */
-  bool drive_to_point(double x, double y, double speed);
+  bool drive_to_point(double x, double y, double speed, double correction_speed);
 
   /**
    * Turn the robot in place to an exact heading relative to the field.
@@ -89,7 +89,16 @@ public:
     */
   std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2);
 
-  Vector::point_t get_target(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
+  /**
+    * Selects a look ahead from all the intersections in the path.
+    */
+  Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
+
+  /**
+   * Injects points in a path without changing the curvature with a certain spacing.
+   */
+  std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing);
+
 
 private:
   motor_group &left_motors;

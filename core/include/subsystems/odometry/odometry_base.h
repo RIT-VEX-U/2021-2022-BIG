@@ -48,7 +48,7 @@ public:
     /**
      * Get the distance between two points
      */
-    static double pos_diff(position_t pos1, position_t pos2, bool use_negatives=false);
+    static double pos_diff(position_t pos1, position_t pos2, bool use_negatives=false, bool along_axis=false);
 
     /**
      * Get the change in rotation between two points
@@ -64,7 +64,7 @@ public:
 
     bool end_task = false;
 
-    static constexpr position_t zero_pos = {0, 0, 0};
+    inline static constexpr position_t zero_pos = {.x=0, .y=0, .rot=90};
 
 protected:
     vex::task *handle;
