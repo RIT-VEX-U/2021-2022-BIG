@@ -23,7 +23,7 @@ void Autonomous::autonomous()
     // printf("autonomous.cpp: Completed Test Drive\n");
     Command c("Test1");
     printf("autonomous.cpp: Test1 Pointer: %p\n", &c);
-    Action a = DriveAction::drive_forward(drive, 10, 1);
+    Action a = DriveAction::drive_forward(drive, 10, 0.5);
     //std::string s1 = "TestString1\n";
     //Action a = PrintAction::print_str(s1);
     c.set_action(a);
@@ -32,7 +32,7 @@ void Autonomous::autonomous()
     //BEGIN UNTESTED CHANGES
     Command c2("Test2");
     printf("autonomous.cpp: Test2 Pointer: %p\n", &c2);
-    Action a2 = DriveAction::turn_cw(drive, 360, 1);
+    Action a2 = DriveAction::turn_cw(drive, 90, 0.5);
     //std::string s2 = "TestString2\n";
     //Action a2 = PrintAction::print_str(s2);
     c2.set_action(a2);

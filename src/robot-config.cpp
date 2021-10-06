@@ -21,11 +21,11 @@ TankDrive::tankdrive_config_t tank_cfg =
 {
   .drive_pid = (PID::pid_config_t) 
   {
-    .p = .5,
+    .p = .25,
     .i = .00,
     .d = .02,
     .f = 0,
-    .deadband = 0.1,
+    .deadband = 0.3,
     .on_target_time = 0.1
   },
 
@@ -39,7 +39,7 @@ TankDrive::tankdrive_config_t tank_cfg =
     .d = 0.0015,
     .f = 0,
     .deadband = 2,
-    .on_target_time = 0.1
+    .on_target_time = 0.05
   },
   
   .correction_pid = (PID::pid_config_t)

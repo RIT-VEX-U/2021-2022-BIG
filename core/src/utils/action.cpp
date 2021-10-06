@@ -85,6 +85,7 @@ DriveAction::DriveAction(TankDrive &td, directionType dir, double inches, double
   }
   Action::myFnPtr = [this, &td, inches, pct_speed]() {
     while (!td.drive_forward(inches, pct_speed)) {
+    //while(!td.drive_to_point(0, inches, pct_speed, pct_speed)){
       task::sleep(50);
     }
     Action::running = false;
@@ -102,8 +103,9 @@ DriveAction::DriveAction(TankDrive &td, directionType dir, double inches, double
 DriveAction::DriveAction(TankDrive &td, double degrees, double pct_speed):td(td) {
   printf("action.cpp: DriveAction::DriveAction(td, %f, %f)\n", degrees, pct_speed);
   Action::myFnPtr = [this, &td, degrees, pct_speed]() {
-    while(!td.turn_degrees(degrees, pct_speed) && Action::running) {
-      task::sleep(20);
+    while(!td.turn_degrees(degrees, pct_speed)) {
+    //while(!td.turn_to_heading(degrees-90, pct_speed)){
+      task::sleep(50);
     }
     Action::running = false;
     return true;

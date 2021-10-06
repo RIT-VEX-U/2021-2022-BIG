@@ -124,7 +124,7 @@ bool TankDrive::turn_degrees(double degrees, double percent_speed)
 
     func_initialized = true;
   }
-  printf("tank_drive.cpp: Continuing TankDrive::turn_degrees\n");
+  printf("tank_drive.cpp: Continuing TankDrive::turn_degrees(%f, %f)\n", degrees, percent_speed);
   double heading = odometry->get_position().rot - saved_pos.rot;
   double delta_heading = OdometryBase::smallest_angle(heading, degrees);
   printf("tank_drive.cpp: heading: %f, delta_heading: %f\n", heading, delta_heading);
