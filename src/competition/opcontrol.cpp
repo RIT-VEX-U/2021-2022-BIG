@@ -25,6 +25,7 @@ void OpControl::opcontrol()
     // while(!drive.drive_to_point(0, 0, .5, .25)){vexDelay(20);}
     // while(!drive.turn_to_heading(90, .5)){vexDelay(20);}
 
+    /*
     GenericAuto a1;
     a1.add([](){return drive.turn_to_heading(45, .5);}); 
     a1.add([](){return drive.drive_to_point(24, 24, .5, .5);});
@@ -39,6 +40,9 @@ void OpControl::opcontrol()
     a1.add([](){return drive.turn_to_heading(90, .5);});
 
     a1.run(true);
+    */
+
+    std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
 
 
 
@@ -59,7 +63,14 @@ void OpControl::opcontrol()
   {
     // ========== DRIVING CONTROLS ==========
 
-    drive.drive_arcade( .5 * main_controller.Axis3.position() / 100.0, .5 * main_controller.Axis1.position() / 100.0, 2);
+    if(main_controller.ButtonA.pressing()) {
+      //drive.drive_to_point(10, 4, .4, .2);
+      drive.pure_pursuit(path, 5, .4, .5);
+      
+    }
+    else {
+      drive.drive_arcade( .5 * main_controller.Axis3.position() / 100.0, .5 * main_controller.Axis1.position() / 100.0, 2);
+    }
 
     if(main_controller.ButtonB.pressing())
       odom.set_position(OdometryBase::zero_pos);

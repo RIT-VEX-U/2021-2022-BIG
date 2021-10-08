@@ -57,11 +57,12 @@ Vector::point_t PurePursuit::get_lookahead(std::vector<Vector::point_t> path, Ve
   //Default: the end of the path
   Vector::point_t target = path.back();
 
+  
   if(target.dist(robot_loc) <= radius)
   {
     return target;
   }
-
+  
   //Check each line segment of the path for potential targets
   for(int i = 0; i < path.size() - 1; i++)
   {
@@ -124,7 +125,6 @@ std::vector<Vector::point_t> PurePursuit::inject_path(std::vector<Vector::point_
  * Honestly have no idea if/how this works.
  * https://medium.com/@jaems33/understanding-robot-motion-path-smoothing-5970c8363bc4
 */
-
 std::vector<Vector::point_t> PurePursuit::smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance)
 {
   std::vector<Vector::point_t> new_path = path;
@@ -151,27 +151,46 @@ std::vector<Vector::point_t> PurePursuit::smooth_path(std::vector<Vector::point_
   return new_path;
 }
 
-/**
-  Drives through a path using pure pursuit.
-*/
-bool PurePursuit::pure_pursuit(bool *drive_to_point(double, double, double, double), std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed, double spacing, double weight_data, double weight_smooth)
-{
-  std::vector<Vector::point_t> injected_path = inject_path(path, spacing);
-  std::vector<Vector::point_t> smoothed_path = smooth_path(injected_path, weight_data, weight_smooth, .0001);
-  /*
-  printf("injected path:\n");
-  for(Vector::point_t point: injected_path)
-  {
-    printf("\tx: %f y: %f\n", point.x, point.y);
-  }
-  printf("smoothed path:\n");
-  for(Vector::point_t point: smoothed_path)
-  {
-    printf("\tx: %f y: %f\n", point.x, point.y);
-  }
-  */
-  Vector::point_t lookahead = get_lookahead(smoothed_path, robot_loc, radius);
+static std::vector<Vector::point_t> PurePursuit::smooth_path_cubic(std::vector<Vector::point_t> path, double res) {
+  std::vector<Vector::point_t> new_path;
+  std::vector<spline> splines;
 
-  printf("look ahead x %f y: %f\n", lookahead.x, lookahead.y);
-  return drive_to_point(lookahead.x, lookahead.y, speed, speed/2);
+  double delta_x[path.size() - 1];
+  double slope[path.size() - 1];
+  double ftt[path.size()];
+
+  for(int i = 0; i < path.size() - 1; i++) {
+    delta_x[i] = path[i+1].x - path[i].x;
+    slope[i] = (path[i+1].y - path[i].y) / delta_x[i];
+  }
+
+  ftt[0] = 0;
+  for(int i = 0; i < path.size() - 2; i++) {
+    ftt[i+1] = 3 * (slope[i+1] - slope[i]) / (delta_x[i+1] + delta_x[i]);
+  }
+  ftt[path.size() - 1] = 0;
+
+  for (int i = 0; i < path.size() - 1; i++)
+  {
+    splines.push_back({
+      .a = (ftt[i + 1] - ftt[i]) / (6 * delta_x[i]),
+      .b = ftt[i] / 2,
+      .c = slope[i] - delta_x[i] * (ftt[i + 1] + 2 * ftt[i]) / 6,
+      .d = path[i].y,
+        .x_start = path[i].x,
+        .x_end = path[i+1].x
+    });
+  }
+
+  for(spline spline: splines) {
+      printf("spline a: %f b: %f c: %f d %f start %f, %f end %f, %f\n", spline.a, spline.b, spline.c, spline.d, spline.x_start, spline.getY(spline.x_start), spline.x_end, spline.getY(spline.x_end));
+    double x = spline.x_start;
+    while(x >= fmin(spline.x_start, spline.x_end) && x <= fmax(spline.x_start, spline.x_end)) {
+      new_path.push_back({x, spline.getY(x)});
+      spline.x_start < spline.x_end ? x += res: x -= res;
+    }
+  }
+    new_path.push_back({splines.back().x_end, splines.back().getY(splines.back().x_end)});
+
+  return new_path;
 }

@@ -9,7 +9,7 @@ namespace PurePursuit {
    * Represents a piece of a cubic spline with s(x) = a(x-xi)^3 + b(x-xi)^2 + c(x-xi) + d
    * The x_start and x_end shows where the equation is valid.
    */
-  struct spline_piece
+  struct spline
   {
     double a, b, c, d, x_start, x_end; 
 
@@ -46,5 +46,5 @@ namespace PurePursuit {
 
   static std::vector<Vector::point_t> smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance);
 
-  static bool pure_pursuit(bool *drive_to_point(double, double, double, double), std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed, double spacing, double weight_data, double weight_smooth);
+  static std::vector<Vector::point_t> smooth_path_cubic(std::vector<Vector::point_t> path, double res);
 }

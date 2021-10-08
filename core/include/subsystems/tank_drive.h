@@ -7,6 +7,8 @@
 #include "vex.h"
 #include "../core/include/utils/pid.h"
 #include "../core/include/subsystems/odometry/odometry_tank.h"
+#include <vector>
+#include "../core/src/utils/pure_pursuit.cpp"
 
 using namespace vex;
 
@@ -81,6 +83,8 @@ public:
   void reset_auto();
 
   static double modify_inputs(double input, int power=2);
+
+  bool pure_pursuit(std::vector<Vector::point_t> path, double radius, double speed, double res);
 
 private:
   motor_group &left_motors;
