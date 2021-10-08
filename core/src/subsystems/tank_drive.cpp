@@ -187,6 +187,7 @@ bool TankDrive::drive_to_point(double x, double y, double speed, double correcti
   drive_pid.update(dist_left);
 
   printf("~DRIVE~ ");
+  printf("imu: %f, ", odometry->get_position().rot);
   printf("Correction: %f, Drive: %f, Corr_PID: %f, Drive_PID: %f \n", delta_heading, dist_left, correction_pid.get(), drive_pid.get());
   fflush(stdout);
 

@@ -27,17 +27,18 @@ void OpControl::opcontrol()
 
     /*
     GenericAuto a1;
-    a1.add([](){return drive.turn_to_heading(45, .5);}); 
-    a1.add([](){return drive.drive_to_point(24, 24, .5, .5);});
-    a1.add([](){return drive.turn_to_heading(270, .5);});
-    a1.add([](){return drive.drive_to_point(24, 0, .5, .5);});
-    a1.add([](){return drive.turn_to_heading(0, .5);});
-    a1.add([](){return drive.drive_to_point(48, 0, .5, .5);});
-    a1.add([](){return drive.turn_to_heading(90, .5);});
-    a1.add([](){return drive.drive_to_point(48, 48, .5, .5);});
-    a1.add([](){return drive.turn_to_heading(225, .5);});
-    a1.add([](){return drive.drive_to_point(0, 0, .5, .5);});
-    a1.add([](){return drive.turn_to_heading(90, .5);});
+    a1.add([](){return drive.drive_to_point(48, 24, .5, .5);});
+    // a1.add([](){return drive.turn_to_heading(45, .5);}); 
+    // a1.add([](){return drive.drive_to_point(24, 24, .5, .5);});
+    // a1.add([](){return drive.turn_to_heading(270, .5);});
+    // a1.add([](){return drive.drive_to_point(24, 0, .5, .5);});
+    // a1.add([](){return drive.turn_to_heading(0, .5);});
+    // a1.add([](){return drive.drive_to_point(48, 0, .5, .5);});
+    // a1.add([](){return drive.turn_to_heading(90, .5);});
+    // a1.add([](){return drive.drive_to_point(48, 48, .5, .5);});
+    // a1.add([](){return drive.turn_to_heading(225, .5);});
+    // a1.add([](){return drive.drive_to_point(0, 0, .5, .5);});
+    // a1.add([](){return drive.turn_to_heading(90, .5);});
 
     a1.run(true);
     */

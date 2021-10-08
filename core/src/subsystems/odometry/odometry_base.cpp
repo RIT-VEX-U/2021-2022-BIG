@@ -71,7 +71,8 @@ double OdometryBase::pos_diff(position_t start_pos, position_t end_pos, bool use
     double retval = negative_multiplier * sqrt(pow(end_pos.x - start_pos.x, 2) + pow(end_pos.y - start_pos.y, 2));
 
     // If requested, only find the distance along the robot's forward axis
-    if(along_axis)
+    // NASTY HACK! REMOVE PLS!
+    if(along_axis && fabs(retval) < 9)
     {
       double angle = start_pos.rot - rad2deg(atan2(end_pos.y - start_pos.y, end_pos.x - start_pos.x));
       // printf("theta: %f, ", angle);
