@@ -9,7 +9,10 @@
 void Autonomous::autonomous() 
 {
   // ========== INIT ==========
-  
+
+  imu.calibrate();
+  while(imu.isCalibrating()) vexDelay(100);
+
   printf("autonomous.cpp: Starting Autonomous\n");
   fflush(stdout);
   // ========== MAIN LOOP ==========

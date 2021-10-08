@@ -15,7 +15,7 @@ motor lf(PORT2, gearSetting::ratio6_1, true), lr(PORT7, gearSetting::ratio6_1, t
 motor_group left_motors = {lf, lr};
 motor_group right_motors = {rf, rr};
 
-inertial imu(PORT5);
+inertial imu(PORT8);
 
 TankDrive::tankdrive_config_t tank_cfg = 
 {
