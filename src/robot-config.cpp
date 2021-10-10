@@ -9,9 +9,6 @@ using code = vision::code;
 // A global instance of brain used for printing to the V5 Brain screen
 brain  Brain;
 
-optical line_tracker(PORT9);
-line lt(Brain.ThreeWirePort.A);
-
 #ifdef NEMO
   motor lf(PORT2, gearSetting::ratio6_1, true), lr(PORT7, gearSetting::ratio6_1, true),
       rf(PORT1, gearSetting::ratio6_1, false), rr(PORT6, gearSetting::ratio6_1, false);

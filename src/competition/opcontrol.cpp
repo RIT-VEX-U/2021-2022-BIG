@@ -12,9 +12,6 @@
 #define HUE_DEADBAND 100
 #define BRIGHT_DEADBAND 3 
 
-mutex m;
-bool is_running = true;
-
 /**
  * Contains the main loop of the robot code while running in the driver-control period.
  */
@@ -98,11 +95,7 @@ void OpControl::opcontrol()
     #endif
     #endif
 
-
-  position_t test_pos = {.x=24, .y=24};
-
   int line_crossings = 0;
-  bool is_crossing_line = false;
 
   position_t final_pos = {
     .x = 132,
@@ -124,9 +117,6 @@ void OpControl::opcontrol()
 
     drive.drive_arcade( main_controller.Axis3.position() / 100.0, .5 * main_controller.Axis1.position() / 100.0, 2);
 
-    if(main_controller.ButtonB.pressing())
-      odom.set_position(OdometryBase::zero_pos);
-
     // printf("HUE: %f, VALUE: %ld, BRIGHT: %f\n", line_tracker.hue(), line_tracker.value(), line_tracker.brightness());
     // fflush(stdout);
 
@@ -138,20 +128,6 @@ void OpControl::opcontrol()
 
     // ========== AUTOMATION ==========
 
-    // Find out if the robot has crossed either line
-    double hue = line_tracker.hue();
-    double bright = line_tracker.brightness();
-
-    if(fabs(bright - WHITE_BRIGHT) < BRIGHT_DEADBAND && !is_crossing_line)
-    {
-      is_crossing_line = true;
-      line_crossings++;
-      // printf("CROSSING WHITE LINE!\n");
-    }else
-    {
-      is_crossing_line = false;
-    }
-
     // Test if it's at the final position, and end the match!
     if(OdometryBase::pos_diff(odom.get_position(), final_pos) < 12)
     {
@@ -162,12 +138,15 @@ void OpControl::opcontrol()
       return;
     }
 
+
+
     // double dist_norm = OdometryBase::pos_diff(odom.get_position(), test_pos, true);
     // double dist_axis = OdometryBase::pos_diff(odom.get_position(), test_pos, true, true);
 
     // printf("dist (axis): %f, dist (norm): %f, X: %f  Y: %f  rot: %f\n",dist_axis, dist_norm, odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     // fflush(stdout);
     // fflush(stderr);
+
     // Wait 20 milliseconds for control loops to calculate time correctly
     vexDelay(20); 
   }

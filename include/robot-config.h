@@ -10,10 +10,6 @@ extern brain Brain;
 
 extern controller main_controller;
 
-extern line lt;
-
-extern optical line_tracker;
-
 #ifdef NEMO
   extern motor lf, lr, rf, rr;
 #else
