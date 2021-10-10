@@ -9,13 +9,23 @@ using code = vision::code;
 // A global instance of brain used for printing to the V5 Brain screen
 brain  Brain;
 
-motor lf(PORT2, gearSetting::ratio6_1, true), lr(PORT7, gearSetting::ratio6_1, true),
+optical line_tracker(PORT9);
+line lt(Brain.ThreeWirePort.A);
+
+#ifdef NEMO
+  motor lf(PORT2, gearSetting::ratio6_1, true), lr(PORT7, gearSetting::ratio6_1, true),
       rf(PORT1, gearSetting::ratio6_1, false), rr(PORT6, gearSetting::ratio6_1, false);
 
-motor_group left_motors = {lf, lr};
-motor_group right_motors = {rf, rr};
+  motor_group left_motors = {lf, lr};
+  motor_group right_motors = {rf, rr};
+#else
+  motor l1(PORT15), l2(PORT5), l3(PORT4), l4(PORT14, true), r1(PORT17, true), r2(PORT16), r3(PORT7), r4(PORT6);
 
-inertial imu(PORT5);
+  motor_group left_motors = {l1, l2, l3, l4};
+  motor_group right_motors = {r1, r2, r3, r4};
+#endif
+
+inertial imu(PORT8);
 
 TankDrive::tankdrive_config_t tank_cfg = 
 {

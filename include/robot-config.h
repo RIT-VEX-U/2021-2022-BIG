@@ -4,11 +4,21 @@
 
 using namespace vex;
 
+#define NEMO
+
 extern brain Brain;
 
 extern controller main_controller;
 
-extern motor lf, lr, rf, rr;
+extern line lt;
+
+extern optical line_tracker;
+
+#ifdef NEMO
+  extern motor lf, lr, rf, rr;
+#else
+  extern motor l1, l2, l3, l4, r1, r2, r3, r4;
+#endif
 
 extern motor_group left_motors, right_motors;
 
