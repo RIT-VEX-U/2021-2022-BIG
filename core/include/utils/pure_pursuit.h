@@ -1,3 +1,5 @@
+#pragma once
+
 #include <vector>
 #include "../core/include/utils/vector.h"
 #include "vex.h"

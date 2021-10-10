@@ -7,6 +7,7 @@
 #include "vex.h"
 #include "../core/include/utils/pid.h"
 #include "../core/include/subsystems/odometry/odometry_tank.h"
+#include "../core/include/robot_specs.h"
 #include <vector>
 #include "../core/src/utils/pure_pursuit.cpp"
 
@@ -16,17 +17,10 @@ class TankDrive
 {
 public:
 
-  struct tankdrive_config_t
-  {
-    PID::pid_config_t drive_pid;
-    PID::pid_config_t turn_pid;
-    PID::pid_config_t correction_pid;
-  };
-
   /**
    * Create the TankDrive object 
    */
-  TankDrive(motor_group &left_motors, motor_group &right_motors, tankdrive_config_t &config, OdometryTank *odom=NULL);
+  TankDrive(motor_group &left_motors, motor_group &right_motors, robot_specs_t &config, OdometryTank *odom=NULL);
 
   /**
    * Stops rotation of all the motors using their "brake mode"
