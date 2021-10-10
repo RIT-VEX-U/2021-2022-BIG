@@ -6,7 +6,7 @@
  * @param right_side The right motors
  * @param imu The robot's inertial sensor
  */
-OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_side, vex::inertial &imu, odometry_config_t &config, bool is_async)
+OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_side, vex::inertial &imu, robot_specs_t &config, bool is_async)
 : left_side(left_side), right_side(right_side), imu(&imu), config(config)
 {
     // Make sure the last known info starts zeroed
@@ -34,7 +34,7 @@ void OdometryTank::set_position(const position_t &newpos)
  * @param right_side The right motors
  * @param imu The robot's inertial sensor
  */
-OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_side, odometry_config_t &config, bool is_async)
+OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_side, robot_specs_t &config, bool is_async)
 : left_side(left_side), right_side(right_side), imu(NULL), config(config)
 {
     // Make sure the last known info starts zeroed
@@ -70,8 +70,8 @@ position_t OdometryTank::update()
 {
     position_t updated_pos;
 
-    double lside_revs = left_side.position(vex::rotationUnits::rev) / config.gear_ratio;
-    double rside_revs = right_side.position(vex::rotationUnits::rev) / config.gear_ratio;
+    double lside_revs = left_side.position(vex::rotationUnits::rev) / config.odom_gear_ratio;
+    double rside_revs = right_side.position(vex::rotationUnits::rev) / config.odom_gear_ratio;
 
     double angle = 0;
 
@@ -82,7 +82,7 @@ position_t OdometryTank::update()
       // Uses the absolute position of the encoders, so resetting them will result in
       // a bad angle.
       // Get the arclength of the turning circle of the robot
-      double distance_diff = (rside_revs - lside_revs) * PI * config.wheel_diam;
+      double distance_diff = (rside_revs - lside_revs) * PI * config.odom_wheel_diam;
 
       printf("dist_diff: %f, ", distance_diff);
 
@@ -120,7 +120,7 @@ position_t OdometryTank::update()
  * Using information about the robot's mechanical structure and sensors, calculate a new position
  * of the robot, relative to when this method was previously ran.
  */
-position_t OdometryTank::calculate_new_pos(odometry_config_t &config, position_t &curr_pos, double lside_revs, double rside_revs, double angle_deg)
+position_t OdometryTank::calculate_new_pos(robot_specs_t &config, position_t &curr_pos, double lside_revs, double rside_revs, double angle_deg)
 {
     position_t new_pos;
 
@@ -128,8 +128,8 @@ position_t OdometryTank::calculate_new_pos(odometry_config_t &config, position_t
     static double stored_rside_revs = rside_revs;
 
     // Convert the revolutions into "change in distance", and average the values for a "distance driven"
-    double lside_diff = (lside_revs - stored_lside_revs) * PI * config.wheel_diam;
-    double rside_diff = (rside_revs - stored_rside_revs) * PI * config.wheel_diam;
+    double lside_diff = (lside_revs - stored_lside_revs) * PI * config.odom_wheel_diam;
+    double rside_diff = (rside_revs - stored_rside_revs) * PI * config.odom_wheel_diam;
     double dist_driven = (lside_diff + rside_diff) / 2.0;
 
     double angle = angle_deg * PI / 180.0; // Degrees to radians
