@@ -1,6 +1,7 @@
 #include "competition/opcontrol.h"
 #include "robot-config.h"
 #include "../core/include/utils/generic_auto.h"
+#include "mazegame.h"
 
 #define AUTOMODE
 
@@ -105,6 +106,8 @@ void OpControl::opcontrol()
   timer comp_timer;
   comp_timer.reset();
 
+  MazeGame::init_bounds_lines();
+
 
   // ========== LOOP ==========
   while(true)
@@ -128,10 +131,22 @@ void OpControl::opcontrol()
 
     // ========== AUTOMATION ==========
 
+    position_t robot_pos = odom.get_position();
+    if(MazeGame::is_dq(robot_pos))
+    {
+      main_controller.Screen.clearScreen();
+      main_controller.Screen.print("No Shortcuts!\n");
+      return;
+    }
+
+    if(MazeGame::is_single_penalty(robot_pos))
+      line_crossings++;
+
     // Test if it's at the final position, and end the match!
     if(OdometryBase::pos_diff(odom.get_position(), final_pos) < 12)
     {
       double time_sec = comp_timer.time(timeUnits::sec);
+      main_controller.Screen.clearScreen();
       main_controller.Screen.print("Time: %f\n", time_sec);
       main_controller.Screen.print("Penalties: %d\n", line_crossings);
       main_controller.Screen.print("Score: %f", time_sec + (line_crossings * 15));

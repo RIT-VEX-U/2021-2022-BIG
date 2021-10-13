@@ -11,10 +11,10 @@
 
 // Describes a single position and rotation
 typedef struct
-{
-    double x;
-    double y;
-    double rot;
+{  
+  double x;
+  double y;
+  double rot;
 } position_t;
 
 /**
@@ -64,7 +64,7 @@ public:
 
     bool end_task = false;
 
-    inline static constexpr position_t zero_pos = {.x=0, .y=0, .rot=90};
+    static constexpr position_t zero_pos = {0,0,90};
 
 protected:
     vex::task *handle;
