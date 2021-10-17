@@ -58,7 +58,7 @@ TankDrive::tankdrive_config_t tank_cfg =
 
 odometry_config_t odom_cfg = 
 {
-  .wheel_diam = 4.25,
+  .wheel_diam = 4.24, //4.25
   .gear_ratio = 2.333333,
   .dist_between_wheels = 9.75
 };

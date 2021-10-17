@@ -263,7 +263,7 @@ double TankDrive::modify_inputs(double input, int power)
   * Returns points of the intersections of a line segment and a circle. The line 
   * segment is defined by two points, and the circle is defined by a center and radius.
   */
-std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2)
+std::vector<Vector::point_t> TankDrive::line_circle_intersections(Vector::point_t center, double r, Vector::point_t point1, Vector::point_t point2)
 {
   std::vector<Vector::point_t> intersections = {};
 
@@ -311,7 +311,7 @@ std::vector<Vector::point_t> line_circle_intersections(Vector::point_t center, d
 /**
  * Selects a look ahead from all the intersections in the path.
  */
-Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
+Vector::point_t TankDrive::get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
 {
   //Default: the end of the path
   Vector::point_t target = path.back();
@@ -340,7 +340,7 @@ Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t
 /**
  Injects points in a path without changing the curvature with a certain spacing.
 */
-std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, double spacing)
+std::vector<Vector::point_t> TankDrive::inject_path(std::vector<Vector::point_t> path, double spacing)
 {
   std::vector<Vector::point_t> new_path;
 
@@ -370,11 +370,11 @@ std::vector<Vector::point_t> inject_path(std::vector<Vector::point_t> path, doub
   return new_path;
 }
 
-/**
-  Drives through a path using pure pursuit.
-*/
-void pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
-{
-  Vector::point_t lookahead = get_lookahead(path, robot_loc, radius);
-  // Travel towards target :)
-}
+// /**
+//   Drives through a path using pure pursuit.
+// */
+// void TankDrive::pure_pursuit(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, double speed)
+// {
+//   Vector::point_t lookahead = get_lookahead(path, robot_loc, radius);
+//   // Travel towards target :)
+// }
