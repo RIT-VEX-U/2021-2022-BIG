@@ -15,10 +15,18 @@ motor lf(PORT2, gearSetting::ratio6_1, true), lr(PORT7, gearSetting::ratio6_1, t
 motor_group left_motors = {lf, lr};
 motor_group right_motors = {rf, rr};
 
+encoder left_enc(Brain.ThreeWirePort.A), right_enc(Brain.ThreeWirePort.C);
+
 inertial imu(PORT8);
 
-TankDrive::tankdrive_config_t tank_cfg = 
-{
+robot_specs_t robot_cfg = {
+  .robot_radius = 9, // inches
+  .odom_wheel_diam = 2.85,//4.25, // inches
+  .odom_gear_ratio = 1,//2.333333, // inches
+  .dist_between_wheels = 9.75, // inches
+
+  .drive_correction_cutoff = 2, //inches
+
   .drive_pid = (PID::pid_config_t) 
   {
     .p = .5,
@@ -31,9 +39,6 @@ TankDrive::tankdrive_config_t tank_cfg =
 
   .turn_pid = (PID::pid_config_t)
   {
-    // Oscillation pt: 0.045
-    // Ku = 0.06
-    // Tu = .52
     .p = 0.03,
     .i = 0.0,
     .d = 0.0015,
@@ -41,24 +46,17 @@ TankDrive::tankdrive_config_t tank_cfg =
     .deadband = 2,
     .on_target_time = 0.1
   },
-  
+
   .correction_pid = (PID::pid_config_t)
   {
     .p = 0.01
   }
+
 };
 
+OdometryTank odom(left_enc, right_enc, robot_cfg, &imu);
 
-odometry_config_t odom_cfg = 
-{
-  .wheel_diam = 4.25,
-  .gear_ratio = 2.333333,
-  .dist_between_wheels = 9.75
-};
-
-OdometryTank odom(left_motors, right_motors, imu, odom_cfg);
-
-TankDrive drive(left_motors, right_motors, tank_cfg, &odom);
+TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
 
 controller main_controller;
 

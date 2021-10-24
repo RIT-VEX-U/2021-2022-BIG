@@ -1,13 +1,30 @@
 #include "../core/include/subsystems/odometry/odometry_tank.h"
 
 /**
- * Initialize the Odometry module, using the IMU to get rotation
+ * Initialize the Odometry module, calculating position from the drive motors.
  * @param left_side The left motors 
  * @param right_side The right motors
- * @param imu The robot's inertial sensor
+ * @param imu The robot's inertial sensor. If not included, rotation is calculated from the encoders.
  */
-OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_side, vex::inertial &imu, robot_specs_t &config, bool is_async)
-: left_side(left_side), right_side(right_side), imu(&imu), config(config)
+OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_side, robot_specs_t &config, vex::inertial *imu, bool is_async)
+: left_side(&left_side), right_side(&right_side), left_enc(NULL), right_enc(NULL), imu(imu), config(config)
+{
+    // Make sure the last known info starts zeroed
+    memset(&current_pos, 0, sizeof(position_t));
+
+    // Start the asynchronous background thread
+    if (is_async)
+        handle = new vex::task(background_task, this);
+}
+
+/**
+ * Initialize the Odometry module, calculating posiiton from encoders on "dead wheels"
+ * @param left_side The left motors 
+ * @param right_side The right motors
+ * @param imu The robot's inertial sensor. If not included, rotation is calculated from the encoders.
+ */
+OdometryTank::OdometryTank(vex::encoder &left_enc, vex::encoder &right_enc, robot_specs_t &config, vex::inertial *imu, bool is_async)
+: left_side(NULL), right_side(NULL), left_enc(&left_enc), right_enc(&right_enc), imu(imu), config(config)
 {
     // Make sure the last known info starts zeroed
     memset(&current_pos, 0, sizeof(position_t));
@@ -26,24 +43,6 @@ void OdometryTank::set_position(const position_t &newpos)
   rotation_offset = newpos.rot - (current_pos.rot - rotation_offset);
 
   OdometryBase::set_position(newpos);
-}
-
-/**
- * Initialize the Odometry module, calculating the rotation from encoders
- * @param left_side The left motors 
- * @param right_side The right motors
- * @param imu The robot's inertial sensor
- */
-OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_side, robot_specs_t &config, bool is_async)
-: left_side(left_side), right_side(right_side), imu(NULL), config(config)
-{
-    // Make sure the last known info starts zeroed
-    memset(&current_pos, 0, sizeof(position_t));
-
-    // Start the asynchronous background thread
-    if (is_async)
-        handle = new vex::task(background_task, this);
- 
 }
 
 /**
@@ -70,8 +69,17 @@ position_t OdometryTank::update()
 {
     position_t updated_pos;
 
-    double lside_revs = left_side.position(vex::rotationUnits::rev) / config.odom_gear_ratio;
-    double rside_revs = right_side.position(vex::rotationUnits::rev) / config.odom_gear_ratio;
+    double lside_revs = 0, rside_revs = 0;
+
+    if(left_side != NULL && right_side != NULL)
+    {
+      lside_revs = left_side->position(vex::rotationUnits::rev) / config.odom_gear_ratio;
+      rside_revs = right_side->position(vex::rotationUnits::rev) / config.odom_gear_ratio;
+    }else if(left_enc != NULL && right_enc != NULL)
+    {
+      lside_revs = left_enc->position(vex::rotationUnits::rev) / config.odom_gear_ratio;
+      rside_revs = right_enc->position(vex::rotationUnits::rev) / config.odom_gear_ratio;
+    }
 
     double angle = 0;
 
