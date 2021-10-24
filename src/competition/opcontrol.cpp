@@ -13,7 +13,7 @@ void OpControl::opcontrol()
     vexDelay(20);
     }
 
-
+  
     // while(!drive.drive_to_point(24, 24, .5, .25)){vexDelay(20);}
     // while(!drive.turn_to_heading(270, .5)){vexDelay(20);}
     // while(!drive.drive_to_point(24, 0, .5, .25)){vexDelay(20);}
@@ -43,7 +43,7 @@ void OpControl::opcontrol()
     a1.run(true);
     */
 
-    std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
+  std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
 
 
 
@@ -63,21 +63,10 @@ void OpControl::opcontrol()
   while(true)
   {
     // ========== DRIVING CONTROLS ==========
-
-    if(main_controller.ButtonA.pressing()) {
-      //drive.drive_to_point(10, 4, .4, .2);
-      drive.pure_pursuit(path, 5, .4, .5);
-      
-    }
-    else {
-      drive.drive_arcade( .5 * main_controller.Axis3.position() / 100.0, .5 * main_controller.Axis1.position() / 100.0, 2);
-    }
+    drive.drive_arcade( .5 * main_controller.Axis3.position() / 100.0, .5 * main_controller.Axis1.position() / 100.0, 2);
 
     if(main_controller.ButtonB.pressing())
       odom.set_position(OdometryBase::zero_pos);
-
-    
-
 
     // ========== MANIPULATING CONTROLS ==========
 
@@ -87,14 +76,15 @@ void OpControl::opcontrol()
 
     // ========== AUTOMATION ==========
 
-    double dist_norm = OdometryBase::pos_diff(odom.get_position(), test_pos, true);
-    double dist_axis = OdometryBase::pos_diff(odom.get_position(), test_pos, true, true);
+    // double dist_norm = OdometryBase::pos_diff(odom.get_position(), test_pos, true);
+    // double dist_axis = OdometryBase::pos_diff(odom.get_position(), test_pos, true, true);
 
-    printf("dist (axis): %f, dist (norm): %f, X: %f  Y: %f  rot: %f\n",dist_axis, dist_norm, odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     fflush(stdout);
     fflush(stderr);
-    // Wait 50 milliseconds for control loops to calculate time correctly
-    vexDelay(100); 
+
+    // Wait 20 milliseconds for control loops to calculate time correctly
+    vexDelay(20); 
   }
 
 }

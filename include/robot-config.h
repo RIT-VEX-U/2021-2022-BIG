@@ -12,11 +12,9 @@ extern motor lf, lr, rf, rr;
 
 extern motor_group left_motors, right_motors;
 
-extern TankDrive::tankdrive_config_t tank_cfg;
+extern encoder left_enc, right_enc;
 
 extern TankDrive drive;
-
-extern odometry_config_t odom_cfg;
 
 extern OdometryTank odom;
 

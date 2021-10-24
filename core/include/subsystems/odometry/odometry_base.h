@@ -7,7 +7,7 @@
 #define PI 3.141592654
 #endif
 
-#define DOWNTIME 50 //milliseconds
+#define DOWNTIME 0 //milliseconds
 
 // Describes a single position and rotation
 typedef struct
