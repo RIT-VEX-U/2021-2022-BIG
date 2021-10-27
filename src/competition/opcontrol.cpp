@@ -45,7 +45,7 @@ void OpControl::opcontrol()
 
   std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
 
-
+  
 
   //  while(!drive.drive_forward(24, .5))
   // {
@@ -56,8 +56,17 @@ void OpControl::opcontrol()
   //   vexDelay(20);
   // }
 
-  position_t test_pos = {.x=24, .y=24};
+  odom.set_position();
 
+  position_t test_pos = {.x=0, .y=24};
+
+  GenericAuto auto1;
+  auto1.add([](){return drive.drive_to_point(24, 24, .5, .25);});
+  auto1.add([](){return drive.drive_to_point(48, 0, .5, .25);});
+  auto1.add([](){return drive.drive_to_point(24, 24, .5, .25, directionType::rev);});
+  auto1.add([](){return drive.drive_to_point(0, 0, .5, .25, directionType::rev);});
+  auto1.run(true);
+  return;
 
   // ========== LOOP ==========
   while(true)
@@ -75,9 +84,6 @@ void OpControl::opcontrol()
 
 
     // ========== AUTOMATION ==========
-
-    // double dist_norm = OdometryBase::pos_diff(odom.get_position(), test_pos, true);
-    // double dist_axis = OdometryBase::pos_diff(odom.get_position(), test_pos, true, true);
 
     printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     fflush(stdout);
