@@ -12,6 +12,7 @@ void OpControl::opcontrol()
   while(imu.isCalibrating()) {
     vexDelay(20);
     }
+  odom.set_position();
 
   
     // while(!drive.drive_to_point(24, 24, .5, .25)){vexDelay(20);}
@@ -45,34 +46,11 @@ void OpControl::opcontrol()
 
   std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
 
-  
-
-  //  while(!drive.drive_forward(24, .5))
-  // {
-  //   if(main_controller.ButtonA.pressing())
-  //     break;
-
-  //   printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
-  //   vexDelay(20);
-  // }
-
-  odom.set_position();
-
-  position_t test_pos = {.x=0, .y=24};
-
-  GenericAuto auto1;
-  auto1.add([](){return drive.drive_to_point(24, 24, .5, .25);});
-  auto1.add([](){return drive.drive_to_point(48, 0, .5, .25);});
-  auto1.add([](){return drive.drive_to_point(24, 24, .5, .25, directionType::rev);});
-  auto1.add([](){return drive.drive_to_point(0, 0, .5, .25, directionType::rev);});
-  auto1.run(true);
-  return;
-
   // ========== LOOP ==========
   while(true)
   {
     // ========== DRIVING CONTROLS ==========
-    drive.drive_arcade( .5 * main_controller.Axis3.position() / 100.0, .5 * main_controller.Axis1.position() / 100.0, 2);
+    drive.drive_arcade( .7 * main_controller.Axis3.position() / 100.0, .7 * main_controller.Axis1.position() / 100.0, 2);
 
     if(main_controller.ButtonB.pressing())
       odom.set_position(OdometryBase::zero_pos);
