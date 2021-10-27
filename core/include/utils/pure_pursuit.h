@@ -18,6 +18,22 @@ namespace PurePursuit {
     }
   };
 
+  struct hermite_point
+  {
+    double x;
+    double y;
+    double dir;
+    double mag;
+
+    Vector::point_t getPoint() {
+      return {x, y};
+    }
+
+    Vector getTangent() {
+      return Vector(dir, mag);
+    }
+  };
+
   /**
     * Returns points of the intersections of a line segment and a circle. The line 
     * segment is defined by two points, and the circle is defined by a center and radius.
@@ -47,4 +63,14 @@ namespace PurePursuit {
   static std::vector<Vector::point_t> smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance);
 
   static std::vector<Vector::point_t> smooth_path_cubic(std::vector<Vector::point_t> path, double res);
+
+  /**
+   * Interpolates a smooth path given a list of waypoints using hermite splines.
+   * For more information: https://www.youtube.com/watch?v=hG0p4XgePSA.
+   *
+   * @param path The path of hermite points to interpolate.
+   * @param steps The number of points interpolated between points.
+   * @return The smoothed path.
+   */
+  static std::vector<Vector::point_t> smooth_path_hermite(std::vector<hermite_point> path, double step);
 }

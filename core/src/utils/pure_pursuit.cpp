@@ -151,7 +151,47 @@ std::vector<Vector::point_t> PurePursuit::smooth_path(std::vector<Vector::point_
   return new_path;
 }
 
-static std::vector<Vector::point_t> PurePursuit::smooth_path_cubic(std::vector<Vector::point_t> path, double res) {
+/**
+ * Interpolates a smooth path given a list of waypoints using hermite splines.
+ * For more information: https://www.youtube.com/watch?v=hG0p4XgePSA.
+ *
+ * @param path The path of hermite points to interpolate.
+ * @param steps The number of points interpolated between points.
+ * @return The smoothed path.
+ */
+std::vector<Vector::point_t> PurePursuit::smooth_path_hermite(std::vector<hermite_point> path, double steps) {
+  std::vector<Vector::point_t> new_path;
+  for(int i = 0; i < path.size() - 1; i++) {
+    for(int t = 0; t < steps; t++) {
+      // Storing the start and end points and slopes at those points as Vectors.
+      Vector::point_t tmp = path[i].getPoint();
+      Vector p1 = Vector(tmp);
+      tmp = path[i+1].getPoint();
+      Vector p2 = Vector(tmp);
+      Vector t1 = path[i].getTangent();
+      Vector t2 = path[i+1].getTangent();
+
+
+      // Scale s from 0.0 to 1.0
+      double s = (double)t / (double)steps;
+
+      // Hermite Blending functions
+      double h1 = 2 * pow(s, 3) - 3 * pow(s, 2) + 1;    
+      double h2 = -2 * pow(s, 3) + 3 * pow(s, 2);
+      double h3 = pow(s, 3) - 2 * pow(s, 2) + s;
+      double h4 = pow(s, 3) - pow(s, 2);
+
+      // Calculate the point
+      Vector p = p1 * h1 + p2 * h2 + t1 * h3 + t2 * h4; 
+      new_path.push_back(p.point());
+    }
+  }
+  //Adding last point
+  new_path.push_back(path.back().getPoint());
+  return new_path;
+}
+
+std::vector<Vector::point_t> PurePursuit::smooth_path_cubic(std::vector<Vector::point_t> path, double res) {
   std::vector<Vector::point_t> new_path;
   std::vector<spline> splines;
 
