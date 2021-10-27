@@ -44,12 +44,15 @@ public:
   void drive_arcade(double forward_back, double left_right, int power=1);
 
   /**
-   * Autonomously drive the robot X inches forward (Negative for backwards), with a maximum speed
-   * of percent_speed (-1.0 -> 1.0).
-   * 
-   * Uses a PID loop for it's control.
+   * Autonomously drive forward or backwards, X inches infront or behind the robot's current position.
+   * This driving method is relative, so excessive use may cause the robot to get off course!
+   *
+   * @param inches Distance to drive in a straight line
+   * @param speed How fast the robot should travel, 0 -> 1.0
+   * @param correction How much the robot should correct for being off angle
+   * @param dir Whether the robot is travelling forwards or backwards
    */
-  bool drive_forward(double inches, double percent_speed);
+  bool drive_forward(double inches, double speed, double correction, directionType dir);
 
   /**
    * Autonomously turn the robot X degrees to the right (negative for left), with a maximum motor speed

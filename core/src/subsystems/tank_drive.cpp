@@ -58,44 +58,37 @@ void TankDrive::drive_arcade(double forward_back, double left_right, int power)
 }
 
 /**
- * Autonomously drive the robot X inches forward (Negative for backwards), with a maximum speed
- * of percent_speed (-1.0 -> 1.0).
- * 
- * Uses a PID loop for it's control.
- * 
- * NOTE: uses relative positioning, so after a few drive_forward's, position may be lost!
+ * Autonomously drive forward or backwards, X inches infront or behind the robot's current position.
+ * This driving method is relative, so excessive use may cause the robot to get off course!
+ *
+ * @param inches Distance to drive in a straight line
+ * @param speed How fast the robot should travel, 0 -> 1.0
+ * @param correction How much the robot should correct for being off angle
+ * @param dir Whether the robot is travelling forwards or backwards
  */
-bool TankDrive::drive_forward(double inches, double percent_speed)
+bool TankDrive::drive_forward(double inches, double speed, double correction, directionType dir)
 {
-  // On the first run of the funciton, reset the motor position and PID
+  static position_t pos_setpt;
+
+  // Generate a point X inches forward of the current position, on first startup
   if (!func_initialized)
   {
     saved_pos = odometry->get_position();
     drive_pid.reset();
 
-    drive_pid.set_limits(-fabs(percent_speed), fabs(percent_speed));
-    drive_pid.set_target(inches);
+    // Use vector math to get an X and Y
+    Vector current_pos({saved_pos.x , saved_pos.y});
+    Vector delta_pos(deg2rad(saved_pos.rot), inches);
+    Vector setpt_vec = current_pos + delta_pos;
+
+    // Save the new X and Y values
+    pos_setpt = {.x=setpt_vec.get_x(), .y=setpt_vec.get_y()};
 
     func_initialized = true;
   }
 
-  double position_diff = odometry->get_position().y - saved_pos.y;
-
-  // Update PID loop and drive the robot based on it's output
-  drive_pid.update(position_diff);
-
-  // Drive backwards if we input negative inches, forward for positive
-  drive_tank(drive_pid.get(), drive_pid.get());
-
-  // If the robot is at it's target, return true
-  if (drive_pid.is_on_target())
-  {
-    drive_tank(0, 0);
-    func_initialized = false;
-    return true;
-  }
-
-  return false;
+  // Call the drive_to_point with updated point values
+  return drive_to_point(pos_setpt.x, pos_setpt.y, speed, correction, dir);
 }
 
 /**
