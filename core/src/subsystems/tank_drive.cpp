@@ -2,7 +2,7 @@
 
 TankDrive::TankDrive(motor_group &left_motors, motor_group &right_motors, robot_specs_t &config, OdometryTank *odom)
     : left_motors(left_motors), right_motors(right_motors),
-     drive_pid(config.drive_pid), turn_pid(config.turn_pid), correction_pid(config.correction_pid), odometry(odom)
+     drive_pid(config.drive_pid), turn_pid(config.turn_pid), correction_pid(config.correction_pid), odometry(odom), config(config)
 {
 
 }
@@ -142,8 +142,9 @@ bool TankDrive::turn_degrees(double degrees, double percent_speed)
   *
   * Returns whether or not the robot has reached it's destination.
   */
-bool TankDrive::drive_to_point(double x, double y, double speed, double correction_speed)
+bool TankDrive::drive_to_point(double x, double y, double speed, double correction_speed, vex::directionType dir)
 {
+
   if(!func_initialized)
   {
     // Reset the control loops
@@ -157,6 +158,8 @@ bool TankDrive::drive_to_point(double x, double y, double speed, double correcti
     // and the new point.
     drive_pid.set_target(0);
     correction_pid.set_target(0);
+
+    // point_orientation_deg = atan2(y - odometry->get_position().y, x - odometry->get_position().x) * 180.0 / PI;
 
     func_initialized = true;
   }
@@ -175,25 +178,61 @@ bool TankDrive::drive_to_point(double x, double y, double speed, double correcti
   Vector point_vec(pos_diff_pt);
 
   // Get the distance between 2 points
-  double dist_left = -OdometryBase::pos_diff(current_pos, end_pos, true, true);
+  double dist_left = OdometryBase::pos_diff(current_pos, end_pos);
+  
+  int sign = 1;
+
+  if (fabs(dist_left) < config.drive_correction_cutoff) 
+  {
+    // Make an imaginary perpendicualar line to that between the bot and the point. If the point is behind that line,
+    // and the point is within the robot's radius, use negatives for feedback control.
+
+    double angle_to_point = atan2(y - current_pos.y, x - current_pos.x) * 180.0 / PI;
+    double angle = fmod(current_pos.rot - angle_to_point, 360.0);
+    // Normalize the angle between 0 and 360
+    if (angle > 360) angle -= 360;
+    if (angle < 0) angle += 360; 
+    // If the angle is behind the robot, report negative.
+    if (dir == directionType::fwd && angle > 90 && angle < 270)
+      sign = -1;
+    else if(dir == directionType::rev && (angle < 90 || angle > 270))
+      sign = -1;
+
+    // When inside the robot's cutoff radius, report the distance to the point along the robot's forward axis,
+    // so we always "reach" the point without having to do a lateral translation
+    dist_left *= fabs(cos(angle * PI / 180.0));
+  }
 
   // Get the heading difference between where we are and where we want to be
   // Optimize that heading so we don't turn clockwise all the time
   double heading = rad2deg(point_vec.get_dir());
-  double delta_heading = OdometryBase::smallest_angle(current_pos.rot, heading);
+  double delta_heading = 0;
+
+  // Going backwards "flips" the robot's current heading
+  if (dir == directionType::fwd)
+    delta_heading = OdometryBase::smallest_angle(current_pos.rot, heading);
+  else
+    delta_heading = OdometryBase::smallest_angle(current_pos.rot - 180, heading);
 
   // Update the PID controllers with new information
   correction_pid.update(delta_heading);
-  drive_pid.update(dist_left);
+  drive_pid.update(sign * -1 * dist_left);
 
-  printf("~DRIVE~ ");
-  printf("imu: %f, ", odometry->get_position().rot);
-  printf("Correction: %f, Drive: %f, Corr_PID: %f, Drive_PID: %f \n", delta_heading, dist_left, correction_pid.get(), drive_pid.get());
-  fflush(stdout);
+  // Disable correction when we're close enough to the point
+  double correction = 0;
+  if(fabs(dist_left) > config.drive_correction_cutoff)
+    correction = correction_pid.get();
+
+  // Reverse the drive_pid output if we're going backwards
+  double drive_pid_rval;
+  if(dir == directionType::rev)
+    drive_pid_rval = drive_pid.get() * -1;
+  else
+    drive_pid_rval = drive_pid.get();
 
   // Combine the two pid outputs
-  double lside = drive_pid.get() + ((fabs(dist_left) > 2) ? correction_pid.get() : 0);
-  double rside = drive_pid.get() - ((fabs(dist_left) > 2) ? correction_pid.get() : 0);
+  double lside = drive_pid_rval + correction;
+  double rside = drive_pid_rval - correction;
 
   // limit the outputs between -1 and +1
   lside = (lside > 1) ? 1 : (lside < -1) ? -1 : lside;
