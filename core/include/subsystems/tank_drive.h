@@ -81,7 +81,7 @@ public:
 
   static double modify_inputs(double input, int power=2);
 
-  bool pure_pursuit(std::vector<Vector::point_t> path, double radius, double speed, double res);
+  bool pure_pursuit(std::vector<PurePursuit::hermite_point> path, double radius, double speed, double res);
 
 private:
   motor_group &left_motors;
