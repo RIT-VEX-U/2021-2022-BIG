@@ -1,3 +1,17 @@
+/**
+ * File: action.h
+ * Desc:
+ *    Actions are the function pointers that are executed by a Command.
+ *    Each subsystem should have its own set of default Actions. For 
+ *    example, DriveAction drive_forward at line 69.
+ *
+ *    Currently, Actions can not take any parameters. This should be taken
+ *    into account when creating custom Actions.
+ *
+ * Usage:
+ *    
+ */
+
 #ifndef _ACTION_
 #define _ACTION_
 
@@ -7,7 +21,7 @@
 using namespace vex;
 
 /**
- * action_ptr is a std:function that returns int and takes no params
+ * action_ptr is a std::function that returns int and takes no params
  * It was implemented this way because:
  * 1. We need to pass in lambdas, since lambdas can have captures,
  * which removes the need for function parameters (which would be a

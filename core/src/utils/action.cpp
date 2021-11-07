@@ -1,3 +1,17 @@
+/**
+ * File: action.cpp
+ * Desc:
+ *    Actions are the function pointers that are executed by a Command.
+ *    Each subsystem should have its own set of default Actions. For 
+ *    example, DriveAction drive_forward at line 134.
+ *
+ *    Currently, Actions can not take any parameters. This should be taken
+ *    into account when creating custom Actions.
+ *
+ * Usage:
+ *    
+ */
+
 #include "vex.h"
 #include "vex_task.h"
 #include <functional>
