@@ -1,4 +1,3 @@
-
 #include "vex.h"
 
 namespace OpControl

@@ -8,32 +8,46 @@ using code = vision::code;
 
 // A global instance of brain used for printing to the V5 Brain screen
 brain  Brain;
+controller controller1;
 
-motor lf(PORT2, gearSetting::ratio6_1, true), lr(PORT11, gearSetting::ratio6_1, true),
-      rf(PORT10, gearSetting::ratio6_1, false), rr(PORT20, gearSetting::ratio6_1, false);
+//Chassis (top, front, middle, back)
+motor lt(PORT11, gearSetting::ratio6_1, true), lf(PORT12, gearSetting::ratio6_1, true),
+      lm(PORT13, gearSetting::ratio6_1, true), lb(PORT14, gearSetting::ratio6_1, true),
+      rt(PORT20, gearSetting::ratio6_1, true), rf(PORT19, gearSetting::ratio6_1, true),
+      rm(PORT18, gearSetting::ratio6_1, true), rb(PORT17, gearSetting::ratio6_1, true);
 
-motor_group left_motors = {lf, lr};
-motor_group right_motors = {rf, rr};
+//Lift
+motor lLift(PORT5, gearSetting::ratio36_1, true), rLift(PORT6, gearSetting::ratio36_1, true);
 
-encoder left_enc(Brain.ThreeWirePort.A), right_enc(Brain.ThreeWirePort.C);
+//Feed, fork
+motor feed(PORT4, gearSetting::ratio18_1, true), fork(PORT10, gearSetting::ratio36_1, true);
 
+//Sensors
 inertial imu(PORT19);
+bumper liftBtn(Brain.ThreeWirePort.A);
+limit forkSwitch(Brain.ThreeWirePort.B);
+pneumatics claw(Brain.ThreeWirePort.C);
+//encoder left_enc(Brain.ThreeWirePort.D), right_enc(Brain.ThreeWirePort.E);
+
+motor_group left_motors = {lt,lf,lm,lb};
+motor_group right_motors = {rt,rf,rm,rb};
+motor_group fourbar = {lLift, rLift};
 
 robot_specs_t robot_cfg = {
   .robot_radius = 9, // inches
-  .odom_wheel_diam = 2.85,//4.25, // inches
-  .odom_gear_ratio = 1,//2.333333, // inches
-  .dist_between_wheels = 9.75, // inches
+  .odom_wheel_diam = 2.85, // inches
+  .odom_gear_ratio = 1, // inches
+  .dist_between_wheels = 9.75, // inches EDIT
 
-  .drive_correction_cutoff = 3, //inches
+  .drive_correction_cutoff = 3, //inches (when the correction PID disengages from target)
 
   .drive_pid = (PID::pid_config_t) 
   {
     .p = .3,
-    // .i = .00,
+    .i = .00,
     .d = .03,
     .f = 0,
-    .deadband = 0.1,
+    .deadband = 0.1, //cut off from target threshold 
     .on_target_time = 0.1
   },
 
@@ -52,19 +66,15 @@ robot_specs_t robot_cfg = {
     .p = 0.01
   }
 
+  .lift_pid = (PID::pid_config_t){
+    .p = 1;
+  }
+
 };
 
-OdometryTank odom(left_enc, right_enc, robot_cfg, &imu);
-
+//OdometryTank odom(left_enc, right_enc, robot_cfg, &imu);
+OdometryTank odom(left_motors, right_motors, robot_cfg, &imu);
 TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
-
-controller main_controller;
-
-// VEXcode device constructors
-
-// VEXcode generated functions
-
-
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
