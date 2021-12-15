@@ -12,8 +12,9 @@ void OpControl::opcontrol()
   while(imu.isCalibrating()) {
     vexDelay(20);
     }
+  odom.set_position();
 
-
+  
     // while(!drive.drive_to_point(24, 24, .5, .25)){vexDelay(20);}
     // while(!drive.turn_to_heading(270, .5)){vexDelay(20);}
     // while(!drive.drive_to_point(24, 0, .5, .25)){vexDelay(20);}
@@ -25,9 +26,10 @@ void OpControl::opcontrol()
     // while(!drive.drive_to_point(0, 0, .5, .25)){vexDelay(20);}
     // while(!drive.turn_to_heading(90, .5)){vexDelay(20);}
 
+    /*
     GenericAuto a1;
-    // a1.add([](){return drive.turn_to_heading(180, .5);});
-    // a1.add([](){return drive.turn_degrees(-90, .5);});
+
+    a1.add([](){return drive.drive_to_point(48, 24, .5, .5);});
     // a1.add([](){return drive.turn_to_heading(45, .5);}); 
     // a1.add([](){return drive.drive_to_point(24, 24, .5, .5);});
     // a1.add([](){return drive.turn_to_heading(270, .5);});
@@ -40,34 +42,19 @@ void OpControl::opcontrol()
     // a1.add([](){return drive.drive_to_point(0, 0, .5, .5);});
     // a1.add([](){return drive.turn_to_heading(90, .5);});
 
-    // a1.run(true);
+    a1.run(true);
+    */
 
-
-
-  //  while(!drive.drive_forward(24, .5))
-  // {
-  //   if(main_controller.ButtonA.pressing())
-  //     break;
-
-  //   printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
-  //   vexDelay(20);
-  // }
-
-  position_t test_pos = {.x=24, .y=24};
-
+  std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
 
   // ========== LOOP ==========
   while(true)
   {
     // ========== DRIVING CONTROLS ==========
-
-    drive.drive_arcade( .5 * main_controller.Axis3.position() / 100.0, .5 * main_controller.Axis1.position() / 100.0, 2);
+    drive.drive_arcade( .7 * main_controller.Axis3.position() / 100.0, .7 * main_controller.Axis1.position() / 100.0, 2);
 
     if(main_controller.ButtonB.pressing())
       odom.set_position(OdometryBase::zero_pos);
-
-    
-
 
     // ========== MANIPULATING CONTROLS ==========
 
@@ -77,14 +64,12 @@ void OpControl::opcontrol()
 
     // ========== AUTOMATION ==========
 
-    double dist_norm = OdometryBase::pos_diff(odom.get_position(), test_pos, true);
-    double dist_axis = OdometryBase::pos_diff(odom.get_position(), test_pos, true, true);
-
-    printf("dist (axis): %f, dist (norm): %f, X: %f  Y: %f  rot: %f\n",dist_axis, dist_norm, odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     fflush(stdout);
     fflush(stderr);
-    // Wait 50 milliseconds for control loops to calculate time correctly
-    vexDelay(100); 
+
+    // Wait 20 milliseconds for control loops to calculate time correctly
+    vexDelay(20); 
   }
 
 }
