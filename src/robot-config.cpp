@@ -9,15 +9,18 @@ using code = vision::code;
 // A global instance of brain used for printing to the V5 Brain screen
 brain  Brain;
 
-motor lf(PORT2, gearSetting::ratio6_1, true), lr(PORT11, gearSetting::ratio6_1, true),
-      rf(PORT10, gearSetting::ratio6_1, false), rr(PORT20, gearSetting::ratio6_1, false);
+motor l_drive_top(PORT11), l_drive_front(PORT12), l_drive_mid(PORT13), l_drive_back(PORT14), 
+      r_drive_top(PORT20), r_drive_front(PORT14), r_drive_mid(PORT18), r_drive_back(PORT17);
 
-motor_group left_motors = {lf, lr};
-motor_group right_motors = {rf, rr};
+motor_group left_motors = {l_drive_top, l_drive_front, l_drive_mid, l_drive_back};
+motor_group right_motors = {r_drive_top, r_drive_front, r_drive_mid, r_drive_back};
 
-encoder left_enc(Brain.ThreeWirePort.A), right_enc(Brain.ThreeWirePort.C);
+motor conveyor_motor(PORT4), lift_motor(PORT5), fork_motor(PORT6);
+pneumatics claw_solenoid(Brain.ThreeWirePort.A);
 
-inertial imu(PORT19);
+// encoder left_enc(Brain.ThreeWirePort.A), right_enc(Brain.ThreeWirePort.C);
+
+// inertial imu(PORT19);
 
 robot_specs_t robot_cfg = {
   .robot_radius = 9, // inches
@@ -54,9 +57,14 @@ robot_specs_t robot_cfg = {
 
 };
 
-OdometryTank odom(left_enc, right_enc, robot_cfg, &imu);
+// OdometryTank odom(left_motors, right_motors, robot_cfg);
 
-TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
+TankDrive drive(left_motors, right_motors, robot_cfg);
+
+
+
+Lift lift_subsys(lift_motor, claw_solenoid);
+RingCollector ring_subsys(fork_motor, conveyor_motor);
 
 controller main_controller;
 
