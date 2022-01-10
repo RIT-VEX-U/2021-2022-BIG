@@ -9,8 +9,8 @@ using code = vision::code;
 // A global instance of brain used for printing to the V5 Brain screen
 brain  Brain;
 
-motor l_drive_top(PORT11), l_drive_front(PORT12), l_drive_mid(PORT13), l_drive_back(PORT14), 
-      r_drive_top(PORT20), r_drive_front(PORT14), r_drive_mid(PORT18), r_drive_back(PORT17);
+motor l_drive_top(PORT11, true), l_drive_front(PORT12), l_drive_mid(PORT13), l_drive_back(PORT14, true), 
+      r_drive_top(PORT20), r_drive_front(PORT19, true), r_drive_mid(PORT18, true), r_drive_back(PORT17);
 
 motor_group left_motors = {l_drive_top, l_drive_front, l_drive_mid, l_drive_back};
 motor_group right_motors = {r_drive_top, r_drive_front, r_drive_mid, r_drive_back};

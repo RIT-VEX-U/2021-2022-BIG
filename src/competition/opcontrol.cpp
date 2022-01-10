@@ -53,10 +53,10 @@ void OpControl::opcontrol()
     // ========== DRIVING CONTROLS ==========
     drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
 
-    lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonL1.pressing(), 
-                        main_controller.ButtonB.pressing(), main_controller.ButtonA.pressing());
+    // lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonL1.pressing(), 
+    //                     main_controller.ButtonB.pressing(), main_controller.ButtonA.pressing());
     
-    ring_subsys.control(main_controller.ButtonY.pressing(), main_controller.ButtonR2.pressing()); 
+    // ring_subsys.control(main_controller.ButtonY.pressing(), main_controller.ButtonR2.pressing()); 
 
     // if(main_controller.ButtonB.pressing())
     //   odom.set_position(OdometryBase::zero_pos);
