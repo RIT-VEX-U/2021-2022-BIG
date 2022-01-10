@@ -20,6 +20,9 @@ namespace PurePursuit {
     }
   };
 
+  /**
+   * Represents a hermite point defined by a vector from a point.
+   */
   struct hermite_point
   {
     double x;
@@ -44,7 +47,7 @@ namespace PurePursuit {
   /**
     * Selects a look ahead from all the intersections in the path.
     */
-  static Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius);
+  static Vector::point_t get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, Vector::point_t defaultTarget);
 
   /**
     * Injects points in a path without changing the curvature with a certain spacing.
@@ -63,7 +66,7 @@ namespace PurePursuit {
   */
 
   static std::vector<Vector::point_t> smooth_path(std::vector<Vector::point_t> path, double weight_data, double weight_smooth, double tolerance);
-
+  
   static std::vector<Vector::point_t> smooth_path_cubic(std::vector<Vector::point_t> path, double res);
 
   /**

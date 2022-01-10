@@ -52,16 +52,15 @@ std::vector<Vector::point_t> PurePursuit::line_circle_intersections(Vector::poin
 /**
  * Selects a look ahead from all the intersections in the path.
  */
-Vector::point_t PurePursuit::get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius)
+Vector::point_t PurePursuit::get_lookahead(std::vector<Vector::point_t> path, Vector::point_t robot_loc, double radius, Vector::point_t defaultTarget)
 { 
-  //Default: the end of the path
-  Vector::point_t target = path.back();
-
-  
-  if(target.dist(robot_loc) <= radius)
+  //If target within circle radius
+  if(path.back().dist(robot_loc) <= radius)
   {
-    return target;
+    return path.back();
   }
+
+  Vector::point_t target = defaultTarget;
   
   //Check each line segment of the path for potential targets
   for(int i = 0; i < path.size() - 1; i++)
@@ -78,7 +77,7 @@ Vector::point_t PurePursuit::get_lookahead(std::vector<Vector::point_t> path, Ve
         target = intersection;
     }
   }
-
+  
   return target;
 }
 

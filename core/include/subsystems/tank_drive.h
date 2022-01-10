@@ -95,6 +95,8 @@ private:
 
   position_t saved_pos;
 
+  Vector::point_t prev_target;
+
   robot_specs_t &config;
 
   bool func_initialized = false;

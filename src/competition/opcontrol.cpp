@@ -44,16 +44,23 @@ void OpControl::opcontrol()
     a1.run(true);
     */
 
-  std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
+  std::vector<PurePursuit::hermite_point> path {{0, 0, 0, 20}, {20, 20, deg2rad(90), 40}, {40, 40, 0, 20}};
+  bool finished = false;
 
   // ========== LOOP ==========
   while(true)
   {
     // ========== DRIVING CONTROLS ==========
-    drive.drive_arcade( .7 * main_controller.Axis3.position() / 100.0, .7 * main_controller.Axis1.position() / 100.0, 2);
+    if(!finished && main_controller.ButtonA.pressing()) {
+      finished = drive.pure_pursuit(path, 5, .75, 20);
+    }
+    else {
+      drive.drive_arcade( .7 * main_controller.Axis3.position() / 100.0, .7 * main_controller.Axis1.position() / 100.0, 2);
+    }
 
     if(main_controller.ButtonB.pressing())
       odom.set_position(OdometryBase::zero_pos);
+    
 
     // ========== MANIPULATING CONTROLS ==========
 
@@ -63,7 +70,7 @@ void OpControl::opcontrol()
 
     // ========== AUTOMATION ==========
 
-    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    //printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     fflush(stdout);
     fflush(stderr);
 
