@@ -51,7 +51,7 @@ void OpControl::opcontrol()
   while(true)
   {
     // ========== DRIVING CONTROLS ==========
-    drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
+    drive.drive_tank(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
 
     // lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonL1.pressing(), 
     //                     main_controller.ButtonB.pressing(), main_controller.ButtonA.pressing());

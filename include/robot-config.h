@@ -13,10 +13,10 @@ extern controller main_controller;
 extern motor l_drive_top, l_drive_front, l_drive_mid, l_drive_back, 
              r_drive_top, r_drive_front, r_drive_mid, r_drive_back;
 
-extern motor conveyor_motor, lift_motor, fork_motor;
+extern motor conveyor_motor, l_lift_motor, r_lift_motor, fork_motor;
 extern pneumatics claw_solenoid;
 
-extern motor_group left_motors, right_motors;
+extern motor_group left_motors, right_motors, lift_motors;
 
 extern Lift lift_subsys;
 extern RingCollector ring_subsys;

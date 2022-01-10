@@ -15,7 +15,10 @@ motor l_drive_top(PORT11, true), l_drive_front(PORT12), l_drive_mid(PORT13), l_d
 motor_group left_motors = {l_drive_top, l_drive_front, l_drive_mid, l_drive_back};
 motor_group right_motors = {r_drive_top, r_drive_front, r_drive_mid, r_drive_back};
 
-motor conveyor_motor(PORT4), lift_motor(PORT5), fork_motor(PORT6);
+motor conveyor_motor(PORT4), l_lift_motor(PORT5, true), r_lift_motor(PORT6), fork_motor(PORT6);
+
+motor_group lift_motors = {l_lift_motor, r_lift_motor};
+
 pneumatics claw_solenoid(Brain.ThreeWirePort.A);
 
 // encoder left_enc(Brain.ThreeWirePort.A), right_enc(Brain.ThreeWirePort.C);
@@ -63,7 +66,7 @@ TankDrive drive(left_motors, right_motors, robot_cfg);
 
 
 
-Lift lift_subsys(lift_motor, claw_solenoid);
+Lift lift_subsys(lift_motors, claw_solenoid);
 RingCollector ring_subsys(fork_motor, conveyor_motor);
 
 controller main_controller;
