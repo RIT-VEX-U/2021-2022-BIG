@@ -60,6 +60,7 @@ void OpControl::opcontrol()
     // Controls: R1 - increment lift UP | R2 - decrement lift DOWN | X - toggle claw open / closed
     lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonR2.pressing(), main_controller.ButtonX.pressing());
 
+    ring_subsys.control(main_controller.ButtonL2.pressing(), main_controller.ButtonL1.pressing());
 
     // lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonL1.pressing(), 
     //                     main_controller.ButtonB.pressing(), main_controller.ButtonA.pressing());

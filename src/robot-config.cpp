@@ -15,13 +15,15 @@ motor l_drive_top(PORT11, true), l_drive_front(PORT12), l_drive_mid(PORT13), l_d
 motor_group left_motors = {l_drive_top, l_drive_front, l_drive_mid, l_drive_back};
 motor_group right_motors = {r_drive_top, r_drive_front, r_drive_mid, r_drive_back};
 
-motor conveyor_motor(PORT4), l_lift_motor(PORT5, true), r_lift_motor(PORT6), fork_motor(PORT6);
+motor conveyor_motor(PORT4, true), l_lift_motor(PORT5, true), r_lift_motor(PORT6), fork_motor(PORT7);
 
 motor_group lift_motors = {l_lift_motor, r_lift_motor};
 
 pneumatics claw_solenoid(Brain.ThreeWirePort.A);
 
 limit lift_home(Brain.ThreeWirePort.B);
+
+optical goal_sensor(PORT15);
 
 // encoder left_enc(Brain.ThreeWirePort.A), right_enc(Brain.ThreeWirePort.C);
 
@@ -72,13 +74,23 @@ PID::pid_config_t lift_pid_cfg = {
   .on_target_time = .1
 };
 
+PID::pid_config_t fork_pid_cfg = {
+  .p = 50000,
+  .i = 0,
+  .d = 0,
+  .f = 0,
+
+  .deadband = .1,
+  .on_target_time = .1
+};
+
 // OdometryTank odom(left_motors, right_motors, robot_cfg);
 
 TankDrive drive(left_motors, right_motors, robot_cfg);
 
 
 Lift lift_subsys(lift_motors, lift_home, claw_solenoid, lift_pid_cfg);
-RingCollector ring_subsys(fork_motor, conveyor_motor);
+RingCollector ring_subsys(fork_motor, conveyor_motor, goal_sensor, lift_subsys, fork_pid_cfg);
 
 controller main_controller;
 

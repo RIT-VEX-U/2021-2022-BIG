@@ -22,6 +22,7 @@ extern limit lift_home;
 
 extern Lift lift_subsys;
 extern RingCollector ring_subsys;
+extern optical goal_sensor;
 
 // extern encoder left_enc, right_enc;
 

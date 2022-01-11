@@ -5,12 +5,12 @@
 
 class Lift
 {
+  public:
   enum LiftPosition
   {
     DOWN, DRIVING, PLATFORM, UP
   };
-
-  public:
+  
   Lift(vex::motor_group &lift_motors, vex::limit &lift_home, vex::pneumatics &lift_claw, PID::pid_config_t &lift_pid_cfg);
 
   void control(bool up_btn, bool down_btn, bool claw_btn);
