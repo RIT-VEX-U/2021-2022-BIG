@@ -47,11 +47,19 @@ void OpControl::opcontrol()
 
   // std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
 
+  lift_subsys.home();
+
   // ========== LOOP ==========
   while(true)
   {
     // ========== DRIVING CONTROLS ==========
     drive.drive_tank(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
+
+    
+
+    // Controls: R1 - increment lift UP | R2 - decrement lift DOWN | X - toggle claw open / closed
+    lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonR2.pressing(), main_controller.ButtonX.pressing());
+
 
     // lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonL1.pressing(), 
     //                     main_controller.ButtonB.pressing(), main_controller.ButtonA.pressing());

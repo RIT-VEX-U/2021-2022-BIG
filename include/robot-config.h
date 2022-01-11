@@ -18,6 +18,8 @@ extern pneumatics claw_solenoid;
 
 extern motor_group left_motors, right_motors, lift_motors;
 
+extern limit lift_home;
+
 extern Lift lift_subsys;
 extern RingCollector ring_subsys;
 
@@ -25,7 +27,7 @@ extern RingCollector ring_subsys;
 
 extern TankDrive drive;
 
-// extern OdometryTank odom;
+extern OdometryTank odom;
 
 // extern inertial imu;
 

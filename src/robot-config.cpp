@@ -21,6 +21,8 @@ motor_group lift_motors = {l_lift_motor, r_lift_motor};
 
 pneumatics claw_solenoid(Brain.ThreeWirePort.A);
 
+limit lift_home(Brain.ThreeWirePort.B);
+
 // encoder left_enc(Brain.ThreeWirePort.A), right_enc(Brain.ThreeWirePort.C);
 
 // inertial imu(PORT19);
@@ -60,13 +62,22 @@ robot_specs_t robot_cfg = {
 
 };
 
+PID::pid_config_t lift_pid_cfg = {
+  .p = 40000,
+  .i = 0,
+  .d = 1000,
+  .f = 0,
+
+  .deadband = .1,
+  .on_target_time = .1
+};
+
 // OdometryTank odom(left_motors, right_motors, robot_cfg);
 
 TankDrive drive(left_motors, right_motors, robot_cfg);
 
 
-
-Lift lift_subsys(lift_motors, claw_solenoid);
+Lift lift_subsys(lift_motors, lift_home, claw_solenoid, lift_pid_cfg);
 RingCollector ring_subsys(fork_motor, conveyor_motor);
 
 controller main_controller;
