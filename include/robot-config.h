@@ -30,7 +30,7 @@ extern TankDrive drive;
 
 extern OdometryTank odom;
 
-// extern inertial imu;
+extern inertial imu;
 
 
 

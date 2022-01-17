@@ -32,27 +32,27 @@ void Lift::control(bool up_btn, bool down_btn, bool claw_btn)
   switch(current_lift_pos)
   {
     case DOWN:
-      if(up_new_press)
+      if(up_new_press || is_ring_collecting)
         current_lift_pos = DRIVING;
 
     break;
     case DRIVING:
       if(up_new_press)
-        current_lift_pos = PLATFORM;
+        current_lift_pos = UP;
       if(down_new_press)
         current_lift_pos = DOWN;
 
     break;
-    case PLATFORM:
-      if(up_new_press)
-        current_lift_pos = UP;
-      if(down_new_press)
-        current_lift_pos = DRIVING;
+    // case PLATFORM:
+    //   if(up_new_press)
+    //     current_lift_pos = UP;
+    //   if(down_new_press)
+    //     current_lift_pos = DRIVING;
 
-    break;
+    // break;
     case UP:
       if(down_new_press)
-        current_lift_pos = PLATFORM;
+        current_lift_pos = DRIVING;
 
     break;
     default:
@@ -167,4 +167,9 @@ bool Lift::home(bool blocking)
   } while(blocking);
 
   return false;
+}
+
+void Lift::set_ring_collecting(bool val)
+{
+  is_ring_collecting = val;
 }

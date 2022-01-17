@@ -23,6 +23,8 @@ class Lift
 
   bool home(bool blocking=true);
 
+  void set_ring_collecting(bool val);
+
   private:
 
   LiftPosition current_lift_pos = DOWN;
@@ -31,4 +33,6 @@ class Lift
   vex::limit &lift_home;
   vex::pneumatics &lift_claw;
   PID lift_pid;
+
+  bool is_ring_collecting = false;
 };

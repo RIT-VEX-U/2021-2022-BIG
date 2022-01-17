@@ -21,7 +21,6 @@ void RingCollector::control(bool btn_lower_fork, bool btn_toggle_collect)
 
   bool collect_toggle_new_press = btn_toggle_collect && !btn_toggle_collect_last;
 
-
   // ======== FORK CONTROLS =======
   
   switch(curr_position)
@@ -73,14 +72,12 @@ void RingCollector::control(bool btn_lower_fork, bool btn_toggle_collect)
 
     break;
     case LOADING:
-
       if(collect_toggle_new_press)
         curr_position = DRIVING;
       
       if(btn_lower_fork)
         curr_position = DOWN_COOLDOWN;
 
-      lift_subsys.set_lift_height(Lift::LiftPosition::DRIVING);
       conveyor.spin(directionType::fwd, 100, percentUnits::pct);
 
     break;
@@ -89,6 +86,9 @@ void RingCollector::control(bool btn_lower_fork, bool btn_toggle_collect)
   }
   
   set_fork_pos(curr_position);
+
+  // Make sure the lift is out of the way while collecting
+  lift_subsys.set_ring_collecting(curr_position == LOADING);
 
   btn_toggle_collect_last = btn_toggle_collect;
 }

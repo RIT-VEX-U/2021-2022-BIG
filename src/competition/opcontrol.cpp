@@ -8,46 +8,28 @@
 void OpControl::opcontrol() 
 {
   // ========== INIT ==========
-  // imu.calibrate();
-  // while(imu.isCalibrating()) {
-  //   vexDelay(20);
-  //   }
+  imu.calibrate();
+  while(imu.isCalibrating()) {
+    vexDelay(20);
+    }
+  // odom.set_position({.x = 24, .y=14, .rot=90});
   // odom.set_position();
+  lift_subsys.home();
+  // odom.set_position({.x = 24, .y=14, .rot=90}); // starting pos
 
-  
-    // while(!drive.drive_to_point(24, 24, .5, .25)){vexDelay(20);}
-    // while(!drive.turn_to_heading(270, .5)){vexDelay(20);}
-    // while(!drive.drive_to_point(24, 0, .5, .25)){vexDelay(20);}
-    // while(!drive.turn_to_heading(180, .5)){vexDelay(20);}
-    // while(!drive.drive_to_point(48, 0, .5, .25)){vexDelay(20);}
-    // while(!drive.turn_to_heading(-45, .5)){vexDelay(20);}
-    // while(!drive.drive_to_point(0, 48, .5, .25)){vexDelay(20);}
-    // while(!drive.turn_to_heading(270, .5)){vexDelay(20);}
-    // while(!drive.drive_to_point(0, 0, .5, .25)){vexDelay(20);}
-    // while(!drive.turn_to_heading(90, .5)){vexDelay(20);}
+  // static std::vector<PurePursuit::hermite_point> path_to_neutral = {{.x = 24, .y=14, .dir=deg2rad(90), .mag=25},{.x=36, .y=55, .dir=deg2rad(90), .mag=25}};    
+  // GenericAuto a1;
+  // a1.add([](){return drive.pure_pursuit(path_to_neutral, 6, .5, 20);});
+  // a1.add([](){return drive.drive_to_point(36, 62, .2, 1);});
+  // a1.add([](){claw_solenoid.open(); return true;});
+  // a1.add([](){return drive.drive_to_point(24, 12, .5, 1, directionType::rev);});
 
-    /*
-    GenericAuto a1;
-
-    a1.add([](){return drive.drive_to_point(48, 24, .5, .5);});
-    // a1.add([](){return drive.turn_to_heading(45, .5);}); 
-    // a1.add([](){return drive.drive_to_point(24, 24, .5, .5);});
-    // a1.add([](){return drive.turn_to_heading(270, .5);});
-    // a1.add([](){return drive.drive_to_point(24, 0, .5, .5);});
-    // a1.add([](){return drive.turn_to_heading(0, .5);});
-    // a1.add([](){return drive.drive_to_point(48, 0, .5, .5);});
-    // a1.add([](){return drive.turn_to_heading(90, .5);});
-    // a1.add([](){return drive.drive_to_point(48, 48, .5, .5);});
-    // a1.add([](){return drive.turn_to_heading(225, .5);});
-    // a1.add([](){return drive.drive_to_point(0, 0, .5, .5);});
-    // a1.add([](){return drive.turn_to_heading(90, .5);});
-
-    a1.run(true);
-    */
+  // a1.run(true);
+    
 
   // std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
 
-  lift_subsys.home();
+  
 
   // ========== LOOP ==========
   while(true)
@@ -78,7 +60,7 @@ void OpControl::opcontrol()
 
     // ========== AUTOMATION ==========
 
-    // printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     fflush(stdout);
     fflush(stderr);
 
