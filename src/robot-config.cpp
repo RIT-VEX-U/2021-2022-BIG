@@ -35,7 +35,7 @@ robot_specs_t robot_cfg = {
   .odom_gear_ratio = 1,//2.333333, // inches
   .dist_between_wheels = 9.75, // inches
 
-  .drive_correction_cutoff = 4, //inches
+  .drive_correction_cutoff = 12, //inches
 
   .drive_pid = (PID::pid_config_t) 
   {
@@ -45,7 +45,7 @@ robot_specs_t robot_cfg = {
     .f = 0,
     .k = .1,
     .deadband = 0.3,
-    .on_target_time = 0.1
+    .on_target_time = 0
   },
 
   .turn_pid = (PID::pid_config_t)
@@ -60,7 +60,7 @@ robot_specs_t robot_cfg = {
 
   .correction_pid = (PID::pid_config_t)
   {
-    .p = 0.01
+    .p = 0.02
   }
 
 };
@@ -107,5 +107,5 @@ controller main_controller;
  * This should be called at the start of your int main function.
  */
 void vexcodeInit( void ) {
-  // nothing to initialize
+  imu.calibrate();
 }

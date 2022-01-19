@@ -1,6 +1,7 @@
 #include "competition/opcontrol.h"
 #include "robot-config.h"
 #include "../core/include/utils/generic_auto.h"
+#include "competition/autonomous.h"
 
 /**
  * Contains the main loop of the robot code while running in the driver-control period.
@@ -8,34 +9,22 @@
 void OpControl::opcontrol() 
 {
   // ========== INIT ==========
-  imu.calibrate();
-  while(imu.isCalibrating()) {
-    vexDelay(20);
-    }
-  // odom.set_position({.x = 24, .y=14, .rot=90});
-  // odom.set_position();
-  lift_subsys.home();
-  // odom.set_position({.x = 24, .y=14, .rot=90}); // starting pos
-
-  // static std::vector<PurePursuit::hermite_point> path_to_neutral = {{.x = 24, .y=14, .dir=deg2rad(90), .mag=25},{.x=36, .y=55, .dir=deg2rad(90), .mag=25}};    
-  // GenericAuto a1;
-  // a1.add([](){return drive.pure_pursuit(path_to_neutral, 6, .5, 20);});
-  // a1.add([](){return drive.drive_to_point(36, 62, .2, 1);});
-  // a1.add([](){claw_solenoid.open(); return true;});
-  // a1.add([](){return drive.drive_to_point(24, 12, .5, 1, directionType::rev);});
-
-  // a1.run(true);
+  // imu.calibrate();
+  // while(imu.isCalibrating()) {
+  //   }
     
+  lift_subsys.home();
 
-  // std::vector<Vector::point_t> path = {{0,0}, {10,4}, {20,10},{25,25}};
+  // Autonomous::autonomous();
+  // odom.set_position({.x=21.7, .y=13.7, .rot=77.5});
 
-  
 
   // ========== LOOP ==========
   while(true)
   {
     // ========== DRIVING CONTROLS ==========
     drive.drive_tank(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
+    // drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
 
     
 

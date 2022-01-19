@@ -7,22 +7,41 @@
  */ 
 void Autonomous::autonomous() 
 {
+  while(imu.isCalibrating());
+
+  task homing_task([](){
+    lift_subsys.home();
+    lift_subsys.set_lift_height(Lift::LiftPosition::DOWN);
+    return 0;
+  });
+
   // ========== INIT ==========
+  // Odometry set up
+  odom.set_position({.x=21.7, .y=13.7, .rot=77.5});
 
   //Main auto path
-  odom.set_position({.x = 24, .y=14, .rot=90}); // starting pos
-
-  std::vector<PurePursuit::hermite_point> path_to_neutral = {{.x = 24, .y=14, .dir=90, .mag=50},{.x=27, .y=63, .dir=55, .mag=50}};
-
-  std::vector<PurePursuit::hermite_point> path_from_neutral = {{.x=27, .y=63, .dir=55, .mag=50}, {.x=12, .y=24, .dir=90, .mag=50}};
-
   GenericAuto auto1;
-  // auto1.add([](){return drive.pure_pursuit(std::vector<PurePursuit::hermite_point> path, double radius, double speed, double res)});
+  
+  // Create a task that waits until we are 3 inches away from the goal, then deploys
+  auto1.add([](){
+    task toggleClawTask([](){
+      while(odom.pos_diff(odom.get_position(), {.x=32, .y=60}) >= 1); // do nothing
+      claw_solenoid.open();
+      return 0;
+    });
+    return true;
+  });
+
+  auto1.add([](){return drive.drive_to_point(32, 60, .75, 1, directionType::fwd);});
+  auto1.add([](){return drive.drive_to_point(12, 12, .5, 1, directionType::rev);});
+
+  auto1.run(true);
+  drive.stop();
 
   // ========== MAIN LOOP ==========
   while(true)
   {
-
+    
   }
 
 }
