@@ -5,6 +5,8 @@
 #define LIFT_PLATFORM 1.5
 #define LIFT_UP 2.0
 
+#define LIFT_SPEED 3.0
+
 
 Lift::Lift(vex::motor_group &lift_motors, vex::limit &lift_home, vex::pneumatics &lift_claw, PID::pid_config_t &lift_pid_cfg)
 : lift_motors(lift_motors), lift_home(lift_home), lift_claw(lift_claw), lift_pid(lift_pid_cfg)
@@ -20,13 +22,42 @@ Lift::Lift(vex::motor_group &lift_motors, vex::limit &lift_home, vex::pneumatics
   */
 void Lift::control(bool up_btn, bool down_btn, bool claw_btn)
 {
-  static bool up_btn_last = false, down_btn_last = false, claw_btn_last = false;
-
+  
+  static bool claw_btn_last = false;
   static bool claw_state = false;
 
-  bool up_new_press = (up_btn && !up_btn_last);
-  bool down_new_press = (down_btn && !down_btn_last);
+  static double lift_setpt = LIFT_DOWN;
+  static timer ctl_tmr;
+
+  // bool up_new_press = (up_btn && !up_btn_last);
+  // bool down_new_press = (down_btn && !down_btn_last);
   bool claw_new_press = (claw_btn && !claw_btn_last);
+
+  double pos = lift_motors.position(rotationUnits::rev);
+
+  double min = (is_ring_collecting) ? LIFT_DRIVE : LIFT_DOWN ;
+
+  if(up_btn && pos < LIFT_UP)
+  {
+    // lift_setpt += LIFT_SPEED * ctl_tmr.time(timeUnits::sec);
+    lift_setpt = pos;
+    lift_motors.spin(directionType::fwd, 12, voltageUnits::volt);
+  } else if (down_btn && pos > min)
+  {
+    lift_setpt -= LIFT_SPEED * ctl_tmr.time(timeUnits::sec);
+    hold_lift(lift_setpt);
+  } else if (pos < min)
+  {
+    lift_setpt = min;
+    hold_lift(lift_setpt);
+  }else
+  {
+    hold_lift(lift_setpt);
+  }
+
+  ctl_tmr.reset();
+  
+  /*
 
   // Lift program control through a state machine
   switch(current_lift_pos)
@@ -60,6 +91,7 @@ void Lift::control(bool up_btn, bool down_btn, bool claw_btn)
   }
 
   set_lift_height(current_lift_pos);
+  */
 
   // Toggle the claw and reset the lift integral term to avoid snap-back
   if(claw_new_press)
@@ -69,8 +101,6 @@ void Lift::control(bool up_btn, bool down_btn, bool claw_btn)
     lift_claw.set(claw_state);
   }
 
-  up_btn_last = up_btn;
-  down_btn_last = down_btn;
   claw_btn_last = claw_btn;
 }
 
