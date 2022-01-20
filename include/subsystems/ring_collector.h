@@ -10,7 +10,7 @@ class RingCollector
   
   enum ForkPosition
   {
-    UP, DOWN, DOWN_COOLDOWN, DRIVING, DRIVING_COOLDOWN, LOADING
+    UP, DOWN, DOWN_COOLDOWN, DRIVING, DRIVING_COOLDOWN, LOADING, UNJAMING
   };
 
   RingCollector(vex::motor &fork, vex::motor &conveyor, vex::optical &goal_sensor, Lift &lift_subsys, PID::pid_config_t &fork_pid_config);
@@ -20,6 +20,8 @@ class RingCollector
   bool set_fork_pos(ForkPosition pos);
 
   void hold(double pos);
+
+  void home();
 
   private:
 

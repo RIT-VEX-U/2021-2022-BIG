@@ -14,6 +14,7 @@ void OpControl::opcontrol()
   //   }
     
   lift_subsys.home();
+  ring_subsys.home();
 
   // Autonomous::autonomous();
   // odom.set_position({.x=21.7, .y=13.7, .rot=77.5});
@@ -49,7 +50,9 @@ void OpControl::opcontrol()
 
     // ========== AUTOMATION ==========
 
-    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+
+    printf("current: %f\n", conveyor_motor.current());
+    // printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     fflush(stdout);
     fflush(stderr);
 

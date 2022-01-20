@@ -5,7 +5,7 @@
 #define LIFT_PLATFORM 1.5
 #define LIFT_UP 2.0
 
-#define LIFT_SPEED 3.0
+#define LIFT_SPEED 2.0
 
 
 Lift::Lift(vex::motor_group &lift_motors, vex::limit &lift_home, vex::pneumatics &lift_claw, PID::pid_config_t &lift_pid_cfg)
