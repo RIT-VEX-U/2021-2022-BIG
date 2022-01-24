@@ -1,17 +1,31 @@
 #include "subsystems/ring_collector.h"
 
 #define FORK_UP 0
-#define FORK_DOWN 2.5
+#define FORK_DOWN 2.7
 #define FORK_DRIVING 1.8
 #define FORK_LOADING 1.05
 
-#define CONV_MAX_CURRENT 2
-#define CONV_JAM_TIME .3
+#define CONV_MAX_CURRENT 1
+#define CONV_JAM_TIME .5
 
 RingCollector::RingCollector(vex::motor &fork, vex::motor &conveyor, vex::optical &goal_sensor, Lift &lift_subsys, PID::pid_config_t &fork_pid_cfg)
 : fork(fork), conveyor(conveyor), goal_sensor(goal_sensor), lift_subsys(lift_subsys), fork_pid(fork_pid_cfg)
 {
+  hold_thread = true;
 
+  task t([](void* ptr){
+    RingCollector &ring_subsys = *((RingCollector*) ptr);
+
+    while(true)
+    {
+      if(ring_subsys.get_hold_thread())
+        ring_subsys.hold();
+      
+      vexDelay(20);
+    }
+
+    return 0;
+  }, this);
 }
 
 /**
@@ -131,31 +145,36 @@ void RingCollector::control(bool btn_lower_fork, bool btn_toggle_collect)
 
 bool RingCollector::set_fork_pos(ForkPosition pos)
 {
+  hold_thread = true;
+
   switch(pos)
   {
     case UP:
-      hold(FORK_UP);
+      fork_setpoint = FORK_UP;
     break;
     case DOWN:
     case DOWN_COOLDOWN:
     case DRIVING_COOLDOWN:
-      hold(FORK_DOWN);
+      fork_setpoint = FORK_DOWN;
     break;
     case DRIVING:
-      hold(FORK_DRIVING);
+      fork_setpoint = FORK_DRIVING;
     break;
     case LOADING:
-      hold(FORK_LOADING);
+      fork_setpoint = FORK_LOADING;
     break;
     default:
     break;
   }
 
-  return fork_pid.is_on_target();
+  return (fork_pid.get_target() == fork_setpoint) && fork_pid.is_on_target();
 }
 
 void RingCollector::hold(double pos)
 {
+  if(pos == __DBL_MAX__)
+    pos = fork_setpoint;
+
   fork_pid.set_target(pos);
   fork_pid.update(fork.rotation(rotationUnits::rev));
 
@@ -164,10 +183,18 @@ void RingCollector::hold(double pos)
 
 void RingCollector::home()
 {
-  while(fork.current() < 2.0)
+  static timer tmr;
+  tmr.reset();
+
+  while(fork.current() < 2.0 && tmr.time(sec) < 3)
   {
     fork.spin(directionType::rev, 12, voltageUnits::volt);
   }
 
   fork.setPosition(0, rotationUnits::rev);
+}
+
+bool RingCollector::get_hold_thread()
+{
+  return hold_thread;
 }

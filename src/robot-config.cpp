@@ -32,7 +32,7 @@ inertial imu(PORT1);
 robot_specs_t robot_cfg = {
   .robot_radius = 12, // inches
   .odom_wheel_diam = 2.85,//4.25, // inches
-  .odom_gear_ratio = 1,//2.333333, // inches
+  .odom_gear_ratio = 1.03,//2.333333, // inches
   .dist_between_wheels = 9.75, // inches
 
   .drive_correction_cutoff = 12, //inches
@@ -50,9 +50,9 @@ robot_specs_t robot_cfg = {
 
   .turn_pid = (PID::pid_config_t)
   {
-    .p = 0.1,
+    .p = 0.12,
     .i = 0.0,
-    .d = 0.0013,
+    .d = 0.012,
     .f = 0,
     .deadband = 2,
     .on_target_time = 0.1
@@ -60,7 +60,8 @@ robot_specs_t robot_cfg = {
 
   .correction_pid = (PID::pid_config_t)
   {
-    .p = 0.02
+    .p = 0.02,
+    .d = 0.002
   }
 
 };
@@ -68,7 +69,7 @@ robot_specs_t robot_cfg = {
 PID::pid_config_t lift_pid_cfg = {
   .p = 40000,
   .i = 0,
-  .d = 1000,
+  .d = 4000,
   .f = 0,
 
   .deadband = .1,

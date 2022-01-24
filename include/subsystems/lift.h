@@ -2,6 +2,7 @@
 
 #include "vex.h"
 #include "core.h"
+#include "atomic"
 
 class Lift
 {
@@ -19,15 +20,19 @@ class Lift
 
   bool set_lift_height(LiftPosition pos);
 
-  void hold_lift(double rot);
+  void hold_lift(double rot=__DBL_MAX__);
 
   bool home(bool blocking=true);
 
   void set_ring_collecting(bool val);
 
+  bool get_bg_hold();
+
+  std::atomic<bool> hold;
+
   private:
 
-  LiftPosition current_lift_pos = DOWN;
+  // LiftPosition current_lift_pos = DOWN;
 
   vex::motor_group &lift_motors;
   vex::limit &lift_home;
@@ -35,4 +40,6 @@ class Lift
   PID lift_pid;
 
   bool is_ring_collecting = false;
+  double setpoint;
+  
 };

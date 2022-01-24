@@ -3,7 +3,7 @@
 #define LIFT_DOWN 0
 #define LIFT_DRIVE .5
 #define LIFT_PLATFORM 1.5
-#define LIFT_UP 2.0
+#define LIFT_UP 1.5
 
 #define LIFT_SPEED 2.0
 
@@ -11,7 +11,21 @@
 Lift::Lift(vex::motor_group &lift_motors, vex::limit &lift_home, vex::pneumatics &lift_claw, PID::pid_config_t &lift_pid_cfg)
 : lift_motors(lift_motors), lift_home(lift_home), lift_claw(lift_claw), lift_pid(lift_pid_cfg)
 {
+  hold = true;
 
+  task bg([](void* ptr){
+    Lift &lift = *((Lift*)ptr);
+
+    while(true)
+    {
+      if(lift.get_bg_hold())
+        lift.hold_lift();
+
+      vexDelay(20);
+    }
+
+    return 0;
+  }, this);
 }
 
 /**
@@ -26,7 +40,6 @@ void Lift::control(bool up_btn, bool down_btn, bool claw_btn)
   static bool claw_btn_last = false;
   static bool claw_state = false;
 
-  static double lift_setpt = LIFT_DOWN;
   static timer ctl_tmr;
 
   // bool up_new_press = (up_btn && !up_btn_last);
@@ -40,19 +53,20 @@ void Lift::control(bool up_btn, bool down_btn, bool claw_btn)
   if(up_btn && pos < LIFT_UP)
   {
     // lift_setpt += LIFT_SPEED * ctl_tmr.time(timeUnits::sec);
-    lift_setpt = pos;
+    setpoint = pos + .3;
     lift_motors.spin(directionType::fwd, 12, voltageUnits::volt);
+    hold = false;
   } else if (down_btn && pos > min)
   {
-    lift_setpt -= LIFT_SPEED * ctl_tmr.time(timeUnits::sec);
-    hold_lift(lift_setpt);
+    setpoint -= LIFT_SPEED * ctl_tmr.time(timeUnits::sec);
+    hold = true;
   } else if (pos < min)
   {
-    lift_setpt = min;
-    hold_lift(lift_setpt);
+    setpoint = min;
+    hold = true;
   }else
   {
-    hold_lift(lift_setpt);
+    hold = true;
   }
 
   ctl_tmr.reset();
@@ -139,20 +153,22 @@ bool Lift::set_lift_height(LiftPosition pos)
   switch(pos)
   {
     case DOWN:
-      hold_lift(LIFT_DOWN);
+      setpoint = LIFT_DOWN;
     break;
     case DRIVING:
-      hold_lift(LIFT_DRIVE);
+      setpoint = LIFT_DRIVE;
     break;
     case PLATFORM:
-      hold_lift(LIFT_PLATFORM);
+      setpoint = LIFT_PLATFORM;
     break;
     case UP:
-      hold_lift(LIFT_UP);
+      setpoint = LIFT_UP;
     break;
     default:
     break;
   }
+
+  hold = true;
 
   return lift_pid.is_on_target();
 }
@@ -162,9 +178,12 @@ bool Lift::set_lift_height(LiftPosition pos)
   */
 void Lift::hold_lift(double rot)
 {
+  if(rot == __DBL_MAX__)
+    rot=setpoint;
+
   lift_pid.set_target(rot);
   lift_pid.update(lift_motors.rotation(rotationUnits::rev));
-
+  
   lift_motors.spin(directionType::fwd, lift_pid.get(), voltageUnits::mV);
 }
 
@@ -179,6 +198,7 @@ bool Lift::home(bool blocking)
   if(!is_init)
   {
     watchdog.reset();
+    hold = false;
     is_init = false;
   }
 
@@ -189,6 +209,8 @@ bool Lift::home(bool blocking)
     {
       lift_motors.setPosition(0, rotationUnits::rev);
       is_init = false;
+      hold = true;
+      setpoint = LIFT_DOWN;
       return true;
     }
 
@@ -202,4 +224,9 @@ bool Lift::home(bool blocking)
 void Lift::set_ring_collecting(bool val)
 {
   is_ring_collecting = val;
+}
+
+bool Lift::get_bg_hold()
+{
+  return hold;
 }

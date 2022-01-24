@@ -8,17 +8,36 @@
  */
 void OpControl::opcontrol() 
 {
+  // Autonomous::autonomous();
   // ========== INIT ==========
   // imu.calibrate();
-  // while(imu.isCalibrating()) {
-  //   }
+  while(imu.isCalibrating());
     
+  // odom.set_position({.x=23.5, .y=12, .rot=180});
+
   lift_subsys.home();
   ring_subsys.home();
 
-  // Autonomous::autonomous();
+  // task t([](){
+  //   printf("angle: %f\n", odom.get_position().rot);
+  //   fflush(stdout);
+  //   return 0;
+  // });
+
+  // odom.set_position();
+
+  // GenericAuto a1;
+  // a1.add([](){
+  //   return drive.drive_to_point(12, 24, .5, 1);
+  //   });
+
+  // a1.run(true);
+
+  // return;
+
   // odom.set_position({.x=21.7, .y=13.7, .rot=77.5});
 
+  // odom.set_position({0,0,90});
 
   // ========== LOOP ==========
   while(true)
@@ -33,7 +52,7 @@ void OpControl::opcontrol()
     lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonR2.pressing(), main_controller.ButtonX.pressing());
 
     ring_subsys.control(main_controller.ButtonL2.pressing(), main_controller.ButtonL1.pressing());
-
+    
     // lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonL1.pressing(), 
     //                     main_controller.ButtonB.pressing(), main_controller.ButtonA.pressing());
     
@@ -51,8 +70,8 @@ void OpControl::opcontrol()
     // ========== AUTOMATION ==========
 
 
-    printf("current: %f\n", conveyor_motor.current());
-    // printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    // printf("Dist: %f\n", OdometryBase::pos_diff(odom.get_position(), {0,0,90}));
     fflush(stdout);
     fflush(stderr);
 

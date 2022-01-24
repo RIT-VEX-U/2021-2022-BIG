@@ -3,6 +3,7 @@
 #include "vex.h"
 #include "core.h"
 #include "subsystems/lift.h"
+#include <atomic>
 
 class RingCollector
 {
@@ -19,9 +20,13 @@ class RingCollector
 
   bool set_fork_pos(ForkPosition pos);
 
-  void hold(double pos);
+  void hold(double pos=__DBL_MAX__);
 
   void home();
+
+  bool get_hold_thread();
+
+  std::atomic<bool> hold_thread;
 
   private:
 
@@ -30,6 +35,8 @@ class RingCollector
   vex::motor &fork, &conveyor;
   vex::optical &goal_sensor;
   Lift &lift_subsys;
+
+  double fork_setpoint;
 
   PID fork_pid;
 
