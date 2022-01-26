@@ -23,7 +23,7 @@ double lift::get_length(){
 */
 bool lift::liftDown(){
   if(liftBtn.pressing()){
-    fourbar.setPosition(lift.sAngle, deg); //if button is being pressed, reset position
+    fourbar.setPosition(lift.sAngle/lift.gearRatio, deg); //if button is being pressed, reset position
     return true;
   }
   return false;
@@ -33,7 +33,7 @@ bool lift::liftDown(){
 * Returns the hight 
 */
 double lift::get_height(){
-  double height = lift.startHeight - lift.offset - cos(lLift.position(deg))*lift.length; //from kindematics -- the greater the angle, the higher the lift
+  double height = lift.startHeight - lift.offset - cos(lLift.position(deg*lift.gearRatio))*lift.length; //from kindematics -- the greater the angle, the higher the lift
   return height;
 }
 
