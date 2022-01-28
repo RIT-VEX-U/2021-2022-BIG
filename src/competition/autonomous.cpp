@@ -2,6 +2,9 @@
 #include "core.h"
 #include "robot-config.h"
 
+/**
+ * Simple autonomous program to rush the goal before the other alliance does
+ */
 void auto_rush_goal()
 {
   task homing_task([](){
@@ -39,6 +42,9 @@ void auto_rush_goal()
   drive.stop();
 }
 
+/**
+ * Simple auto to guarentee an auto win point
+ */
 void auto_simple_qual()
 {
   odom.set_position({.x=22.5, .y=14, .rot=180});
@@ -252,7 +258,7 @@ void Autonomous::autonomous()
 {
   while(imu.isCalibrating());
 
-  odom.set_position({.x=15.5, .y=11.5, .rot=180});
+  // odom.set_position({.x=15.5, .y=11.5, .rot=180});
 
   // ========== INIT ==========
   
@@ -261,7 +267,7 @@ void Autonomous::autonomous()
   // ========== MAIN LOOP ==========
 
   // auto_rush_goal();
-  // auto_simple_qual();
-  skills();
+  auto_simple_qual();
+  // skills();
 
 }

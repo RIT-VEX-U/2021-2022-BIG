@@ -7,7 +7,9 @@
 
 #define LIFT_SPEED 2.0
 
-
+/**
+ * Create a lift instance with an always-running background thread setting the position
+ */
 Lift::Lift(vex::motor_group &lift_motors, vex::limit &lift_home, vex::pneumatics &lift_claw, PID::pid_config_t &lift_pid_cfg)
 : lift_motors(lift_motors), lift_home(lift_home), lift_claw(lift_claw), lift_pid(lift_pid_cfg)
 {
@@ -70,42 +72,6 @@ void Lift::control(bool up_btn, bool down_btn, bool claw_btn)
   }
 
   ctl_tmr.reset();
-  
-  /*
-
-  // Lift program control through a state machine
-  switch(current_lift_pos)
-  {
-    case DOWN:
-      if(up_new_press || is_ring_collecting)
-        current_lift_pos = DRIVING;
-
-    break;
-    case DRIVING:
-      if(up_new_press)
-        current_lift_pos = UP;
-      if(down_new_press)
-        current_lift_pos = DOWN;
-
-    break;
-    // case PLATFORM:
-    //   if(up_new_press)
-    //     current_lift_pos = UP;
-    //   if(down_new_press)
-    //     current_lift_pos = DRIVING;
-
-    // break;
-    case UP:
-      if(down_new_press)
-        current_lift_pos = DRIVING;
-
-    break;
-    default:
-    break;
-  }
-
-  set_lift_height(current_lift_pos);
-  */
 
   // Toggle the claw and reset the lift integral term to avoid snap-back
   if(claw_new_press)
@@ -221,11 +187,18 @@ bool Lift::home(bool blocking)
   return false;
 }
 
+/**
+ * Let the lift subsystem know if the user is collecting rings, to set the lift hight
+ * appropriately.
+ */
 void Lift::set_ring_collecting(bool val)
 {
   is_ring_collecting = val;
 }
 
+/**
+ * Get whether or not the separate thread should be in control of the lift motors
+ */
 bool Lift::get_bg_hold()
 {
   return hold;

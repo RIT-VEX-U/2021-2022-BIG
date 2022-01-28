@@ -8,6 +8,10 @@
 #define CONV_MAX_CURRENT 1
 #define CONV_JAM_TIME .5
 
+/**
+ * Create an instance of the "ring collector" subsystem, which consists of the fork and the conveyor system.
+ * Also create a background thread to hold the fork at a setpoint w/ a PID
+ */
 RingCollector::RingCollector(vex::motor &fork, vex::motor &conveyor, vex::optical &goal_sensor, Lift &lift_subsys, PID::pid_config_t &fork_pid_cfg)
 : fork(fork), conveyor(conveyor), goal_sensor(goal_sensor), lift_subsys(lift_subsys), fork_pid(fork_pid_cfg)
 {
@@ -29,7 +33,12 @@ RingCollector::RingCollector(vex::motor &fork, vex::motor &conveyor, vex::optica
 }
 
 /**
-  * Control overview:
+  * Control the Ring subsystem with a fork toggle button and a conveyor toggle button.
+  * Toggling the fork checks the optical for a goal, and if there's one there, it goes to the "driving" position.
+  * If there isn't a goal there, it goes to the "up" position out of the way for the driver
+  * 
+  * There is also a jamming detection built in. If the conveyor jams, the current spikes in the motor.
+  * Detect that, and run the conveyor backwords for a bit and resume.
   */
 void RingCollector::control(bool btn_lower_fork, bool btn_toggle_collect)
 {
@@ -62,12 +71,6 @@ void RingCollector::control(bool btn_lower_fork, bool btn_toggle_collect)
           curr_position = UP;
       }
 
-      // if(goal_sensor.isNearObject() && !btn_lower_fork)
-      // {
-      //   tmr.reset();
-      //   curr_position = DOWN_COOLDOWN;
-      // }
-
       if(collect_toggle_new_press)
         curr_position = LOADING;
 
@@ -83,11 +86,7 @@ void RingCollector::control(bool btn_lower_fork, bool btn_toggle_collect)
     break;
     case DRIVING:
       if(lower_fork_new_press)
-      {
         curr_position = DOWN;
-        // tmr.reset();
-        // curr_position = DRIVING_COOLDOWN;
-      }
 
       if(collect_toggle_new_press)
         curr_position = LOADING;
@@ -143,6 +142,10 @@ void RingCollector::control(bool btn_lower_fork, bool btn_toggle_collect)
   btn_lower_fork_last = btn_lower_fork;
 }
 
+/**
+ * Set the position of the fork to one of the predefined positions:
+ * DOWN, DRIVING, LOADING, and UP
+ */
 bool RingCollector::set_fork_pos(ForkPosition pos)
 {
   hold_thread = true;
@@ -170,6 +173,9 @@ bool RingCollector::set_fork_pos(ForkPosition pos)
   return (fork_pid.get_target() == fork_setpoint) && fork_pid.is_on_target();
 }
 
+/**
+ * Update the fork PID loop with new sensor information, and set the motor.
+ */
 void RingCollector::hold(double pos)
 {
   if(pos == __DBL_MAX__)
@@ -181,6 +187,10 @@ void RingCollector::hold(double pos)
   fork.spin(directionType::fwd, fork_pid.get(), voltageUnits::mV);
 }
 
+/**
+ * Automatically home the fork by checking for a current spike when hitting the hard stop.
+ * Not the most gracious method, but it works...mostly
+ */
 void RingCollector::home()
 {
   static timer tmr;
@@ -194,6 +204,9 @@ void RingCollector::home()
   fork.setPosition(0, rotationUnits::rev);
 }
 
+/**
+ * Returns whether or not the separate thread is being used to set the fork.
+ */
 bool RingCollector::get_hold_thread()
 {
   return hold_thread;
