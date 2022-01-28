@@ -3,7 +3,7 @@
 #define LIFT_DOWN 0
 #define LIFT_DRIVE .5
 #define LIFT_PLATFORM 1.5
-#define LIFT_UP 1.5
+#define LIFT_UP 2.1
 
 #define LIFT_SPEED 2.0
 

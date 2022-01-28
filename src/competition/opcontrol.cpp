@@ -8,7 +8,7 @@
  */
 void OpControl::opcontrol() 
 {
-  // Autonomous::autonomous();
+  Autonomous::autonomous();
   // ========== INIT ==========
   // imu.calibrate();
   while(imu.isCalibrating());

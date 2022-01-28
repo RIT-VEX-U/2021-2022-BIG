@@ -30,6 +30,8 @@ class Lift
 
   std::atomic<bool> hold;
 
+  double setpoint;
+
   private:
 
   // LiftPosition current_lift_pos = DOWN;
@@ -40,6 +42,6 @@ class Lift
   PID lift_pid;
 
   bool is_ring_collecting = false;
-  double setpoint;
+  
   
 };

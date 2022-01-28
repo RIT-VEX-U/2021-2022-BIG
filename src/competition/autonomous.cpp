@@ -23,7 +23,7 @@ void auto_rush_goal()
   //Main auto path
   GenericAuto auto1;
   
-  // Create a task that waits until we are 3 inches away from the goal, then deploys
+  // Create a task that waits until we are x inches away from the goal, then deploys
   auto1.add([](){
     task toggleClawTask([](){
       while(odom.pos_diff(odom.get_position(), {.x=32, .y=60}) >= 1); // do nothing
@@ -49,6 +49,7 @@ void auto_simple_qual()
   static bool is_conv_done = false;
 
   GenericAuto auto1;
+  // Start with the fork facing the goal. Drive torwards it, pick it up, deposit preloads
   auto1.add([](){return ring_subsys.set_fork_pos(RingCollector::ForkPosition::DOWN);});
   auto1.add([](){lift_subsys.set_lift_height(Lift::DOWN); return true;});
   auto1.add([](){return drive.drive_to_point(35, 12, .4, 1, directionType::rev);});
@@ -68,6 +69,7 @@ void auto_simple_qual()
     
     return true;
   });
+
   auto1.add([](){ring_subsys.set_fork_pos(RingCollector::LOADING); return drive.drive_to_point(24, 24, .5, 1);});
   auto1.add([](){return is_conv_done;});
   auto1.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
@@ -79,11 +81,6 @@ void auto_simple_qual()
   auto1.add([](){return drive.drive_to_point(16, 24, .5, 1, directionType::rev);});
 
   auto1.run(true);
-}
-
-void auto_rings()
-{
-  auto_rush_goal();
 }
 
 void skills()
@@ -110,6 +107,7 @@ void skills()
     return true;    
   };
 
+  // General "open claw" task with delay
   static state_ptr open_claw = [](){
     static timer t;
     t.reset();
@@ -118,6 +116,7 @@ void skills()
     return true;
   };
 
+  // General "close claw" task with delay
   static state_ptr close_claw = [](){
     static timer t;
     t.reset();
@@ -127,11 +126,14 @@ void skills()
   };
 
   GenericAuto a;
+
+  // Start with the fork facing the goal on the ramp; drive and pick it up
   a.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
   a.add([](){return lift_subsys.set_lift_height(Lift::DOWN);});
   a.add([](){return drive.drive_to_point(30, 11.5, .4, 1, directionType::rev);});
   a.add([](){return ring_subsys.set_fork_pos(RingCollector::LOADING);});
   a.add(finish_conveying);
+
   //path to 1st rings
   static std::vector<PurePursuit::hermite_point> p1 = {{.x=30, .y=11.5, .dir=deg2rad(180), .mag=75}, {.x=28, .y=47, .dir=deg2rad(0), .mag=50}};
   a.add([](){return drive.pure_pursuit(p1, 6, .3, 50);});
@@ -140,17 +142,25 @@ void skills()
     return true;
   });
   a.add([](){return drive.turn_to_heading(0, 1);});
+
+  // Pick up 1st line of rings
   a.add([](){
     conveyor_motor.spin(fwd, 12, volt);
     return drive.drive_to_point(82, 47, .3, 1);
     });
   a.add(finish_conveying);
+
+  //Back up and turn to the centre goal
   a.add([](){return drive.drive_to_point(70, 47, .3, 1, directionType::rev);});
   a.add([](){lift_subsys.set_lift_height(Lift::DOWN); claw_solenoid.close(); return drive.turn_to_heading(90, 1);});
+
+  // Grab theh goal, and drive it to the corner of the field
   a.add([](){return drive.drive_to_point(70, 60, .3, 1);});
   a.add([](){claw_solenoid.open(); return true;});
-  a.add([](){return drive.drive_to_point(23, 122, .6, 1);});
+  a.add([](){return drive.drive_to_point(23, 122, .5, 1);});
   a.add([](){claw_solenoid.close(); return true;});
+
+  // Back up, turn around and drive across the field to the opposite alliace goal
   a.add([](){return drive.drive_to_point(29, 110, .4, 1, directionType::rev);});
   a.add([](){return drive.turn_to_heading(0, 1);});
   a.add([](){return drive.drive_to_point(115, 110, .6, 1);});
@@ -165,16 +175,20 @@ void skills()
   a.add([](){return drive.drive_to_point(104, 134, .3, 1);});
   a.add([](){claw_solenoid.open(); return true;});
 
-  // back up
+  // basically a 3 point turn to get out of the corner
   a.add([](){return drive.drive_to_point(123, 125, .3, 1, directionType::rev);});
   a.add([](){return drive.drive_to_point(96.5, 109, .3, 1);});
   a.add([](){return drive.turn_to_heading(180, 1);});
 
   // Begin switching goals
   a.add([](){return drive.drive_to_point(65, 109, .4, 1);});
+
+  // -> Set fork down and drive forwards
   a.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
   a.add([](){return drive.drive_to_point(44, 109, .3, 1);});
   a.add([](){return drive.turn_to_heading(180, .7);});
+
+  // -> open claw, backup and turn around
   a.add([](){
     ring_subsys.set_fork_pos(RingCollector::UP);
     return open_claw();
@@ -182,30 +196,38 @@ void skills()
   a.add([](){return drive.drive_to_point(48, 109, .4, 1, directionType::rev);});
   a.add([](){return drive.turn_to_heading(0, .7);});
   a.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
+
+  // -> grab the goal with the claw, back up, grab the goal with the fork
   a.add([](){return drive.drive_to_point(63, 109.5, .3, 1);});
   a.add(close_claw);
   a.add([](){return drive.drive_to_point(38, 109, .3, 1, directionType::rev);});
   a.add([](){return ring_subsys.set_fork_pos(RingCollector::DRIVING);});
-  a.add([](){lift_subsys.set_lift_height(Lift::UP); return true;});
+  a.add([](){lift_subsys.set_lift_height(Lift::PLATFORM); return true;});
 
   // Drive to goal and place down
   a.add([](){return drive.drive_to_point(64, 106, .3, 1);});
   a.add([](){return drive.turn_to_heading(90, .5);});
   a.add(open_claw);
   
-  // reverse, lower lift, and prepare to get next red goal
+  // reverse, lower lift, and prepare to get next alliance goal
   a.add([](){return drive.drive_to_point(64, 102, .3, 1, directionType::rev);});
   a.add([](){return drive.turn_to_heading(180, .6);});
-  a.add([](){lift_subsys.set_lift_height(Lift::DOWN); return true;});
-  a.add([](){return drive.drive_to_point(24, 105, .4, 1);});
-  a.add([](){return drive.drive_to_point(18.5, 105, .3, 1);});
+  a.add([](){lift_subsys.set_lift_height(Lift::DRIVING); return true;});
+
+  // Drive to the goal fast, then slow, then grab it
+  a.add([](){conveyor_motor.spin(fwd, 12, volt);return drive.drive_to_point(48, 106, .4, 1);});
+  a.add([](){lift_subsys.set_lift_height(Lift::DOWN); conveyor_motor.stop(); return drive.drive_to_point(14, 106, .3, 1);});
   a.add(close_claw);
 
+  // Lift the goal off the ground, spin towards rings, and begin collecting
   a.add([](){lift_subsys.set_lift_height(Lift::DRIVING); ring_subsys.set_fork_pos(RingCollector::LOADING); return true;});
-  a.add([](){return drive.turn_to_heading(270, 1);});
-  a.add([](){conveyor_motor.spin(fwd, 12, volt); return drive.drive_to_point(16, 55, .3, 1);});
-  a.add(finish_conveying);
-  a.add([](){return drive.turn_to_heading(340, .6);});
+  a.add([](){return drive.drive_to_point(25, 105, .3, 1, directionType::rev);});
+  a.add([](){lift_subsys.set_lift_height(Lift::UP); return drive.turn_to_heading(270, 1);});
+  a.add([](){return drive.drive_to_point(23, 23, .4, 1);});
+
+  // a.add([](){conveyor_motor.spin(fwd, 12, volt); return drive.drive_to_point(14, 55, .3, 1);});
+  // a.add(finish_conveying);
+  // a.add([](){return drive.turn_to_heading(340, .6);});
 
 
   a.run(true);
@@ -237,7 +259,6 @@ void Autonomous::autonomous()
 
   // ========== MAIN LOOP ==========
 
-  // auto_rings();
   // auto_rush_goal();
   // auto_simple_qual();
   skills();
