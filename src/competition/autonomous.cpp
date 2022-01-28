@@ -198,9 +198,9 @@ void skills()
   a.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
 
   // -> grab the goal with the claw, back up, grab the goal with the fork
-  a.add([](){return drive.drive_to_point(63, 109.5, .3, 1);});
+  a.add([](){return drive.drive_to_point(65, 109.5, .2, 1);});
   a.add(close_claw);
-  a.add([](){return drive.drive_to_point(38, 109, .3, 1, directionType::rev);});
+  a.add([](){return drive.drive_to_point(37, 109, .3, 1, directionType::rev);});
   a.add([](){return ring_subsys.set_fork_pos(RingCollector::DRIVING);});
   a.add([](){lift_subsys.set_lift_height(Lift::PLATFORM); return true;});
 
@@ -224,6 +224,7 @@ void skills()
   a.add([](){return drive.drive_to_point(25, 105, .3, 1, directionType::rev);});
   a.add([](){lift_subsys.set_lift_height(Lift::UP); return drive.turn_to_heading(270, 1);});
   a.add([](){return drive.drive_to_point(23, 23, .4, 1);});
+  a.add([](){return drive.turn_to_heading(225, .5);});
 
   // a.add([](){conveyor_motor.spin(fwd, 12, volt); return drive.drive_to_point(14, 55, .3, 1);});
   // a.add(finish_conveying);

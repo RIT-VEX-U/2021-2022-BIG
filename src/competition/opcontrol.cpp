@@ -8,15 +8,15 @@
  */
 void OpControl::opcontrol() 
 {
-  Autonomous::autonomous();
+  // Autonomous::autonomous();
   // ========== INIT ==========
   // imu.calibrate();
   while(imu.isCalibrating());
     
   // odom.set_position({.x=23.5, .y=12, .rot=180});
 
-  lift_subsys.home();
-  ring_subsys.home();
+  // lift_subsys.home();
+  // ring_subsys.home();
 
   // task t([](){
   //   printf("angle: %f\n", odom.get_position().rot);
