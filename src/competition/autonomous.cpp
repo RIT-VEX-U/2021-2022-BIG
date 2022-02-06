@@ -266,8 +266,8 @@ void Autonomous::autonomous()
 
   // ========== MAIN LOOP ==========
 
-  // auto_rush_goal();
-  auto_simple_qual();
+  auto_rush_goal();
+  // auto_simple_qual();
   // skills();
 
 }

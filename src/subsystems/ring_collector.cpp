@@ -3,7 +3,7 @@
 #define FORK_UP 0
 #define FORK_DOWN 2.7
 #define FORK_DRIVING 1.8
-#define FORK_LOADING 1.05
+#define FORK_LOADING 1.2
 
 #define CONV_MAX_CURRENT 1
 #define CONV_JAM_TIME .5

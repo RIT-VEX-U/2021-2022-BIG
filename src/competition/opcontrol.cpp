@@ -11,7 +11,7 @@ void OpControl::opcontrol()
   // Autonomous::autonomous();
   // ========== INIT ==========
   // imu.calibrate();
-  while(imu.isCalibrating());
+  // while(imu.isCalibrating());
     
   // lift_subsys.home();
   // ring_subsys.home();
