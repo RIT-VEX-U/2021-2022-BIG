@@ -90,9 +90,22 @@ OdometryTank odom(left_motors, right_motors, robot_cfg, &imu);
 
 TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
 
+Lift<LiftPosition>::lift_cfg_t lift_cfg = {
+  .up_speed = 12, //volts
+  .down_speed = 24, //volts / second
+  .softstop_up = 2.1,
+  .softstop_down = 0
+};
 
-Lift lift_subsys(lift_motors, lift_home, claw_solenoid, lift_pid_cfg);
-RingCollector ring_subsys(fork_motor, conveyor_motor, goal_sensor, lift_subsys, fork_pid_cfg);
+map<LiftPosition, double> lift_map {
+  {DOWN, 0},
+  {DRIVING, 0.5},
+  {PLATFORM, 1.5},
+  {UP, 2.1}
+};
+
+Lift<LiftPosition> lift_subsys(lift_motors, lift_cfg, lift_map);
+// RingCollector ring_subsys(fork_motor, conveyor_motor, goal_sensor, lift_subsys, fork_pid_cfg);
 
 controller main_controller;
 

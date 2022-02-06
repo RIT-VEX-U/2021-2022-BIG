@@ -7,6 +7,7 @@
  */
 void auto_rush_goal()
 {
+  /*
   task homing_task([](){
     lift_subsys.home();
     ring_subsys.home();
@@ -40,6 +41,7 @@ void auto_rush_goal()
   auto1.add([](){return drive.drive_to_point(12, 12, .5, 1, directionType::rev);});
   auto1.run(true);
   drive.stop();
+  */
 }
 
 /**
@@ -47,6 +49,7 @@ void auto_rush_goal()
  */
 void auto_simple_qual()
 {
+  /*
   odom.set_position({.x=22.5, .y=14, .rot=180});
 
   ring_subsys.home();
@@ -250,6 +253,7 @@ void skills()
     vexDelay(20);
   }
   printf("Auto finished\n");
+  */
 }
 /**
  * Contains all the code run during autonomous.

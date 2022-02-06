@@ -1,8 +1,6 @@
 #pragma once
 
 #include "core.h"
-#include "subsystems/lift.h"
-#include "subsystems/ring_collector.h"
 
 using namespace vex;
 
@@ -20,8 +18,9 @@ extern motor_group left_motors, right_motors, lift_motors;
 
 extern limit lift_home;
 
-extern Lift lift_subsys;
-extern RingCollector ring_subsys;
+enum LiftPosition {DOWN, DRIVING, PLATFORM, UP};
+extern Lift<LiftPosition> lift_subsys;
+// extern RingCollector ring_subsys;
 extern optical goal_sensor;
 
 // extern encoder left_enc, right_enc;
