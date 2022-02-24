@@ -9,25 +9,29 @@ using code = vision::code;
 // A global instance of brain used for printing to the V5 Brain screen
 brain  Brain;
 
-motor l_drive_top(PORT11, gearSetting::ratio6_1, true), l_drive_front(PORT12, gearSetting::ratio6_1), l_drive_mid(PORT13, gearSetting::ratio6_1), l_drive_back(PORT14, gearSetting::ratio6_1, true), 
-      r_drive_top(PORT20, gearSetting::ratio6_1), r_drive_front(PORT19, gearSetting::ratio6_1, true), r_drive_mid(PORT18, gearSetting::ratio6_1, true), r_drive_back(PORT17, gearSetting::ratio6_1);
+motor ldtf(PORT19, gearSetting::ratio6_1, true), ldtr(PORT18, gearSetting::ratio6_1, true), ldbf(PORT20, gearSetting::ratio6_1), ldbr(PORT17, gearSetting::ratio6_1), 
+      rdtf(PORT13, gearSetting::ratio6_1), rdtr(PORT15, gearSetting::ratio6_1), rdbf(PORT12, gearSetting::ratio6_1, true), rdbr(PORT14, gearSetting::ratio6_1, true);
 
-motor_group left_motors = {l_drive_top, l_drive_front, l_drive_mid, l_drive_back};
-motor_group right_motors = {r_drive_top, r_drive_front, r_drive_mid, r_drive_back};
+motor_group left_motors = {ldtf, ldtr, ldbf, ldbr};
+motor_group right_motors = {rdtf, rdtr, rdbf, rdbr};
 
-motor conveyor_motor(PORT4, true), l_lift_motor(PORT5, true), r_lift_motor(PORT6), fork_motor(PORT7);
+motor conveyor_motor(PORT11, true), l_lift_motor(PORT1, true), r_lift_motor(PORT2);
 
 motor_group lift_motors = {l_lift_motor, r_lift_motor};
 
-pneumatics claw_solenoid(Brain.ThreeWirePort.A);
+pneumatics claw_solenoid(Brain.ThreeWirePort.B);
 
-limit lift_home(Brain.ThreeWirePort.B);
+pneumatics rear_clamp(Brain.ThreeWirePort.H);
 
-optical goal_sensor(PORT15);
+pneumatics flaps(Brain.ThreeWirePort.C);
+
+// limit lift_home(Brain.ThreeWirePort.B);
+
+// optical goal_sensor(PORT15);
 
 // encoder left_enc(Brain.ThreeWirePort.A), right_enc(Brain.ThreeWirePort.C);
 
-inertial imu(PORT1);
+inertial imu(PORT16);
 
 robot_specs_t robot_cfg = {
   .robot_radius = 12, // inches
@@ -67,7 +71,7 @@ robot_specs_t robot_cfg = {
 };
 
 PID::pid_config_t lift_pid_cfg = {
-  .p = 40000,
+  /* .p = 40000,*/ .p = 4,
   .i = 0,
   .d = 4000,
   .f = 0,
