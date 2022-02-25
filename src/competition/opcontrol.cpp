@@ -23,15 +23,6 @@ void OpControl::opcontrol()
   Autonomous::autonomous();
   // odom.set_position({.x=22.5, .y=14, .rot=180});
 
-  while(true)
-  {
-    position_t pos = odom.get_position();
-    printf("X: %f, Y: %f, ROT: %f\n", pos.x, pos.y, pos.rot);
-    vexDelay(20);
-  }
-
-  return;
-
   main_controller.ButtonY.pressed([](){flaps.set(!flaps.value());});
 
   // ========== LOOP ==========
