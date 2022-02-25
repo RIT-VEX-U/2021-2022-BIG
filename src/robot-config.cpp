@@ -70,16 +70,6 @@ robot_specs_t robot_cfg = {
 
 };
 
-PID::pid_config_t lift_pid_cfg = {
-  /* .p = 40000,*/ .p = 4,
-  .i = 0,
-  .d = 4000,
-  .f = 0,
-
-  .deadband = .1,
-  .on_target_time = .1
-};
-
 PID::pid_config_t fork_pid_cfg = {
   .p = 50000,
   .i = 0,
@@ -96,9 +86,19 @@ TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
 
 Lift<LiftPosition>::lift_cfg_t lift_cfg = {
   .up_speed = 12, //volts
-  .down_speed = 24, //volts / second
+  .down_speed = 6, //volts / second
   .softstop_up = 2.1,
-  .softstop_down = 0
+  .softstop_down = 0,
+  .lift_pid_cfg =
+  {
+    .p = 20,
+    .i = 0,
+    .d = 3,
+    .f = 0,
+
+    .deadband = .1,
+    .on_target_time = .1
+  }
 };
 
 map<LiftPosition, double> lift_map {

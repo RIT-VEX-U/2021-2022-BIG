@@ -21,6 +21,7 @@ extern motor_group left_motors, right_motors, lift_motors;
 // extern limit lift_home;
 
 enum LiftPosition {DOWN, DRIVING, PLATFORM, UP};
+extern std::map<LiftPosition, double> lift_map;
 extern Lift<LiftPosition> lift_subsys;
 // extern RingCollector ring_subsys;
 // extern optical goal_sensor;

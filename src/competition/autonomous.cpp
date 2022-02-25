@@ -7,20 +7,20 @@
  */
 void auto_rush_goal()
 {
-  /*
-  task homing_task([](){
-    lift_subsys.home();
-    ring_subsys.home();
-    lift_subsys.set_lift_height(Lift::LiftPosition::DOWN);
+  
+  // task homing_task([](){
+  //   lift_subsys.home();
+  //   ring_subsys.home();
+  //   lift_subsys.set_lift_height(Lift::LiftPosition::DOWN);
 
-    while(true)
-    {
-      printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
-      fflush(stdout);
-      vexDelay(50);
-    }
-    return 0;
-  });
+  //   while(true)
+  //   {
+  //     printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+  //     fflush(stdout);
+  //     vexDelay(50);
+  //   }
+  //   return 0;
+  // });
   // Odometry set up
   odom.set_position({.x=21.7, .y=13.7, .rot=77.5});
 
@@ -30,8 +30,9 @@ void auto_rush_goal()
   // Create a task that waits until we are x inches away from the goal, then deploys
   auto1.add([](){
     task toggleClawTask([](){
-      while(odom.pos_diff(odom.get_position(), {.x=32, .y=60}) >= 1); // do nothing
       claw_solenoid.open();
+      while(odom.pos_diff(odom.get_position(), {.x=32, .y=60}) >= 1); // do nothing
+      claw_solenoid.close();
       return 0;
     });
     return true;
@@ -41,7 +42,7 @@ void auto_rush_goal()
   auto1.add([](){return drive.drive_to_point(12, 12, .5, 1, directionType::rev);});
   auto1.run(true);
   drive.stop();
-  */
+  
 }
 
 /**
@@ -49,27 +50,25 @@ void auto_rush_goal()
  */
 void auto_simple_qual()
 {
-  /*
   odom.set_position({.x=22.5, .y=14, .rot=180});
 
-  ring_subsys.home();
-  lift_subsys.home();
+  // lift_subsys.home();
 
   static bool is_conv_done = false;
 
   GenericAuto auto1;
   // Start with the fork facing the goal. Drive torwards it, pick it up, deposit preloads
-  auto1.add([](){return ring_subsys.set_fork_pos(RingCollector::ForkPosition::DOWN);});
-  auto1.add([](){lift_subsys.set_lift_height(Lift::DOWN); return true;});
-  auto1.add([](){return drive.drive_to_point(35, 12, .4, 1, directionType::rev);});
-  auto1.add([](){return ring_subsys.set_fork_pos(RingCollector::ForkPosition::LOADING);});
+  auto1.add([](){rear_clamp.open(); return true;});
+  // auto1.add([](){lift_subsys.set_position(LiftPosition::DOWN); return true;});
+  auto1.add([](){return drive.drive_to_point(38, 14, .3, 1, directionType::rev);});
+  auto1.add([](){rear_clamp.close(); return true;});
   auto1.add([](){
     task t([](){
       static timer tmr;
       while(tmr.time(sec) < 1.5)
       {
         conveyor_motor.spin(fwd, 12, voltageUnits::volt);
-        ring_subsys.set_fork_pos(RingCollector::LOADING);
+        rear_clamp.close();
       }
       conveyor_motor.stop();
       is_conv_done = true;
@@ -79,18 +78,19 @@ void auto_simple_qual()
     return true;
   });
 
-  auto1.add([](){ring_subsys.set_fork_pos(RingCollector::LOADING); return drive.drive_to_point(24, 24, .5, 1);});
+  auto1.add([](){rear_clamp.close(); return drive.drive_to_point(28, 24, .4, 1);});
   auto1.add([](){return is_conv_done;});
-  auto1.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
-  auto1.add([](){return drive.drive_to_point(24, 36, .5, 1);});
-  auto1.add([](){return ring_subsys.set_fork_pos(RingCollector::UP);});
-  auto1.add([](){claw_solenoid.close(); return true;});
-  auto1.add([](){return drive.drive_to_point(30, 59, .4, 1);});
-  auto1.add([](){ claw_solenoid.open(); return true;});
-  auto1.add([](){return drive.drive_to_point(16, 24, .5, 1, directionType::rev);});
+  auto1.add([](){rear_clamp.open(); return true;});
+  // auto1.add([](){return drive.drive_to_point(24, 36, .5, 1);});
+  // auto1.add([](){return ring_subsys.set_fork_pos(RingCollector::UP);});
+  auto1.add([](){claw_solenoid.open(); return true;});
+  auto1.add([](){return drive.drive_to_point(36, 63, .4, 1);});
+  auto1.add([](){ claw_solenoid.close(); return true;});
+  auto1.add([](){return drive.drive_to_point(28, 26, .5, 1, directionType::rev);});
 
   auto1.run(true);
 }
+/*
 
 void skills()
 {
@@ -253,8 +253,9 @@ void skills()
     vexDelay(20);
   }
   printf("Auto finished\n");
-  */
+
 }
+*/
 /**
  * Contains all the code run during autonomous.
  */ 
