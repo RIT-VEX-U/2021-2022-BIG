@@ -80,7 +80,7 @@ void auto_simple_qual()
 
   auto1.add([](){rear_clamp.close(); return drive.drive_to_point(28, 24, .4, 1);});
   auto1.add([](){return is_conv_done;});
-  auto1.add([](){rear_clamp.open(); return true;});
+  // auto1.add([](){rear_clamp.open(); return true;});
   // auto1.add([](){return drive.drive_to_point(24, 36, .5, 1);});
   // auto1.add([](){return ring_subsys.set_fork_pos(RingCollector::UP);});
   auto1.add([](){claw_solenoid.open(); return true;});
@@ -271,8 +271,8 @@ void Autonomous::autonomous()
 
   // ========== MAIN LOOP ==========
 
-  auto_rush_goal();
-  // auto_simple_qual();
+  // auto_rush_goal();
+  auto_simple_qual();
   // skills();
 
 }

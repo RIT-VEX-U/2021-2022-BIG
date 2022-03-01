@@ -16,14 +16,23 @@ void OpControl::opcontrol()
   // lift_subsys.home();
   // ring_subsys.home();
 
-  flaps.close();
+  // flaps.close();
 
   // printf("Down: %f, Driving: %f, Platform: %f, Up: %f\n", lift_map[DOWN], lift_map[DRIVING], lift_map[PLATFORM], lift_map[UP]);
   // lift_subsys.set_position(LiftPosition::DOWN);
-  Autonomous::autonomous();
+  // Autonomous::autonomous();
   // odom.set_position({.x=22.5, .y=14, .rot=180});
 
-  main_controller.ButtonY.pressed([](){flaps.set(!flaps.value());});
+  // while(true)
+  // {
+  //   position_t pos = odom.get_position();
+  //   printf("X: %f, Y: %f, ROT: %f\n", pos.x, pos.y, pos.rot);
+  //   vexDelay(20);
+  // }
+
+  // return;
+
+  // main_controller.ButtonY.pressed([](){flaps.set(!flaps.value());});
 
   // ========== LOOP ==========
   while(true)
@@ -61,7 +70,10 @@ void OpControl::opcontrol()
       is_collecting_rings = !is_collecting_rings;
     last_ring_btn = main_controller.ButtonL1.pressing();
 
-    if(is_collecting_rings)
+    if(main_controller.ButtonB.pressing())
+    {
+      conveyor_motor.spin(directionType::rev, 12, volt);
+    } else if(is_collecting_rings)
     {
       // if(conveyor_motor.current(currentUnits::amp) > 2.0)
       //   overcurrent_tmr.reset();
@@ -75,7 +87,9 @@ void OpControl::opcontrol()
       
     }
     else
+    {
       conveyor_motor.stop();
+    }
 
     // ring_subsys.control(main_controller.ButtonL2.pressing(), main_controller.ButtonL1.pressing());
     
