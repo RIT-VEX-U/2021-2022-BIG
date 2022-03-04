@@ -2,6 +2,8 @@
 #include "robot-config.h"
 #include "../core/include/utils/generic_auto.h"
 #include "competition/autonomous.h"
+#include "subsystems.h"
+#include "automation.h"
 
 /**
  * Contains the main loop of the robot code while running in the driver-control period.
@@ -38,6 +40,7 @@ void OpControl::opcontrol()
   while(true)
   {
     // ========== DRIVING CONTROLS ==========
+    if(!main_controller.ButtonB.pressing())
     drive.drive_tank(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
     // drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
 
@@ -45,59 +48,19 @@ void OpControl::opcontrol()
     // ========== MANIPULATING CONTROLS ==========
 
     // Controls: R1 - increment lift UP | R2 - decrement lift DOWN | X - toggle claw open / closed
-    // lift_subsys.control(main_controller.ButtonR1.pressing(), main_controller.ButtonR2.pressing(), main_controller.ButtonX.pressing());
     lift_subsys.control_continuous(main_controller.ButtonR1.pressing(), main_controller.ButtonR2.pressing());
 
-
-    // Control the clamp
-    static bool clamp_last_pressed = false;
-    if(!clamp_last_pressed && main_controller.ButtonX.pressing())
-      claw_solenoid.set( !(claw_solenoid.value() == 1) );
-    clamp_last_pressed = main_controller.ButtonX.pressing();
-
-    // Control the backside clamp
-    static bool back_clamp_last = false;
-    if(!back_clamp_last && main_controller.ButtonL2.pressing())
-      rear_clamp.set( !(rear_clamp.value() == 1) );
-    back_clamp_last = main_controller.ButtonL2.pressing();
-
-    // Control the ring subsystem
-    static bool is_collecting_rings = false;
-    static bool last_ring_btn = false;
-    static timer overcurrent_tmr;
-
-    if(!last_ring_btn && main_controller.ButtonL1.pressing())
-      is_collecting_rings = !is_collecting_rings;
-    last_ring_btn = main_controller.ButtonL1.pressing();
-
-    if(main_controller.ButtonB.pressing())
-    {
-      conveyor_motor.spin(directionType::rev, 12, volt);
-    } else if(is_collecting_rings)
-    {
-      // if(conveyor_motor.current(currentUnits::amp) > 2.0)
-      //   overcurrent_tmr.reset();
-
-      printf("%f\n", conveyor_motor.current(currentUnits::amp));
-
-      // if(overcurrent_tmr.time(sec) < 2)
-      //   conveyor_motor.spin(directionType::rev, 12, volt);
-      // else
-      conveyor_motor.spin(fwd, 12, volt);
-      
-    }
-    else
-    {
-      conveyor_motor.stop();
-    }
-
-    // ring_subsys.control(main_controller.ButtonL2.pressing(), main_controller.ButtonL1.pressing());
+    front_claw::control(main_controller.ButtonX.pressing());
+    rear_claw::control(main_controller.ButtonL2.pressing());
+    conveyor::control(main_controller.ButtonL1.pressing());
     
    
     // ========== SECONDARY REMOTE ==========
 
 
     // ========== AUTOMATION ==========
+    if(main_controller.ButtonB.pressing())
+      automation::drive_to_goal(.5, [](){return false;});
 
 
     // printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
