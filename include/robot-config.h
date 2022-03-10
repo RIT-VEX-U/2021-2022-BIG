@@ -34,6 +34,7 @@ extern OdometryTank odom;
 
 extern inertial imu;
 
+extern vex::distance goal_sense;
 
 
 // VEXcode devices

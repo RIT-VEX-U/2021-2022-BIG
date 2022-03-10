@@ -1,6 +1,8 @@
 #include "competition/autonomous.h"
 #include "core.h"
 #include "robot-config.h"
+#include "subsystems.h"
+#include "automation.h"
 
 /**
  * Simple autonomous program to rush the goal before the other alliance does
@@ -43,6 +45,30 @@ void auto_rush_goal()
   auto1.run(true);
   drive.stop();
   
+}
+
+void auto_updated_rush()
+{
+  // TODO set initial positions and max Y value
+  odom.set_position({.x=0, .y=0, .rot=90});
+  
+  // Set the "end condition" for our initial rush to stop when we:
+  // 1. have the goal, or 2. have driven too far in the Y direction
+  static bool (*end_condition)(void) = [](){
+    return odom.get_position().y > 80 || goal_sense.objectDistance(distanceUnits::in) < 4;
+  };
+
+  GenericAuto auto1; 
+  // 1 - open the claw and begin the rush towards the goal with the camera
+  auto1.add(front_claw::open);
+  auto1.add([](){
+    return automation::drive_to_goal(.8, end_condition, automation::GoalType::YELLOW);
+  });
+  // 2 - close the claw and return behind our line
+  auto1.add(front_claw::close);
+  auto1.add([](){ return drive.drive_to_point(0, 0, .5, 1, directionType::rev); });
+
+  auto1.run(true);
 }
 
 /**
@@ -90,172 +116,7 @@ void auto_simple_qual()
 
   auto1.run(true);
 }
-/*
 
-void skills()
-{
-  odom.set_position({.x=15.5, .y=11.5, .rot=180});
-
-  ring_subsys.home();
-  lift_subsys.home();
-
-  // General "clean out the conveyor" task
-  state_ptr finish_conveying = [](){
-    task t([](){
-      static timer tmr;
-      tmr.reset();
-      while(tmr.time(sec) < 2)
-      {
-        conveyor_motor.spin(fwd, 12, volt);
-        vexDelay(20);
-      }
-      conveyor_motor.stop();
-      return 0;
-    });
-    
-    return true;    
-  };
-
-  // General "open claw" task with delay
-  static state_ptr open_claw = [](){
-    static timer t;
-    t.reset();
-    claw_solenoid.close();
-    while(t.time(sec) < .5);
-    return true;
-  };
-
-  // General "close claw" task with delay
-  static state_ptr close_claw = [](){
-    static timer t;
-    t.reset();
-    claw_solenoid.open();
-    while(t.time(sec) < .5);
-    return true;
-  };
-
-  GenericAuto a;
-
-  // Start with the fork facing the goal on the ramp; drive and pick it up
-  a.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
-  a.add([](){return lift_subsys.set_lift_height(Lift::DOWN);});
-  a.add([](){return drive.drive_to_point(30, 11.5, .4, 1, directionType::rev);});
-  a.add([](){return ring_subsys.set_fork_pos(RingCollector::LOADING);});
-  a.add(finish_conveying);
-
-  //path to 1st rings
-  static std::vector<PurePursuit::hermite_point> p1 = {{.x=30, .y=11.5, .dir=deg2rad(180), .mag=75}, {.x=28, .y=47, .dir=deg2rad(0), .mag=50}};
-  a.add([](){return drive.pure_pursuit(p1, 6, .3, 50);});
-  a.add([](){
-    lift_subsys.set_lift_height(Lift::DRIVING);
-    return true;
-  });
-  a.add([](){return drive.turn_to_heading(0, 1);});
-
-  // Pick up 1st line of rings
-  a.add([](){
-    conveyor_motor.spin(fwd, 12, volt);
-    return drive.drive_to_point(82, 47, .3, 1);
-    });
-  a.add(finish_conveying);
-
-  //Back up and turn to the centre goal
-  a.add([](){return drive.drive_to_point(70, 47, .3, 1, directionType::rev);});
-  a.add([](){lift_subsys.set_lift_height(Lift::DOWN); claw_solenoid.close(); return drive.turn_to_heading(90, 1);});
-
-  // Grab theh goal, and drive it to the corner of the field
-  a.add([](){return drive.drive_to_point(70, 60, .3, 1);});
-  a.add([](){claw_solenoid.open(); return true;});
-  a.add([](){return drive.drive_to_point(23, 122, .5, 1);});
-  a.add([](){claw_solenoid.close(); return true;});
-
-  // Back up, turn around and drive across the field to the opposite alliace goal
-  a.add([](){return drive.drive_to_point(29, 110, .4, 1, directionType::rev);});
-  a.add([](){return drive.turn_to_heading(0, 1);});
-  a.add([](){return drive.drive_to_point(115, 110, .6, 1);});
-  // X1: 29, Y1: 110, X2=121, Y2=131
-
-  // Swing around and grab the goal
-  static std::vector<PurePursuit::hermite_point> p2 = {
-    {.x=115, .y=110, .dir=deg2rad(0), .mag=30},
-    {.x=115, .y=134, .dir=deg2rad(180), .mag=50}};
-  a.add([](){return drive.pure_pursuit(p2, 6, .3, 50);});
-  a.add([](){return drive.turn_to_heading(180, 1);});
-  a.add([](){return drive.drive_to_point(104, 134, .3, 1);});
-  a.add([](){claw_solenoid.open(); return true;});
-
-  // basically a 3 point turn to get out of the corner
-  a.add([](){return drive.drive_to_point(123, 125, .3, 1, directionType::rev);});
-  a.add([](){return drive.drive_to_point(96.5, 109, .3, 1);});
-  a.add([](){return drive.turn_to_heading(180, 1);});
-
-  // Begin switching goals
-  a.add([](){return drive.drive_to_point(65, 109, .4, 1);});
-
-  // -> Set fork down and drive forwards
-  a.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
-  a.add([](){return drive.drive_to_point(44, 109, .3, 1);});
-  a.add([](){return drive.turn_to_heading(180, .7);});
-
-  // -> open claw, backup and turn around
-  a.add([](){
-    ring_subsys.set_fork_pos(RingCollector::UP);
-    return open_claw();
-  });
-  a.add([](){return drive.drive_to_point(48, 109, .4, 1, directionType::rev);});
-  a.add([](){return drive.turn_to_heading(0, .7);});
-  a.add([](){return ring_subsys.set_fork_pos(RingCollector::DOWN);});
-
-  // -> grab the goal with the claw, back up, grab the goal with the fork
-  a.add([](){return drive.drive_to_point(65, 109.5, .2, 1);});
-  a.add(close_claw);
-  a.add([](){return drive.drive_to_point(37, 109, .3, 1, directionType::rev);});
-  a.add([](){return ring_subsys.set_fork_pos(RingCollector::DRIVING);});
-  a.add([](){lift_subsys.set_lift_height(Lift::PLATFORM); return true;});
-
-  // Drive to goal and place down
-  a.add([](){return drive.drive_to_point(64, 106, .3, 1);});
-  a.add([](){return drive.turn_to_heading(90, .5);});
-  a.add(open_claw);
-  
-  // reverse, lower lift, and prepare to get next alliance goal
-  a.add([](){return drive.drive_to_point(64, 102, .3, 1, directionType::rev);});
-  a.add([](){return drive.turn_to_heading(180, .6);});
-  a.add([](){lift_subsys.set_lift_height(Lift::DRIVING); return true;});
-
-  // Drive to the goal fast, then slow, then grab it
-  a.add([](){conveyor_motor.spin(fwd, 12, volt);return drive.drive_to_point(48, 106, .4, 1);});
-  a.add([](){lift_subsys.set_lift_height(Lift::DOWN); conveyor_motor.stop(); return drive.drive_to_point(14, 106, .3, 1);});
-  a.add(close_claw);
-
-  // Lift the goal off the ground, spin towards rings, and begin collecting
-  a.add([](){lift_subsys.set_lift_height(Lift::DRIVING); ring_subsys.set_fork_pos(RingCollector::LOADING); return true;});
-  a.add([](){return drive.drive_to_point(25, 105, .3, 1, directionType::rev);});
-  a.add([](){lift_subsys.set_lift_height(Lift::UP); return drive.turn_to_heading(270, 1);});
-  a.add([](){return drive.drive_to_point(23, 23, .4, 1);});
-  a.add([](){return drive.turn_to_heading(225, .5);});
-
-  // a.add([](){conveyor_motor.spin(fwd, 12, volt); return drive.drive_to_point(14, 55, .3, 1);});
-  // a.add(finish_conveying);
-  // a.add([](){return drive.turn_to_heading(340, .6);});
-
-
-  a.run(true);
-
-  while(true)
-  {
-    ring_subsys.hold_thread = false;
-    lift_subsys.hold = false;
-    fork_motor.stop();
-    lift_motors.stop();
-    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
-    fflush(stdout);
-    vexDelay(20);
-  }
-  printf("Auto finished\n");
-
-}
-*/
 /**
  * Contains all the code run during autonomous.
  */ 

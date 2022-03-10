@@ -33,6 +33,8 @@ pneumatics flaps(Brain.ThreeWirePort.C);
 
 inertial imu(PORT16);
 
+vex::distance goal_sense(PORT10);
+
 robot_specs_t robot_cfg = {
   .robot_radius = 12, // inches
   .odom_wheel_diam = 2.85,//4.25, // inches
