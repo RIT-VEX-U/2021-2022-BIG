@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# vision files need the "specialType" of "vision_config"
+# robot config files need the "specialType" of "device_config"
 
 # Search for source/header files, excluding those in the .git directory
 files=$(find -name "*.cpp" |grep -v "git" |sed "s|./||")

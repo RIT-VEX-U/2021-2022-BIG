@@ -16,16 +16,22 @@ double vision_x_dist(GoalType color)
       break;
     case RED:
       cam.takeSnapshot(RED_MOGO);
+      break;
     case ANY:
-      cam.takeSnapshot(ANY_MOGO);
+      cam.takeSnapshot(0,10);
+      break;
   }
+
+  printf("Num: %ld\n", cam.objectCount);
 
   vision::object blob = cam.largestObject;
   double dist_from_center = 0;
 
   // Filter out small blobs
-  if (blob.width * blob.height > 1000)
+  if (blob.width * blob.height > 800)
     dist_from_center = blob.centerX - (320/2); // pixels
+
+  printf("x: %f\n", dist_from_center);
 
   return dist_from_center;
 }
@@ -34,7 +40,7 @@ bool automation::drive_to_goal(double speed, bool (*end_condition) (void), GoalT
 {
   // PID tuning only used here
   static PID::pid_config_t pid_cfg = {
-    .p = .003
+    .p = .004
   };
   static PID pid(pid_cfg);
 
@@ -54,10 +60,10 @@ bool automation::drive_to_goal(double speed, bool (*end_condition) (void), GoalT
 void automation::drive_with_autoaim(double left, double right, int power, GoalType color)
 {
   static PID::pid_config_t pid_cfg = {
-    .p = .002
+    .p = .004
   };
   static PID pid(pid_cfg);
 
-  pid.update(vision_x_dist(color));
-  drive.drive_tank(left - pid.get(), right - pid.get(), power);
+  pid.update(vision_x_dist(ANY));
+  drive.drive_tank(left - pid.get() + .5, right + pid.get() + .5, power);
 }
