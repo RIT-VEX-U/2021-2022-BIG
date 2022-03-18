@@ -23,6 +23,7 @@ extern pneumatics claw_solenoid, rear_clamp, flaps;
 // ======== INPUTS ========
 extern inertial imu;
 extern vex::distance goal_sense;
+extern CustomEncoder left_enc, right_enc;
 
 // ======== SUBSYSTEMS ========
 

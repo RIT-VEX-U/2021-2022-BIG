@@ -8,6 +8,7 @@
 #include "../core/include/subsystems/mecanum_drive.h"
 #include "../core/include/subsystems/swerve_drive.h"
 #include "../core/include/subsystems/lift.h"
+#include "../core/include/subsystems/custom_encoder.h"
 
 // Utils package
 #include "../core/include/utils/spline_path.h"

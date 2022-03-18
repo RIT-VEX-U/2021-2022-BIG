@@ -68,7 +68,8 @@ void OpControl::opcontrol()
     if(is_auto_aiming)
       automation::drive_with_autoaim(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
 
-    // printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("Left: %f, Right: %f\n", left_enc.position(rotationUnits::rev), right_enc.position(rotationUnits::rev));
     // printf("lift pos: %f\n", lift_motors.position(rotationUnits::rev));
     fflush(stdout);
     fflush(stderr);
