@@ -33,6 +33,8 @@ int main() {
   comp.autonomous(Autonomous::autonomous);
   comp.drivercontrol(OpControl::opcontrol);
 
+  Autonomous::init_autochooser();
+
   while(true)
   {
     //Do Nothing

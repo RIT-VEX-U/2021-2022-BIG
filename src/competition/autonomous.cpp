@@ -4,71 +4,60 @@
 #include "subsystems.h"
 #include "automation.h"
 
+enum GoalPosition {LEFT, CENTER};
+
 /**
  * Simple autonomous program to rush the goal before the other alliance does
  */
-void auto_rush_goal()
+void auto_rush_goal(GoalPosition pos)
 {
-  
-  // task homing_task([](){
-  //   lift_subsys.home();
-  //   ring_subsys.home();
-  //   lift_subsys.set_lift_height(Lift::LiftPosition::DOWN);
+  // Determine the robot's initial position based on which goal is selected
+  position_t initial_pos;
+  if(pos == LEFT)
+    initial_pos = {.x=0, .y=0, .rot=0};
+  else if (pos == CENTER)
+    initial_pos = {.x=0, .y=0, .rot=0};
+  odom.set_position(initial_pos);
 
-  //   while(true)
-  //   {
-  //     printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
-  //     fflush(stdout);
-  //     vexDelay(50);
-  //   }
-  //   return 0;
-  // });
-  // Odometry set up
-  odom.set_position({.x=21.7, .y=13.7, .rot=77.5});
+  // Define the line we cannot cross in auto
+  static bool (*return_condition)(void) = [](){
+    return odom.get_position().y > 80 || goal_sense.objectDistance(distanceUnits::in) < 3;
+    };
 
-  //Main auto path
-  GenericAuto auto1;
+  GenericAuto a;
   
-  // Create a task that waits until we are x inches away from the goal, then deploys
-  auto1.add([](){
-    task toggleClawTask([](){
-      claw_solenoid.open();
-      while(odom.pos_diff(odom.get_position(), {.x=32, .y=60}) >= 1); // do nothing
-      claw_solenoid.close();
+  // Initial rush (drive forward w/ camera, close claw, back up)
+  a.add(front_claw::open);
+  a.add([](){
+    return automation::drive_to_goal(.7, return_condition, automation::GoalType::YELLOW);
+  });
+  a.add(front_claw::close);
+  a.add(flaps::lower);
+
+  // Create a "safety task" to make sure we don't cross the line and lose auto
+  a.add([](){
+    task t([](){
+      while(true)
+      {
+        if(odom.get_position().y > 85)
+        {
+          front_claw::open();
+          return 0;
+        } else if(odom.get_position().y < 40)
+        {
+          return 0;
+        }
+        
+        vexDelay(20);
+      }
       return 0;
     });
     return true;
   });
 
-  auto1.add([](){return drive.drive_to_point(32, 60, .75, 1, directionType::fwd);});
-  auto1.add([](){return drive.drive_to_point(12, 12, .5, 1, directionType::rev);});
-  auto1.run(true);
-  drive.stop();
+  a.add([](){return drive.drive_to_point(24, 24, .5, 1, directionType::rev);});
   
-}
 
-void auto_updated_rush()
-{
-  // TODO set initial positions and max Y value
-  odom.set_position({.x=0, .y=0, .rot=90});
-  
-  // Set the "end condition" for our initial rush to stop when we:
-  // 1. have the goal, or 2. have driven too far in the Y direction
-  static bool (*end_condition)(void) = [](){
-    return odom.get_position().y > 80 || goal_sense.objectDistance(distanceUnits::in) < 4;
-  };
-
-  GenericAuto auto1; 
-  // 1 - open the claw and begin the rush towards the goal with the camera
-  auto1.add(front_claw::open);
-  auto1.add([](){
-    return automation::drive_to_goal(.8, end_condition, automation::GoalType::YELLOW);
-  });
-  // 2 - close the claw and return behind our line
-  auto1.add(front_claw::close);
-  auto1.add([](){ return drive.drive_to_point(0, 0, .5, 1, directionType::rev); });
-
-  auto1.run(true);
 }
 
 /**
@@ -117,6 +106,16 @@ void auto_simple_qual()
   auto1.run(true);
 }
 
+void Autonomous::init_autochooser()
+{
+  auto_chooser.add("RUSH LEFT");
+  auto_chooser.add("RUSH CENTER");
+  auto_chooser.add("RUSH L AWP");
+  auto_chooser.add("RUSH C AWP");
+  auto_chooser.add("AWP");
+  auto_chooser.add("AUTO SKILLS");
+}
+
 /**
  * Contains all the code run during autonomous.
  */ 
@@ -128,12 +127,22 @@ void Autonomous::autonomous()
 
   // ========== INIT ==========
   
-  
+  std::string auto_choice = auto_chooser.get_choice();
+  printf("Auto Choice: %s\n", auto_choice.c_str());
+  fflush(stdout);
+  fflush(stderr);
+
+  if (auto_choice == "AWP")
+    auto_simple_qual();
+  else if (auto_choice == "RUSH LEFT")
+    auto_rush_goal(LEFT);
+  else if (auto_choice == "RUSH CENTER")
+    auto_rush_goal(CENTER);
 
   // ========== MAIN LOOP ==========
 
   // auto_rush_goal();
-  auto_simple_qual();
+  // auto_simple_qual();
   // skills();
 
 }

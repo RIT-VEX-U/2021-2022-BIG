@@ -16,6 +16,7 @@
 #include "../core/include/utils/vector.h"
 #include "../core/include/utils/generic_auto.h"
 #include "../core/include/utils/pure_pursuit.h"
+#include "../core/include/utils/auto_chooser.h"
 
 // Base package
 #include "../core/include/robot_specs.h"

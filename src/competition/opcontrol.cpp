@@ -39,6 +39,7 @@ void OpControl::opcontrol()
   // ========== LOOP ==========
   while(true)
   {
+    
     bool is_auto_aiming = main_controller.ButtonL2.pressing() && main_controller.ButtonR2.pressing();
 
     // ========== DRIVING CONTROLS ==========
@@ -51,7 +52,12 @@ void OpControl::opcontrol()
 
     // Controls: R1 - increment lift UP | R2 - decrement lift DOWN | X - toggle claw open / closed
     if(!is_auto_aiming)
-      lift_subsys.control_continuous(main_controller.ButtonR1.pressing(), main_controller.ButtonR2.pressing());
+    {
+      if(!conveyor::is_running)
+        lift_subsys.control_manual(main_controller.ButtonR1.pressing(), main_controller.ButtonR2.pressing(), 12, 4);
+      else
+        lift_subsys.set_position(LiftPosition::PLATFORM);
+    }
 
     if(!is_auto_aiming)
       rear_claw::control(main_controller.ButtonL2.pressing());

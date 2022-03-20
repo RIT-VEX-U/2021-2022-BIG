@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # vision files need the "specialType" of "vision_config"
 # robot config files need the "specialType" of "device_config"
@@ -15,7 +15,14 @@ output=$(mktemp)
 
 # generate the "File" type of json
 for i in ${files}; do
-	builder="{\"name\": \"$i\", \"type\": \"File\", \"specialType\":\"\"},"
+	special=""
+	if [[ -n "$(echo "$i" |grep "robot-config")" ]]; then
+		special="device_config"
+	elif [[ -n "$(egrep "vex::vision [^=]*=" $i)" ]]; then
+		special="vision_config"
+	fi
+
+	builder="{\"name\": \"$i\", \"type\": \"File\", \"specialType\":\"$special\"},"
 	echo "${builder}" >> $output
 done
 
@@ -27,4 +34,7 @@ done
 
 sed -i "$ s/,$//" $output
 
-cat $output
+output_var="$(cat $output |tr -d "[:space:]")"
+sed -i "s|\"files\":\[[^]]*|\"files\":[$output_var|" *.v5code 
+
+#cat $output

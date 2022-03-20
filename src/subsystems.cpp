@@ -155,3 +155,15 @@ void conveyor::control(bool toggle)
   if(new_press)
     is_running = !is_running;
 }
+
+bool flaps::raise()
+{
+  flaps_solenoid.open();
+  return true;
+}
+
+bool flaps::lower()
+{
+  flaps_solenoid.close();
+  return true;
+}

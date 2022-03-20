@@ -23,7 +23,7 @@ motor conveyor_motor(PORT11, true), l_lift_motor(PORT1, true), r_lift_motor(PORT
 motor_group lift_motors = {l_lift_motor, r_lift_motor};
 
 pneumatics claw_solenoid(Brain.ThreeWirePort.A);
-pneumatics flaps(Brain.ThreeWirePort.B);
+pneumatics flaps_solenoid(Brain.ThreeWirePort.B);
 pneumatics rear_clamp(Brain.ThreeWirePort.H);
 
 
@@ -98,6 +98,9 @@ map<LiftPosition, double> lift_map {
 };
 
 Lift<LiftPosition> lift_subsys(lift_motors, lift_cfg, lift_map);
+
+// ======== UTILS ========
+AutoChooser auto_chooser(Brain);
 
 
 /**
