@@ -40,7 +40,8 @@ bool automation::drive_to_goal(double speed, bool (*end_condition) (void), GoalT
 {
   // PID tuning only used here
   static PID::pid_config_t pid_cfg = {
-    .p = .004
+    .p = .004,
+    .d = .004
   };
   static PID pid(pid_cfg);
 
