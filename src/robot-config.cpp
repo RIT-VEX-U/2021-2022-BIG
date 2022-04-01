@@ -12,10 +12,10 @@ controller main_controller;
 // ======== OUTPUTS ========
 
 // Drivetrain Components
-motor ldtf(PORT19, gearSetting::ratio6_1, true), ldtr(PORT18, gearSetting::ratio6_1, true), ldbf(PORT20, gearSetting::ratio6_1), ldbr(PORT17, gearSetting::ratio6_1), 
+motor ldtf(PORT19, gearSetting::ratio6_1, true), ldtr(PORT18, gearSetting::ratio6_1, true), ldbf(PORT20, gearSetting::ratio6_1), 
       rdtf(PORT13, gearSetting::ratio6_1), rdtr(PORT15, gearSetting::ratio6_1), rdbf(PORT12, gearSetting::ratio6_1, true), rdbr(PORT14, gearSetting::ratio6_1, true);
 
-motor_group left_motors = {ldtf, ldtr, ldbf, ldbr};
+motor_group left_motors = {ldtf, ldtr, ldbf};
 motor_group right_motors = {rdtf, rdtr, rdbf, rdbr};
 
 // Subsystems Components
@@ -28,43 +28,44 @@ pneumatics rear_clamp(Brain.ThreeWirePort.H);
 
 
 // ======== INPUTS ========
-inertial imu(PORT16);
+inertial imu(PORT17);
 vex::distance goal_sense(PORT10);
 CustomEncoder left_enc(Brain.ThreeWirePort.C, 90);
-CustomEncoder right_enc(Brain.ThreeWirePort.E, 180);
+CustomEncoder right_enc(Brain.ThreeWirePort.E, 90);
 
 // ======== SUBSYSTEMS ========
 
 // General Robot Configuration
 robot_specs_t robot_cfg = {
   .robot_radius = 12, // inches
-  .odom_wheel_diam = 2.85,//4.25, // inches
+  .odom_wheel_diam = 2.84,//4.25, // inches
   .odom_gear_ratio = 1.03,//2.333333, // inches
   .dist_between_wheels = 9.75, // inches
   .drive_correction_cutoff = 12, //inches
   .drive_pid = (PID::pid_config_t) 
   {
-    .p = .5,
-    // .i = .01,
-    .d = .0015,
+    .p = .1,
+    .i = .001,
+    .d = .008,
     .f = 0,
-    .k = .1,
+    .k = .05,
     .deadband = 0.3,
     .on_target_time = 0
   },
   .turn_pid = (PID::pid_config_t)
   {
-    .p = 0.12,
-    .i = 0.0,
-    .d = 0.012,
+    .p = 0.025,
+    .i = 0.01,
+    .d = 0.0015,
+    // .k = .05,
     .f = 0,
-    .deadband = 2,
+    .deadband = 5,
     .on_target_time = 0.1
   },
   .correction_pid = (PID::pid_config_t)
   {
-    .p = 0.02,
-    .d = 0.002
+    .p = .03,
+    // .d = 0.002
   }
 };
 

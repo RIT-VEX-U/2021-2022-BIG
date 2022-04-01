@@ -5,64 +5,90 @@
 #include "subsystems.h"
 #include "automation.h"
 
+#define AUTO
+
 /**
  * Contains the main loop of the robot code while running in the driver-control period.
  */
 void OpControl::opcontrol() 
 {
   // ========== INIT ==========
-  // imu.calibrate();
-  // while(imu.isCalibrating());
-  
-  // flaps.close();
 
-  // while(true)
-  // {
-  //   position_t pos = odom.get_position();
-  //   printf("X: %f, Y: %f, ROT: %f\n", pos.x, pos.y, pos.rot);
-  //   vexDelay(20);
-  // }
+  while (imu.isCalibrating());
 
-  // return;
+
+  odom.set_position({.x=12, .y=4.5, .rot=90});
+
+#ifdef AUTO
+#define SLOW .5
+#define FAST .9
+
+
+
+  GenericAuto a;
+  a.add([](){ return drive.drive_to_point(12, 55, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(0, FAST); });
+  a.add([](){ return drive.drive_to_point(36, 55, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(90, FAST); }); 
+  a.add([](){ return drive.drive_to_point(36, 78, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(180, FAST); });
+  a.add([](){ return drive.drive_to_point(12, 78, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(90, FAST); });
+  a.add([](){ return drive.drive_to_point(12, 123.5, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(0, FAST); });
+  a.add([](){ return drive.drive_to_point(82, 123.5, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(270, FAST); });
+  a.add([](){ return drive.drive_to_point(82, 101, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(180, FAST); });
+  a.add([](){ return drive.drive_to_point(58, 101, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(270, FAST); });
+  a.add([](){ return drive.drive_to_point(58, 31, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(180, FAST); });
+  a.add([](){ return drive.drive_to_point(36, 31, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(270, FAST); });
+  a.add([](){ return drive.drive_to_point(36, 11, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(0, FAST); });
+  a.add([](){ return drive.drive_to_point(83, 11, FAST, 1, fwd); });
+  a.add([](){ return drive.turn_to_heading(90, FAST); });
+  a.add([](){ robot_cfg.drive_pid.p=.15; return true; });
+  a.add([](){ return drive.drive_to_point(83, 70, SLOW, 1, fwd); });
+
+  a.run(true);
+
+#else
+  odom.set_position();
+#endif
 
   // ========== LOOP ==========
   while(true)
   {    
-    bool is_auto_aiming = main_controller.ButtonL2.pressing() && main_controller.ButtonR2.pressing();
-
     // ========== DRIVING CONTROLS ==========
-    if(!is_auto_aiming)
-      drive.drive_tank(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
-    // drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
+    drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
     
+    // ========== MANIPULATING CONTROLS ==========    
 
-    // ========== MANIPULATING CONTROLS ==========
+#ifndef AUTO
+    static bool reset = true;
 
-    // Controls: R1 - increment lift UP | R2 - decrement lift DOWN | X - toggle claw open / closed
-    if(!is_auto_aiming)
+    if(main_controller.ButtonA.pressing())
+    { 
+      if(reset && drive.drive_to_point(0, 24, 1, 1))
+        reset = false;
+
+    } else
     {
-      if(!conveyor::is_running)
-        lift_subsys.control_manual(main_controller.ButtonR1.pressing(), main_controller.ButtonR2.pressing(), 12, 4);
-      else
-        lift_subsys.set_position(LiftPosition::PLATFORM);
+      drive.reset_auto();
+      odom.set_position();
+      reset = true;
     }
-
-    if(!is_auto_aiming)
-      rear_claw::control(main_controller.ButtonL2.pressing());
-      
-    front_claw::control(main_controller.ButtonX.pressing());
-    conveyor::control(main_controller.ButtonL1.pressing());
-    
+#endif
    
     // ========== SECONDARY REMOTE ==========
 
-
     // ========== AUTOMATION ==========
 
-    if(is_auto_aiming)
-      automation::drive_with_autoaim(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
-
-    // printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("L: %f, R: %f, ", left_enc.position(rotationUnits::raw), right_enc.position(rotationUnits::raw));
+    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     fflush(stdout);
     fflush(stderr);
 

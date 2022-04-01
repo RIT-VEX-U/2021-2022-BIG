@@ -10,7 +10,7 @@ extern controller main_controller;
 // ======== OUTPUTS ========
 
 // Drivetrain Components
-extern motor ldtf, ldtr, ldbf, ldbr, 
+extern motor ldtf, ldtr, ldbf, 
              rdtf, rdtr, rdbf, rdbr;
 
 extern motor_group left_motors, right_motors, lift_motors;
@@ -38,6 +38,8 @@ extern Lift<LiftPosition> lift_subsys;
 
 // ======== UTILS ========
 extern AutoChooser auto_chooser;
+
+extern robot_specs_t robot_cfg;
 
 /**
  * Used to initialize code/tasks/devices added using tools in VEXcode Pro.
