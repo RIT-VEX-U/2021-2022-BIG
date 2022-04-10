@@ -29,7 +29,7 @@ double vision_x_dist(GoalType color)
 
   // Filter out small blobs
   if (blob.width * blob.height > 800)
-    dist_from_center = blob.centerX - (320/2); // pixels
+    dist_from_center = blob.centerX - (320/2); // pixels, display is 320p across
 
   printf("x: %f\n", dist_from_center);
 
@@ -65,6 +65,6 @@ void automation::drive_with_autoaim(double left, double right, int power, GoalTy
   };
   static PID pid(pid_cfg);
 
-  pid.update(vision_x_dist(ANY));
+  pid.update(vision_x_dist(color));
   drive.drive_tank(left - pid.get() + .5, right + pid.get() + .5, power);
 }
