@@ -4,8 +4,9 @@
 #include "competition/autonomous.h"
 #include "subsystems.h"
 #include "automation.h"
+#include "mazegame.h"
 
-#define AUTO
+// #define AUTO
 
 /**
  * Contains the main loop of the robot code while running in the driver-control period.
@@ -55,40 +56,59 @@ void OpControl::opcontrol()
 
   a.run(true);
 
-#else
-  odom.set_position();
+
+// #else
+  // odom.set_position();
 #endif
+
+  MazeGame::init_boundary_lines();
+  bool is_end = false;
+  timer game_timer;
 
   // ========== LOOP ==========
   while(true)
   {    
     // ========== DRIVING CONTROLS ==========
-    drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
+    if(!main_controller.ButtonA.pressing())
+      drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
+    else
+    {
+      int score = game_timer.time(sec) + (MazeGame::num_penalties * 5) + (MazeGame::num_smups * 20);
+      main_controller.Screen.clearScreen();
+      main_controller.Screen.setCursor(1, 0);
+      main_controller.Screen.print("Penalties: %d", MazeGame::num_penalties + MazeGame::num_smups);
+      main_controller.Screen.setCursor(2, 0);
+      main_controller.Screen.print("Final Time: %d", score);
+    }
     
-    // ========== MANIPULATING CONTROLS ==========    
+    // ========== MANIPULATING CONTROLS ========== 
+
+    MazeGame::is_single_penalty();   
+    MazeGame::is_super_mega_ultra_penalty();
 
 #ifndef AUTO
-    static bool reset = true;
+    // static bool reset = true;
 
-    if(main_controller.ButtonA.pressing())
-    { 
-      if(reset && drive.drive_to_point(0, 24, 1, 1))
-        reset = false;
+    // if(main_controller.ButtonA.pressing())
+    // { 
+    //   if(reset && drive.drive_to_point(0, 24, 1, 1))
+    //     reset = false;
 
-    } else
-    {
-      drive.reset_auto();
-      odom.set_position();
-      reset = true;
-    }
+    // } else
+    // {
+    //   drive.reset_auto();
+    //   odom.set_position();
+    //   reset = true;
+    // }
 #endif
    
     // ========== SECONDARY REMOTE ==========
 
     // ========== AUTOMATION ==========
 
-    printf("L: %f, R: %f, ", left_enc.position(rotationUnits::raw), right_enc.position(rotationUnits::raw));
-    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    // printf("L: %f, R: %f, ", left_enc.position(rotationUnits::raw), right_enc.position(rotationUnits::raw));
+    // printf("X: %f  Y: %f  rot: %f ", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("penalties = %d, smups = %d\n", MazeGame::num_penalties, MazeGame::num_smups);
     fflush(stdout);
     fflush(stderr);
 
