@@ -27,6 +27,7 @@ void OpControl::opcontrol()
 
 
   GenericAuto a;
+  a.run(true);
   a.add([](){ return drive.drive_to_point(12, 55, FAST, 1, fwd); });
   a.add([](){ return drive.turn_to_heading(0, FAST); });
   a.add([](){ return drive.drive_to_point(36, 55, FAST, 1, fwd); });
@@ -54,7 +55,7 @@ void OpControl::opcontrol()
   a.add([](){ robot_cfg.drive_pid.p=.15; return true; });
   a.add([](){ return drive.drive_to_point(83, 70, SLOW, 1, fwd); });
 
-  a.run(true);
+  // a.run(true);
 
 
 // #else
@@ -69,9 +70,16 @@ void OpControl::opcontrol()
   while(true)
   {    
     // ========== DRIVING CONTROLS ==========
-    if(!main_controller.ButtonA.pressing())
-      drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
-    else
+    drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
+ 
+    
+    // ========== MANIPULATING CONTROLS ========== 
+
+    MazeGame::is_single_penalty();   
+    MazeGame::is_super_mega_ultra_penalty();
+
+    position_t p = odom.get_position();
+    if(fabs(OdometryBase::pos_diff(p, {.x=90, .y=72})) < 5)
     {
       int score = game_timer.time(sec) + (MazeGame::num_penalties * 5) + (MazeGame::num_smups * 20);
       main_controller.Screen.clearScreen();
@@ -79,12 +87,9 @@ void OpControl::opcontrol()
       main_controller.Screen.print("Penalties: %d", MazeGame::num_penalties + MazeGame::num_smups);
       main_controller.Screen.setCursor(2, 0);
       main_controller.Screen.print("Final Time: %d", score);
+      drive.stop();
+      return;
     }
-    
-    // ========== MANIPULATING CONTROLS ========== 
-
-    MazeGame::is_single_penalty();   
-    MazeGame::is_super_mega_ultra_penalty();
 
 #ifndef AUTO
     // static bool reset = true;
@@ -105,10 +110,10 @@ void OpControl::opcontrol()
     // ========== SECONDARY REMOTE ==========
 
     // ========== AUTOMATION ==========
-
+    
     // printf("L: %f, R: %f, ", left_enc.position(rotationUnits::raw), right_enc.position(rotationUnits::raw));
-    // printf("X: %f  Y: %f  rot: %f ", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
-    printf("penalties = %d, smups = %d\n", MazeGame::num_penalties, MazeGame::num_smups);
+    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    // printf("penalties = %d, smups = %d\n", MazeGame::num_penalties, MazeGame::num_smups);
     fflush(stdout);
     fflush(stderr);
 

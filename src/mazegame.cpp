@@ -16,6 +16,9 @@ void MazeGame::init_boundary_lines()
   // Penalty Lines
   penalty_list.push_back({{.x=0, .y=68}, {.x=21, .y=68}});
   penalty_list.push_back({{.x=23, .y=94}, {.x=44, .y=94}});
+  penalty_list.push_back({{.x=23, .y=120}, {.x=70, .y=120}});
+  penalty_list.push_back({{.x=61, .y=22}, {.x=83, .y=23}});
+  penalty_list.push_back({{.x=83, .y=23}, {.x=83, .y=40}});
 }
 
 bool MazeGame::is_single_penalty()
