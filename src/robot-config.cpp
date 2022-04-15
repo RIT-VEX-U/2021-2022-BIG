@@ -12,26 +12,24 @@ controller main_controller;
 // ======== OUTPUTS ========
 
 // Drivetrain Components
-motor ldtf(PORT19, gearSetting::ratio6_1, true), ldtr(PORT18, gearSetting::ratio6_1, true), ldbf(PORT20, gearSetting::ratio6_1), ldbr(PORT17, gearSetting::ratio6_1), 
-      rdtf(PORT13, gearSetting::ratio6_1), rdtr(PORT15, gearSetting::ratio6_1), rdbf(PORT12, gearSetting::ratio6_1, true), rdbr(PORT14, gearSetting::ratio6_1, true);
+motor rt_drive(PORT14, gearSetting::ratio6_1), rf_drive(PORT13, gearSetting::ratio6_1, true), rm_drive(PORT12, gearSetting::ratio6_1, true), rb_drive(PORT11, gearSetting::ratio6_1, true), 
+      lt_drive(PORT19, gearSetting::ratio6_1, true), lf_drive(PORT18, gearSetting::ratio6_1), lm_drive(PORT17, gearSetting::ratio6_1), lb_drive(PORT16, gearSetting::ratio6_1);
 
-motor_group left_motors = {ldtf, ldtr, ldbf, ldbr};
-motor_group right_motors = {rdtf, rdtr, rdbf, rdbr};
+motor_group left_motors = {lt_drive, lf_drive, lm_drive, lb_drive};
+motor_group right_motors = {rt_drive, rf_drive, rm_drive, rb_drive};
 
 // Subsystems Components
-motor conveyor_motor(PORT11, true), l_lift_motor(PORT1, true), r_lift_motor(PORT2);
-motor_group lift_motors = {l_lift_motor, r_lift_motor};
+motor l_feed(PORT9, true), r_feed(PORT8), l_lift(PORT6, true), r_lift(PORT7);
+motor_group lift_motors = {l_lift, r_lift};
 
-pneumatics claw_solenoid(Brain.ThreeWirePort.A);
-pneumatics flaps_solenoid(Brain.ThreeWirePort.B);
-pneumatics rear_clamp(Brain.ThreeWirePort.H);
+pneumatics front_solenoid(Brain.ThreeWirePort.H);
+pneumatics rear_solenoid(Brain.ThreeWirePort.F);
 
 
 // ======== INPUTS ========
-inertial imu(PORT16);
-vex::distance goal_sense(PORT10);
-CustomEncoder left_enc(Brain.ThreeWirePort.C, 90);
-CustomEncoder right_enc(Brain.ThreeWirePort.E, 180);
+inertial imu(PORT15);
+vex::distance dist(PORT1);
+CustomEncoder tracking_enc(Brain.ThreeWirePort.A, 2048);
 
 // ======== SUBSYSTEMS ========
 
@@ -69,15 +67,15 @@ robot_specs_t robot_cfg = {
 };
 
 // Drivetrain
-OdometryTank odom(left_enc, right_enc, robot_cfg, &imu);
+OdometryTank odom(tracking_enc, tracking_enc, robot_cfg, &imu);
 TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
 
 // Lift
 Lift<LiftPosition>::lift_cfg_t lift_cfg = {
   .up_speed = 12, //volts
-  .down_speed = 6, //volts / second
-  .softstop_up = 2.1,
-  .softstop_down = 0,
+  .down_speed = 12, //volts / second
+  .softstop_up = 0.96,
+  .softstop_down = -.1,
   .lift_pid_cfg =
   {
     .p = 20,
@@ -92,9 +90,9 @@ Lift<LiftPosition>::lift_cfg_t lift_cfg = {
 
 map<LiftPosition, double> lift_map {
   {DOWN, 0},
-  {DRIVING, 0.5},
-  {PLATFORM, 1.5},
-  {UP, 2.1}
+  {DRIVING, 0.3},
+  {PLATFORM, 0.6},
+  {UP, 0.96}
 };
 
 Lift<LiftPosition> lift_subsys(lift_motors, lift_cfg, lift_map);

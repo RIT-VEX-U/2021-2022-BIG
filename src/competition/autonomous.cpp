@@ -21,14 +21,13 @@ void auto_rush_goal(GoalPosition pos, bool awp)
 
   // Define the line we cannot cross in auto, and distance sensor value
   static bool (*return_condition)(void) = [](){
-    return odom.get_position().y > 80 || goal_sense.objectDistance(distanceUnits::in) < 3;
+    return odom.get_position().y > 80 || dist.objectDistance(distanceUnits::in) < 3;
     };
 
   GenericAuto a;
   
   // Initial rush (drive forward w/ camera, close claw, back up)
   a.add(front_claw::open);
-  a.add(flaps::lower);
   a.add([](){ return automation::drive_to_goal(.7, return_condition, automation::GoalType::YELLOW); });
   a.add(front_claw::close);
 

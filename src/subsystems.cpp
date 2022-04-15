@@ -4,7 +4,7 @@ bool front_claw::is_open = false;
 bool rear_claw::is_open = false;
 
 vex::task *conveyor::task_handle = NULL;
-std::atomic<bool> conveyor::is_running(true);
+std::atomic<bool> conveyor::is_running(false);
 
 // ======== Pneumatic claw controls (front and rear) ========
 
@@ -12,7 +12,7 @@ std::atomic<bool> conveyor::is_running(true);
 // Return a boolean for compatibility with GenericAuto
 bool front_claw::open()
 {
-  claw_solenoid.open();
+  front_solenoid.open();
   is_open = true;
   return true;
 }
@@ -21,7 +21,7 @@ bool front_claw::open()
 // Return a boolean for compatibility with GenericAuto
 bool front_claw::close()
 {
-  claw_solenoid.close();
+  front_solenoid.close();
   is_open = false;
   return true;
 }
@@ -46,7 +46,7 @@ void front_claw::control(bool toggle)
 // Return a boolean for compatibility with GenericAuto
 bool rear_claw::open()
 {
-  rear_clamp.open();
+  rear_solenoid.open();
   is_open = true;
   return true;
 }
@@ -55,8 +55,8 @@ bool rear_claw::open()
 // Return a boolean for compatibility with GenericAuto
 bool rear_claw::close()
 {
-  rear_clamp.close();
-  is_open = true;
+  rear_solenoid.close();
+  is_open = false;
   return true;
 }
 
@@ -92,14 +92,20 @@ void conveyor::initialize()
       {
         // If the system detects a jam, spin the motor backwards to unjam it
         if(overcurrent)
-          conveyor_motor.spin(directionType::rev, 12, volt);
+        {
+          l_feed.spin(directionType::rev, 12, volt);
+          r_feed.spin(directionType::rev, 12, volt);
+        }
         else
-          conveyor_motor.spin(directionType::fwd, 12, volt);
+        {
+          l_feed.spin(directionType::fwd, 12, volt);
+          r_feed.spin(directionType::fwd, 12, volt);
+        }
 
         // If the system was not previously overcurrent, but is now, start the unjamming process.
         // Add a minimum of 1 second after the last overcurrent protection ran to avoid the "changing directions"
         // false alarm issue.
-        if(!overcurrent && conveyor_motor.current() > 2 && tmr.time() > 1000)
+        if(!overcurrent && (l_feed.current() > 2 || r_feed.current() > 2) && tmr.time() > 1000)
         {
           overcurrent = true;
           tmr.reset();
@@ -111,7 +117,8 @@ void conveyor::initialize()
 
       } else // not if running
       {
-        conveyor_motor.stop();
+        l_feed.stop();
+        r_feed.stop();
       }
 
       vexDelay(20);
@@ -153,17 +160,10 @@ void conveyor::control(bool toggle)
   last_btn = toggle;
 
   if(new_press)
+  {
     is_running = !is_running;
-}
 
-bool flaps::raise()
-{
-  flaps_solenoid.open();
-  return true;
-}
-
-bool flaps::lower()
-{
-  flaps_solenoid.close();
-  return true;
+    // if(is_running)
+    //   lift_subsys.set_position(LiftPosition::DRIVING);
+  }
 }

@@ -18,12 +18,6 @@ namespace rear_claw
   void control(bool toggle);
 }
 
-namespace flaps
-{
-  bool raise();
-  bool lower();
-}
-
 namespace conveyor
 {
   extern vex::task *task_handle;

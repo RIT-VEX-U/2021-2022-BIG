@@ -10,20 +10,20 @@ extern controller main_controller;
 // ======== OUTPUTS ========
 
 // Drivetrain Components
-extern motor ldtf, ldtr, ldbf, ldbr, 
-             rdtf, rdtr, rdbf, rdbr;
+extern motor lt_drive, lf_drive, lm_drive, lb_drive,
+             rt_drive, rf_drive, rm_drive, rb_drive;
 
 extern motor_group left_motors, right_motors, lift_motors;
 
 // Subsystems Components
-extern motor conveyor_motor, l_lift_motor, r_lift_motor, fork_motor;
+extern motor l_feed, r_feed, l_lift, r_lift;
 
-extern pneumatics claw_solenoid, rear_clamp, flaps_solenoid;
+extern pneumatics front_solenoid, rear_solenoid;
 
 // ======== INPUTS ========
 extern inertial imu;
-extern vex::distance goal_sense;
-extern CustomEncoder left_enc, right_enc;
+extern vex::distance dist;
+extern CustomEncoder tracking_enc;
 
 // ======== SUBSYSTEMS ========
 
