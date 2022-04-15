@@ -12,26 +12,18 @@ controller main_controller;
 // ======== OUTPUTS ========
 
 // Drivetrain Components
-motor ldtf(PORT19, gearSetting::ratio6_1, true), ldtr(PORT18, gearSetting::ratio6_1, true), ldbf(PORT20, gearSetting::ratio6_1), 
-      rdtf(PORT13, gearSetting::ratio6_1), rdtr(PORT15, gearSetting::ratio6_1), rdbf(PORT12, gearSetting::ratio6_1, true), rdbr(PORT14, gearSetting::ratio6_1, true);
+motor lf_drive(PORT11), lr_drive(PORT12), rf_drive(PORT20), rr_drive(PORT19);
 
-motor_group left_motors = {ldtf, ldtr, ldbf};
-motor_group right_motors = {rdtf, rdtr, rdbf, rdbr};
+motor_group left_motors = {lf_drive, lr_drive};
+motor_group right_motors = {rf_drive, rr_drive};
 
 // Subsystems Components
-motor conveyor_motor(PORT11, true), l_lift_motor(PORT1, true), r_lift_motor(PORT2);
-motor_group lift_motors = {l_lift_motor, r_lift_motor};
-
-pneumatics claw_solenoid(Brain.ThreeWirePort.A);
-pneumatics flaps_solenoid(Brain.ThreeWirePort.B);
-pneumatics rear_clamp(Brain.ThreeWirePort.H);
-
 
 // ======== INPUTS ========
-inertial imu(PORT17);
+gyro imu(Brain.ThreeWirePort.G);
 vex::distance goal_sense(PORT10);
-CustomEncoder left_enc(Brain.ThreeWirePort.C, 90);
-CustomEncoder right_enc(Brain.ThreeWirePort.E, 90);
+encoder left_enc(Brain.ThreeWirePort.C);
+encoder right_enc(Brain.ThreeWirePort.E);
 
 // ======== SUBSYSTEMS ========
 
@@ -70,7 +62,7 @@ robot_specs_t robot_cfg = {
 };
 
 // Drivetrain
-OdometryTank odom(left_enc, right_enc, robot_cfg, &imu);
+OdometryTank odom(left_enc, right_enc, robot_cfg, imu);
 TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
 
 // Lift

@@ -7,7 +7,7 @@
  * @param imu The robot's inertial sensor. If not included, rotation is calculated from the encoders.
  */
 OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_side, robot_specs_t &config, vex::inertial *imu, bool is_async)
-: left_side(&left_side), right_side(&right_side), left_enc(NULL), right_enc(NULL), imu(imu), config(config)
+: left_side(&left_side), right_side(&right_side), left_enc(NULL), right_enc(NULL), imu(imu), _gyro(NULL), config(config)
 {
     // Make sure the last known info starts zeroed
     memset(&current_pos, 0, sizeof(position_t));
@@ -24,7 +24,25 @@ OdometryTank::OdometryTank(vex::motor_group &left_side, vex::motor_group &right_
  * @param imu The robot's inertial sensor. If not included, rotation is calculated from the encoders.
  */
 OdometryTank::OdometryTank(vex::encoder &left_enc, vex::encoder &right_enc, robot_specs_t &config, vex::inertial *imu, bool is_async)
-: left_side(NULL), right_side(NULL), left_enc(&left_enc), right_enc(&right_enc), imu(imu), config(config)
+: left_side(NULL), right_side(NULL), left_enc(&left_enc), right_enc(&right_enc), imu(imu), _gyro(NULL), config(config)
+{
+    // Make sure the last known info starts zeroed
+    memset(&current_pos, 0, sizeof(position_t));
+
+    // Start the asynchronous background thread
+    if (is_async)
+        handle = new vex::task(background_task, this);
+}
+
+/**
+* Initialize the Odometry module, calculating posiiton from encoders on "dead wheels"
+* @param left_side The left motors 
+* @param right_side The right motors
+* @param imu The robot's inertial sensor. If not included, rotation is calculated from the encoders.
+* @param is_async If true, position will be updated in the background continuously. If false, the programmer will have to manually call update().
+*/
+OdometryTank::OdometryTank(vex::encoder &left_enc, vex::encoder &right_enc, robot_specs_t &config, vex::gyro &_gyro, bool is_async)
+: left_side(NULL), right_side(NULL), left_enc(&left_enc), right_enc(&right_enc), imu(NULL), _gyro(&_gyro), config(config)
 {
     // Make sure the last known info starts zeroed
     memset(&current_pos, 0, sizeof(position_t));
@@ -84,7 +102,7 @@ position_t OdometryTank::update()
     double angle = 0;
 
     // If the IMU data was passed in, use it for rotational data
-    if(imu == NULL)
+    if(imu == NULL && _gyro == NULL)
     {
       // Get the difference in distance driven between the two sides
       // Uses the absolute position of the encoders, so resetting them will result in
@@ -99,10 +117,13 @@ position_t OdometryTank::update()
 
       // printf("angle: %f, ", (180.0 / PI) * (distance_diff / config.dist_between_wheels));
 
-    } else
+    } else if (imu != NULL)
     {
         // Translate "0 forward and clockwise positive" to "90 forward and CCW negative"
         angle = -imu->rotation(vex::rotationUnits::deg) + 90;
+    } else if(_gyro != NULL)
+    {
+        angle = -_gyro->rotation() + 90;
     }
 
     // Offset the angle, if we've done a set_position

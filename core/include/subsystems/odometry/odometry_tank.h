@@ -29,6 +29,15 @@ public:
     OdometryTank(vex::encoder &left_enc, vex::encoder &right_enc, robot_specs_t &config, vex::inertial *imu=NULL, bool is_async=true);
 
     /**
+    * Initialize the Odometry module, calculating posiiton from encoders on "dead wheels"
+    * @param left_side The left motors 
+    * @param right_side The right motors
+    * @param imu The robot's inertial sensor. If not included, rotation is calculated from the encoders.
+    * @param is_async If true, position will be updated in the background continuously. If false, the programmer will have to manually call update().
+    */
+    OdometryTank(vex::encoder &left_enc, vex::encoder &right_enc, robot_specs_t &config, vex::gyro &_gyro, bool is_async=true);
+
+    /**
      * Update the current position on the field based on the sensors
      */
     position_t update() override;
@@ -47,6 +56,7 @@ private:
     vex::motor_group *left_side, *right_side;
     vex::encoder *left_enc, *right_enc;
     vex::inertial *imu;
+    vex::gyro *_gyro;
     robot_specs_t &config;
 
     double rotation_offset = 0;
