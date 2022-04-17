@@ -1,9 +1,6 @@
 #include "competition/opcontrol.h"
 #include "robot-config.h"
 #include "../core/include/utils/generic_auto.h"
-#include "competition/autonomous.h"
-#include "subsystems.h"
-#include "automation.h"
 #include "mazegame.h"
 
 // #define AUTO
@@ -14,7 +11,7 @@
 void OpControl::opcontrol() 
 {
   // ========== INIT ==========
-
+  // imu.startCalibration(130);
   while (imu.isCalibrating());
 
 
@@ -79,7 +76,7 @@ void OpControl::opcontrol()
     MazeGame::is_super_mega_ultra_penalty();
 
     position_t p = odom.get_position();
-    if(fabs(OdometryBase::pos_diff(p, {.x=90, .y=72})) < 5)
+    if(p.x > 75 && p.y > 68 && p.y < 90 && fabs(imu.roll()) < 5)
     {
       int score = game_timer.time(sec) + (MazeGame::num_penalties * 5) + (MazeGame::num_smups * 20);
       main_controller.Screen.clearScreen();
@@ -112,8 +109,9 @@ void OpControl::opcontrol()
     // ========== AUTOMATION ==========
     
     // printf("L: %f, R: %f, ", left_enc.position(rotationUnits::raw), right_enc.position(rotationUnits::raw));
-    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
-    // printf("penalties = %d, smups = %d\n", MazeGame::num_penalties, MazeGame::num_smups);
+    printf("X: %f  Y: %f  rot: %f ", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    // printf("gyro: %f\n", imu.heading(deg));
+    printf("penalties = %d, smups = %d\n", MazeGame::num_penalties, MazeGame::num_smups);
     fflush(stdout);
     fflush(stderr);
 

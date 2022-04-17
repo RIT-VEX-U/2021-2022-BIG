@@ -123,7 +123,7 @@ position_t OdometryTank::update()
         angle = -imu->rotation(vex::rotationUnits::deg) + 90;
     } else if(_gyro != NULL)
     {
-        angle = -_gyro->rotation() + 90;
+        angle = -(_gyro->value(analogUnits::range12bit) / 10.0) + 90;
     }
 
     // Offset the angle, if we've done a set_position

@@ -12,7 +12,7 @@ controller main_controller;
 // ======== OUTPUTS ========
 
 // Drivetrain Components
-motor lf_drive(PORT11), lr_drive(PORT12), rf_drive(PORT20), rr_drive(PORT19);
+motor lf_drive(PORT11, true), lr_drive(PORT12, true), rf_drive(PORT20), rr_drive(PORT19);
 
 motor_group left_motors = {lf_drive, lr_drive};
 motor_group right_motors = {rf_drive, rr_drive};
@@ -20,7 +20,7 @@ motor_group right_motors = {rf_drive, rr_drive};
 // Subsystems Components
 
 // ======== INPUTS ========
-gyro imu(Brain.ThreeWirePort.G);
+inertial imu(PORT1);
 vex::distance goal_sense(PORT10);
 encoder left_enc(Brain.ThreeWirePort.C);
 encoder right_enc(Brain.ThreeWirePort.E);
@@ -32,7 +32,7 @@ robot_specs_t robot_cfg = {
   .robot_radius = 12, // inches
   .odom_wheel_diam = 2.84,//4.25, // inches
   .odom_gear_ratio = 1.03,//2.333333, // inches
-  .dist_between_wheels = 9.75, // inches
+  .dist_between_wheels = 9.18, // inches
   .drive_correction_cutoff = 12, //inches
   .drive_pid = (PID::pid_config_t) 
   {
@@ -62,38 +62,10 @@ robot_specs_t robot_cfg = {
 };
 
 // Drivetrain
-OdometryTank odom(left_enc, right_enc, robot_cfg, imu);
+OdometryTank odom(left_enc, right_enc, robot_cfg, &imu);
 TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
 
-// Lift
-Lift<LiftPosition>::lift_cfg_t lift_cfg = {
-  .up_speed = 12, //volts
-  .down_speed = 6, //volts / second
-  .softstop_up = 2.1,
-  .softstop_down = 0,
-  .lift_pid_cfg =
-  {
-    .p = 20,
-    .i = 0,
-    .d = 3,
-    .f = 0,
-
-    .deadband = .1,
-    .on_target_time = .1
-  }
-};
-
-map<LiftPosition, double> lift_map {
-  {DOWN, 0},
-  {DRIVING, 0.5},
-  {PLATFORM, 1.5},
-  {UP, 2.1}
-};
-
-Lift<LiftPosition> lift_subsys(lift_motors, lift_cfg, lift_map);
-
 // ======== UTILS ========
-AutoChooser auto_chooser(Brain);
 
 
 /**
@@ -102,5 +74,5 @@ AutoChooser auto_chooser(Brain);
  * This should be called at the start of your int main function.
  */
 void vexcodeInit( void ) {
-  imu.calibrate();
+  // imu.calibrate();
 }
