@@ -56,7 +56,7 @@ robot_specs_t robot_cfg = {
   },
   .correction_pid = (PID::pid_config_t)
   {
-    .p = .03,
+    .p = .01,
     // .d = 0.002
   }
 };
