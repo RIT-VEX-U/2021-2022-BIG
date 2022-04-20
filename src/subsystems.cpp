@@ -12,7 +12,7 @@ std::atomic<bool> conveyor::is_running(false);
 // Return a boolean for compatibility with GenericAuto
 bool front_claw::open()
 {
-  front_solenoid.open();
+  front_solenoid.close();
   is_open = true;
   return true;
 }
@@ -21,7 +21,7 @@ bool front_claw::open()
 // Return a boolean for compatibility with GenericAuto
 bool front_claw::close()
 {
-  front_solenoid.close();
+  front_solenoid.open();
   is_open = false;
   return true;
 }
@@ -46,7 +46,7 @@ void front_claw::control(bool toggle)
 // Return a boolean for compatibility with GenericAuto
 bool rear_claw::open()
 {
-  rear_solenoid.open();
+  rear_solenoid.close();
   is_open = true;
   return true;
 }
@@ -55,7 +55,7 @@ bool rear_claw::open()
 // Return a boolean for compatibility with GenericAuto
 bool rear_claw::close()
 {
-  rear_solenoid.close();
+  rear_solenoid.open();
   is_open = false;
   return true;
 }
@@ -105,7 +105,7 @@ void conveyor::initialize()
         // If the system was not previously overcurrent, but is now, start the unjamming process.
         // Add a minimum of 1 second after the last overcurrent protection ran to avoid the "changing directions"
         // false alarm issue.
-        if(!overcurrent && (l_feed.current() > 2 || r_feed.current() > 2) && tmr.time() > 1000)
+        if(!overcurrent && (l_feed.current() > 2.5 || r_feed.current() > 2.5) && tmr.time() > 1000)
         {
           overcurrent = true;
           tmr.reset();
@@ -163,7 +163,7 @@ void conveyor::control(bool toggle)
   {
     is_running = !is_running;
 
-    // if(is_running)
-    //   lift_subsys.set_position(LiftPosition::DRIVING);
+    if(is_running)
+      lift_subsys.set_position(LiftPosition::DRIVING);
   }
 }

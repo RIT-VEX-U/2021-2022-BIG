@@ -14,14 +14,14 @@ void auto_rush_goal(GoalPosition pos, bool awp)
   // Determine the robot's initial position based on which goal is selected
   position_t initial_pos;
   if(pos == LEFT)
-    initial_pos = {.x=0, .y=0, .rot=0};
+    initial_pos = {.x=23.5, .y=11.25, .rot=82.5};
   else if (pos == CENTER)
-    initial_pos = {.x=0, .y=0, .rot=0};
+    initial_pos = {.x=23.5, .y=11.25, .rot=53.5};
   odom.set_position(initial_pos);
 
   // Define the line we cannot cross in auto, and distance sensor value
   static bool (*return_condition)(void) = [](){
-    return odom.get_position().y > 80 || dist.objectDistance(distanceUnits::in) < 3;
+    return odom.get_position().y > 80 || dist.objectDistance(distanceUnits::mm) < 35;
     };
 
   GenericAuto a;
@@ -30,23 +30,10 @@ void auto_rush_goal(GoalPosition pos, bool awp)
   a.add(front_claw::open);
   a.add([](){ return automation::drive_to_goal(.7, return_condition, automation::GoalType::YELLOW); });
   a.add(front_claw::close);
-
-  // Safety task that will make sure we don't cross the line and lose auto
-  a.add_async([](){
-    if(odom.get_position().y > 85)
-    {
-      front_claw::open();
-      return true;
-    } else if(odom.get_position().y < 40)
-    {
-      return true;
-    }
-
-    return false;
-  });
+  
 
   // Score the goal behind the line
-  a.add([](){return drive.drive_to_point(24, 24, .5, 1, directionType::rev);});
+  a.add([](){return drive.drive_to_point(22, 10, .5, 1, directionType::rev);});
 
   // Stop the auto early if we're not going for the auto win point
   if(!awp)
@@ -56,19 +43,23 @@ void auto_rush_goal(GoalPosition pos, bool awp)
     return;
   }
 
-  // Drive backwards in an arc toward the alliance goal, and grab it
-  static std::vector<PurePursuit::hermite_point> awp_path1 = {
-    {.x=24, .y=24, .dir=deg2rad(90), .mag=50},
-    {.x=0, .y=0, .dir=deg2rad(180), .mag=50}
-    };
+  // Turn to the alliance goal and grab it
+  // a.run(true);
 
   a.add(rear_claw::open);
-  a.add([](){ return drive.pure_pursuit(awp_path1, 12, .4, 20, directionType::rev); });
+  a.add([](){ return drive.turn_to_heading(180, .6); });
+  a.add([](){ return drive.drive_to_point(32, 10, .3, 1, directionType::rev); });
+  a.add_delay(100);
   a.add(rear_claw::close);
+  a.add_delay(100);
 
   // Score the rings and move the goal off the platform
   a.add(conveyor::start);
-  a.add([](){ return drive.drive_to_point(0, 0, .4, 1, directionType::fwd); });
+  a.add([](){ return drive.drive_to_point(19, 22, .4, 1, directionType::fwd); });
+  a.add([](){ drive.stop(); return true;});
+  a.add_delay(1000);
+  a.add(conveyor::stop);
+  a.run(true);
 }
 
 /**
@@ -218,6 +209,10 @@ void Autonomous::autonomous()
 {
   while(imu.isCalibrating());
 
+  //testing
+  auto_rush_goal(LEFT, true);
+  return;
+
   // odom.set_position({.x=15.5, .y=11.5, .rot=180});
 
   // ========== INIT ==========
@@ -227,18 +222,18 @@ void Autonomous::autonomous()
   fflush(stdout);
   fflush(stderr);
 
-  if (auto_choice == "AWP")
-    auto_simple_qual();
-  else if (auto_choice == "RUSH LEFT")
-    auto_rush_goal(LEFT, false);
-  else if (auto_choice == "RUSH CENTER")
-    auto_rush_goal(CENTER, false);
-  else if (auto_choice == "RUSH L AWP")
-    auto_rush_goal(LEFT, true);
-  else if (auto_choice == "RUSH C AWP")
-    auto_rush_goal(CENTER, true);
-  else if (auto_choice == "AUTO SKILLS")
-    skills();
+  // if (auto_choice == "AWP")
+  //   auto_simple_qual();
+  // else if (auto_choice == "RUSH LEFT")
+  //   auto_rush_goal(LEFT, false);
+  // else if (auto_choice == "RUSH CENTER")
+  //   auto_rush_goal(CENTER, false);
+  // else if (auto_choice == "RUSH L AWP")
+  //   auto_rush_goal(LEFT, true);
+  // else if (auto_choice == "RUSH C AWP")
+  //   auto_rush_goal(CENTER, true);
+  // else if (auto_choice == "AUTO SKILLS")
+  //   skills();
 
   // ========== MAIN LOOP ==========
 

@@ -42,19 +42,18 @@ robot_specs_t robot_cfg = {
   .drive_correction_cutoff = 12, //inches
   .drive_pid = (PID::pid_config_t) 
   {
-    .p = .5,
-    // .i = .01,
-    .d = .0015,
+    .p = .2,
+    .i = .1,
+    .d = .02,
     .f = 0,
-    .k = .1,
-    .deadband = 0.3,
-    .on_target_time = 0
+    .deadband = .5,
+    .on_target_time = .1
   },
   .turn_pid = (PID::pid_config_t)
   {
-    .p = 0.12,
-    .i = 0.0,
-    .d = 0.012,
+    .p = 0.06,
+    .i = 0.05,
+    .d = 0.004,
     .f = 0,
     .deadband = 2,
     .on_target_time = 0.1
@@ -62,7 +61,7 @@ robot_specs_t robot_cfg = {
   .correction_pid = (PID::pid_config_t)
   {
     .p = 0.02,
-    .d = 0.002
+    .d = 0.0015
   }
 };
 
@@ -74,11 +73,11 @@ TankDrive drive(left_motors, right_motors, robot_cfg, &odom);
 Lift<LiftPosition>::lift_cfg_t lift_cfg = {
   .up_speed = 12, //volts
   .down_speed = 12, //volts / second
-  .softstop_up = 0.96,
-  .softstop_down = -.1,
+  .softstop_up = 1.9,
+  .softstop_down = 0,
   .lift_pid_cfg =
   {
-    .p = 20,
+    .p = 100,
     .i = 0,
     .d = 3,
     .f = 0,
@@ -90,9 +89,9 @@ Lift<LiftPosition>::lift_cfg_t lift_cfg = {
 
 map<LiftPosition, double> lift_map {
   {DOWN, 0},
-  {DRIVING, 0.3},
-  {PLATFORM, 0.6},
-  {UP, 0.96}
+  {DRIVING, 0.6},
+  {PLATFORM, 1.5},
+  {UP, 1.9}
 };
 
 Lift<LiftPosition> lift_subsys(lift_motors, lift_cfg, lift_map);
