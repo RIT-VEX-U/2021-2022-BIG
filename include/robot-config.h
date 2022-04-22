@@ -32,7 +32,7 @@ extern TankDrive drive;
 extern OdometryTank odom;
 
 // Lift
-enum LiftPosition {DOWN, DRIVING, PLATFORM, UP};
+enum LiftPosition {DOWN, LOW, DRIVING, PLATFORM, UP};
 extern std::map<LiftPosition, double> lift_map;
 extern Lift<LiftPosition> lift_subsys;
 

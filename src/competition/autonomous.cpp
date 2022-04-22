@@ -13,27 +13,44 @@ void auto_rush_goal(GoalPosition pos, bool awp)
 {
   // Determine the robot's initial position based on which goal is selected
   position_t initial_pos;
-  if(pos == LEFT)
-    initial_pos = {.x=23.5, .y=11.25, .rot=82.5};
-  else if (pos == CENTER)
-    initial_pos = {.x=23.5, .y=11.25, .rot=53.5};
+  // if(pos == LEFT)
+  initial_pos = {.x=23.5, .y=11.25, .rot=82.5};
+  // else if (pos == CENTER)
+  //   initial_pos = {.x=23.5, .y=11.25, .rot=53.5};
   odom.set_position(initial_pos);
 
   // Define the line we cannot cross in auto, and distance sensor value
   static bool (*return_condition)(void) = [](){
-    return odom.get_position().y > 80 || dist.objectDistance(distanceUnits::mm) < 35;
+    return odom.get_position().y > 72 || dist.objectDistance(distanceUnits::mm) < 50;
     };
 
   GenericAuto a;
+
+  if(pos == CENTER)
+  {
+    a.add([](){return drive.drive_to_point(28, 51, .5, 1, fwd);});
+    a.add([](){ return drive.turn_to_heading(33, .5); });
+    // a.add([](){ drive.drive_tank(.7, .7); return odom.get_position().y > 30;});
+  }
   
   // Initial rush (drive forward w/ camera, close claw, back up)
   a.add(front_claw::open);
   a.add([](){ return automation::drive_to_goal(.7, return_condition, automation::GoalType::YELLOW); });
   a.add(front_claw::close);
-  
+
+  if(pos == CENTER)
+  {
+    a.add_delay(100);
+    a.add([](){ return lift_subsys.set_position(LOW);});
+    a.add([](){ return drive.drive_to_point(28, 51, .5, 1, directionType::rev);});
+  }
 
   // Score the goal behind the line
-  a.add([](){return drive.drive_to_point(22, 10, .5, 1, directionType::rev);});
+  if(awp == true)
+    a.add([](){return drive.drive_to_point(22, 33, .5, 1, directionType::rev);});
+  else
+    a.add([](){ return drive.drive_to_point(22, 16, .5, 1, directionType::rev);});
+
 
   // Stop the auto early if we're not going for the auto win point
   if(!awp)
@@ -43,15 +60,33 @@ void auto_rush_goal(GoalPosition pos, bool awp)
     return;
   }
 
-  // Turn to the alliance goal and grab it
-  // a.run(true);
-
+  a.add([](){ lift_subsys.set_position(LOW); return true;});
   a.add(rear_claw::open);
-  a.add([](){ return drive.turn_to_heading(180, .6); });
-  a.add([](){ return drive.drive_to_point(32, 10, .3, 1, directionType::rev); });
+  a.add([](){ return drive.drive_to_point(26, 12, .3, 1, directionType::rev);});
+  a.add([](){ return drive.turn_to_heading(175, .5);});
+  a.add([](){ return drive.drive_to_point(36, 11.5, .3, 1, directionType::rev); });
+  a.add(rear_claw::close);
+  a.add_delay(100);
+  a.add_async([](){ conveyor::start(); vexDelay(1000); conveyor::stop(); return true;});
+  a.add([](){ return drive.drive_to_point(24, 18.5, .3, 1, directionType::fwd);});
+  a.add([](){ return drive.turn_to_heading(90, .5); });
+  a.add([](){ drive.stop(); return true; });
+
+  a.run(true);
+  
+
+  // static std::vector<PurePursuit::hermite_point> p = {
+  //   {.x=23, .y=33, .dir=deg2rad(73), .mag=5}, 
+  //   {.x=29, .y=15, .dir=deg2rad(168), .mag=50},
+  //   {.x=38, .y=13, .dir=deg2rad(169), .mag=50}
+  // };
+    // a.run(true);
+
+  // a.add([](){ return drive.pure_pursuit(p, 1, .3, 20, directionType::rev); });
   a.add_delay(100);
   a.add(rear_claw::close);
   a.add_delay(100);
+
 
   // Score the rings and move the goal off the platform
   a.add(conveyor::start);
@@ -59,7 +94,7 @@ void auto_rush_goal(GoalPosition pos, bool awp)
   a.add([](){ drive.stop(); return true;});
   a.add_delay(1000);
   a.add(conveyor::stop);
-  a.run(true);
+  // a.run(true);
 }
 
 /**
@@ -207,11 +242,12 @@ void Autonomous::init_autochooser()
  */ 
 void Autonomous::autonomous() 
 {
+  lift_subsys.set_async(false);
   while(imu.isCalibrating());
 
   //testing
-  auto_rush_goal(LEFT, true);
-  return;
+  // auto_rush_goal(CENTER, true);
+  // return;
 
   // odom.set_position({.x=15.5, .y=11.5, .rot=180});
 
@@ -222,23 +258,20 @@ void Autonomous::autonomous()
   fflush(stdout);
   fflush(stderr);
 
-  // if (auto_choice == "AWP")
-  //   auto_simple_qual();
-  // else if (auto_choice == "RUSH LEFT")
-  //   auto_rush_goal(LEFT, false);
-  // else if (auto_choice == "RUSH CENTER")
-  //   auto_rush_goal(CENTER, false);
-  // else if (auto_choice == "RUSH L AWP")
-  //   auto_rush_goal(LEFT, true);
-  // else if (auto_choice == "RUSH C AWP")
-  //   auto_rush_goal(CENTER, true);
-  // else if (auto_choice == "AUTO SKILLS")
-  //   skills();
+  if (auto_choice == "AWP")
+    auto_simple_qual();
+  else if (auto_choice == "RUSH LEFT")
+    auto_rush_goal(LEFT, false);
+  else if (auto_choice == "RUSH CENTER")
+    auto_rush_goal(CENTER, false);
+  else if (auto_choice == "RUSH L AWP")
+    auto_rush_goal(LEFT, true);
+  else if (auto_choice == "RUSH C AWP")
+    auto_rush_goal(CENTER, true);
+  else if (auto_choice == "AUTO SKILLS")
+    skills();
 
   // ========== MAIN LOOP ==========
-
-  // auto_rush_goal();
-  // auto_simple_qual();
-  // skills();
+  // Nothing here, dummy!
 
 }

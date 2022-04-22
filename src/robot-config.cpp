@@ -60,8 +60,8 @@ robot_specs_t robot_cfg = {
   },
   .correction_pid = (PID::pid_config_t)
   {
-    .p = 0.02,
-    .d = 0.0015
+    .p = 0.01,
+    .d = 0.001
   }
 };
 
@@ -89,6 +89,7 @@ Lift<LiftPosition>::lift_cfg_t lift_cfg = {
 
 map<LiftPosition, double> lift_map {
   {DOWN, 0},
+  {LOW, 0.3},
   {DRIVING, 0.6},
   {PLATFORM, 1.5},
   {UP, 1.9}
