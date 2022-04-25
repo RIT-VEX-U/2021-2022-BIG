@@ -74,7 +74,7 @@ void OpControl::opcontrol()
       game_timer.reset();
   
     // ========== DRIVING CONTROLS ==========
-    drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);
+    drive.drive_arcade(main_controller.Axis3.position() / (1.5 * 100.0), main_controller.Axis1.position() / (1.5 * 100.0), 2);
  
     
     // ========== MANIPULATING CONTROLS ========== 
@@ -82,8 +82,8 @@ void OpControl::opcontrol()
     MazeGame::is_single_penalty();   
     MazeGame::is_super_mega_ultra_penalty();
 
-    
-    if(p.x > 75 && p.y > 68 && p.y < 90 && fabs(imu.roll()) < 5)
+    printf("Roll: %f ", imu.roll());
+    if(p.x > 75 && p.y > 68 && p.y < 90 && imu.roll() < 15)
     {
       int score = game_timer.time(sec) + (MazeGame::num_penalties * 5) + (MazeGame::num_smups * 45);
       main_controller.Screen.clearScreen();
@@ -116,7 +116,7 @@ void OpControl::opcontrol()
     // ========== AUTOMATION ==========
     
     // printf("L: %f, R: %f, ", left_enc.position(rotationUnits::raw), right_enc.position(rotationUnits::raw));
-    // printf("X: %f  Y: %f  rot: %f ", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("X: %f  Y: %f  rot: %f \n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     // printf("gyro: %f\n", imu.heading(deg));
     // printf("penalties = %d, smups = %d\n", MazeGame::num_penalties, MazeGame::num_smups);
     fflush(stdout);
