@@ -24,6 +24,7 @@ extern pneumatics front_solenoid, rear_solenoid;
 extern inertial imu;
 extern vex::distance dist;
 extern CustomEncoder tracking_enc;
+extern limit rear_switch;
 
 // ======== SUBSYSTEMS ========
 

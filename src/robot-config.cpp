@@ -30,6 +30,7 @@ pneumatics rear_solenoid(Brain.ThreeWirePort.F);
 inertial imu(PORT15);
 vex::distance dist(PORT1);
 CustomEncoder tracking_enc(Brain.ThreeWirePort.A, 2048);
+limit rear_switch(Brain.ThreeWirePort.G);
 
 // ======== SUBSYSTEMS ========
 
