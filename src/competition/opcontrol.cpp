@@ -31,6 +31,8 @@ void OpControl::opcontrol()
 
   // Autonomous::autonomous();
 
+  rear_switch.pressed([](){ main_controller.rumble("."); });
+
   // ========== LOOP ==========
   while(true)
   {    
@@ -38,11 +40,11 @@ void OpControl::opcontrol()
 
     // ========== DRIVING CONTROLS ==========
     // if(!is_auto_aiming)
-    if (!main_controller.ButtonUp.pressing())
-      drive.drive_tank(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
+    // if (!main_controller.ButtonUp.pressing())
+    drive.drive_tank(main_controller.Axis3.position() / 100.0, main_controller.Axis2.position() / 100.0, 2);
 
-    if(main_controller.ButtonUp.pressing())
-      automation::drive_to_goal(.2, [](){return rear_switch.pressing() == 1; }, automation::BLUE, directionType::rev);
+    // if(main_controller.ButtonUp.pressing())
+    // automation::drive_to_goal(.2, [](){return rear_switch.pressing() == 1; }, automation::BLUE, directionType::rev);
     //   automation::drive_to_goal(1, [](){ return dist.objectDistance(distanceUnits::mm) < 35;}, automation::YELLOW);
     // tuning(main_controller.ButtonUp.pressing());
     // drive.drive_arcade(main_controller.Axis3.position() / 100.0, main_controller.Axis1.position() / 100.0, 2);

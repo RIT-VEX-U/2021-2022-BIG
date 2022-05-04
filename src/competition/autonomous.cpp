@@ -85,11 +85,11 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
 
   // Drop off the goal
   a.add(rear_claw::open);
-  a.add([](){ return drive.drive_to_point(30, 33, .3, 1, directionType::fwd); });
+  a.add([](){ return drive.drive_to_point(30, 29, .3, 1, directionType::fwd); });
   a.add([](){ return drive.turn_to_heading(180, .5); });
 
   // Drive across the field
-  a.add([](){ return drive.drive_to_point(100, 32, .5, 1, directionType::rev); });
+  a.add([](){ return drive.drive_to_point(100, 28, .5, 1, directionType::rev); });
   a.add([](){ return automation::drive_to_goal(.35, [](){ return rear_switch.pressing() == 1;}, automation::ANY, directionType::rev); });
   // a.add([](){ return drive.drive_to_point(122, 36, .2, 1, directionType::rev); });
   a.add([](){ drive.drive_tank(-.15, -.15); vexDelay(1000); drive.stop(); return true;});
