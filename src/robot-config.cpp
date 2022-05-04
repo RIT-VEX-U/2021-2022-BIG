@@ -47,6 +47,7 @@ robot_specs_t robot_cfg = {
     .i = .1,
     .d = .02,
     .f = 0,
+    .k = .05,
     .deadband = .5,
     .on_target_time = .1
   },
@@ -55,13 +56,14 @@ robot_specs_t robot_cfg = {
     .p = 0.06,
     .i = 0.05,
     .d = 0.004,
+    .k = .005,
     .f = 0,
     .deadband = 2,
     .on_target_time = 0.1
   },
   .correction_pid = (PID::pid_config_t)
   {
-    .p = 0.01,
+    .p = 0.02,
     .d = 0.001
   }
 };
@@ -90,7 +92,7 @@ Lift<LiftPosition>::lift_cfg_t lift_cfg = {
 
 map<LiftPosition, double> lift_map {
   {DOWN, 0},
-  {LOW, 0.3},
+  {LOW, 0.4},
   {DRIVING, 0.6},
   {PLATFORM, 1.5},
   {UP, 1.9}

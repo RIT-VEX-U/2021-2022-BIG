@@ -80,7 +80,7 @@ void OpControl::opcontrol()
     
 
     // printf("lift pos: %f\n", l_lift.position(rotationUnits::rev));
-    // printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
+    printf("X: %f  Y: %f  rot: %f\n", odom.get_position().x,odom.get_position().y, odom.get_position().rot);
     // printf("rear goal? %ld\n", rear_switch.pressing());
     fflush(stdout);
     fflush(stderr);
