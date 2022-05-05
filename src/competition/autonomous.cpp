@@ -22,6 +22,9 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
 
   GenericAuto a;
   
+  static timer auto_timer;
+  auto_timer.reset();
+
   // INIT LIFT STOP!!!
   a.add([](){
     lift_subsys.set_async(false); 
@@ -67,10 +70,12 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
   a.add([](){ lift_subsys.set_position(LOW); return true;});
   a.add(rear_claw::open);
 
+  static timer all_goal_tmr;
+
   // 2 stage turning, it's bit tight back there
-  a.add([](){ return drive.drive_to_point(25, 12, .3, 1, directionType::rev);});
-  a.add([](){ return drive.turn_to_heading(175, .5);});
-  a.add([](){ return drive.drive_to_point(37, 11.5, .3, 1, directionType::rev); });
+  a.add([](){ return drive.drive_to_point(22, 12, .3, 1, directionType::rev);});
+  a.add([](){ all_goal_tmr.reset(); return drive.turn_to_heading(175, .5);});
+  a.add([](){ return drive.drive_to_point(35, 11.5, .3, 1, directionType::rev) || all_goal_tmr.time(sec) > 3; });
 
   // Grab the goal, begin the conveyor and start driving away
   a.add(rear_claw::close);
@@ -108,20 +113,32 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
   a.add([](){ return drive.drive_to_point(118, 36, .3, 1, directionType::fwd); });
   a.add([](){ return drive.turn_to_heading(270, .5); });
 
+  // Match timer, make sure we drop the goal at the end
+  a.add_async([](){
+    while(auto_timer.time(sec) < 44) {vexDelay(200);}
+    rear_claw::open();
+    return true;
+  });
+
   // Collect
+  static timer col_tmr;
   a.add(conveyor::start);
   a.add_delay(1000);
-  a.add([](){ return drive.drive_to_point(114, 10, .3, 1, directionType::fwd); });
-  a.add([](){ return drive.drive_to_point(115, 36, .4, 1, directionType::rev); });
+  a.add([](){ return drive.drive_to_point(114, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
+  a.add([](){ drive.reset_auto(); return true; });
+  a.add([](){ col_tmr.reset(); return drive.drive_to_point(115, 36, .4, 1, directionType::rev); });
   a.add_delay(1000);
-  a.add([](){ return drive.drive_to_point(115, 10, .3, 1, directionType::fwd); });
-  a.add([](){ return drive.drive_to_point(118, 36, .4, 1, directionType::rev); });
+  a.add([](){ return drive.drive_to_point(115, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
+  a.add([](){ drive.reset_auto(); return true; });
+  a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 36, .4, 1, directionType::rev); });
   a.add_delay(1000);
-  a.add([](){ return drive.drive_to_point(118, 10, .3, 1, directionType::fwd); });
-  a.add([](){ return drive.drive_to_point(118, 36, .4, 1, directionType::rev); });
+  a.add([](){ return drive.drive_to_point(118, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
+  a.add([](){ drive.reset_auto(); return true; });
+  a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 36, .4, 1, directionType::rev); });
   a.add_delay(1000);
-  a.add([](){ return drive.drive_to_point(118, 10, .3, 1, directionType::fwd); });
-  a.add([](){ return drive.drive_to_point(118, 24, .4, 1, directionType::rev); });
+  a.add([](){ return drive.drive_to_point(118, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
+  a.add([](){ drive.reset_auto(); return true; });
+  a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 24, .4, 1, directionType::rev); });
 
   // Turn around & drop
 
