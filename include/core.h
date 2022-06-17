@@ -11,7 +11,6 @@
 #include "../core/include/subsystems/custom_encoder.h"
 
 // Utils package
-#include "../core/include/utils/spline_path.h"
 #include "../core/include/utils/pid.h"
 #include "../core/include/utils/vector.h"
 #include "../core/include/utils/generic_auto.h"
