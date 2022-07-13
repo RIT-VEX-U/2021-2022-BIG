@@ -46,8 +46,8 @@ robot_specs_t robot_cfg = {
     .p = .2,
     .i = .1,
     .d = .02,
-    .f = 0,
-    .k = .05,
+    // .f = 0,
+    // .k = .05,
     .deadband = .5,
     .on_target_time = .1
   },
@@ -56,8 +56,8 @@ robot_specs_t robot_cfg = {
     .p = 0.06,
     .i = 0.05,
     .d = 0.004,
-    .k = .005,
-    .f = 0,
+    // .k = .005,
+    // .f = 0,
     .deadband = 2,
     .on_target_time = 0.1
   },
@@ -83,7 +83,7 @@ Lift<LiftPosition>::lift_cfg_t lift_cfg = {
     .p = 100,
     .i = 0,
     .d = 3,
-    .f = 0,
+    // .f = 0,
 
     .deadband = .1,
     .on_target_time = .1
