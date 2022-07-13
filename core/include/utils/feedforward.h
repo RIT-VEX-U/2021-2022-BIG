@@ -25,27 +25,19 @@ class FeedForward
     public:
 
     /**
-     * @brief Construct a new Feed Forward object
-     *  
-     * @param kS 
-     *      Coefficient to overcome static friction: the point at which the motor *starts* to move.
-     * @param kV 
-     *      Veclocity coefficient: the power required to keep the mechanism in motion. Multiplied by the requested velocity.
-     * @param kA
-     *      Acceleration coefficient: the power required to change the mechanism's speed. Multiplied by the requested acceleration.
-     * @param kG 
-     *      Gravity coefficient: only needed for lifts. The power required to overcome gravity and stay at steady state.
+     * kS - Coefficient to overcome static friction: the point at which the motor *starts* to move.
+     * kV - Veclocity coefficient: the power required to keep the mechanism in motion. Multiplied by the requested velocity.
+     * kA - Acceleration coefficient: the power required to change the mechanism's speed. Multiplied by the requested acceleration.
+     * kG - Gravity coefficient: only needed for lifts. The power required to overcome gravity and stay at steady state.
      *      Should relate to acceleration due to gravity and mass of the lift.
      */
-    FeedForward(double kS, double kV, double kA, double kG=0) : kS(kS), kV(kV), kA(kA), kG(kG) {}
+    typedef struct
+    {
+        double kS, kV, kA, kG;
+    } ff_config_t;
 
-    double get_kS() { return kS; } 
-    double get_kV() { return kV; }
-    double get_kA() { return kA; }
-
-    void set_kS(double kS) { this->kS = kS; }
-    void set_kV(double kV) { this->kV = kV; }
-    void set_kA(double kA) { this->kA = kA; }
+    
+    FeedForward(ff_config_t &cfg) : cfg(cfg) {}
 
     /**
      * @brief Perform the feedforward calculation
@@ -59,11 +51,11 @@ class FeedForward
      */
     double calculate(double v, double a)
     {
-        return (kS * (v > 0 ? 1 : v < 0 ? -1 : 0)) + (kV * v) + (kA * a) + kG;
+        return (cfg.kS * (v > 0 ? 1 : v < 0 ? -1 : 0)) + (cfg.kV * v) + (cfg.kA * a) + cfg.kG;
     }
 
     private:
 
-    double kS, kV, kA, kG;
+    ff_config_t &cfg;
 
 };
