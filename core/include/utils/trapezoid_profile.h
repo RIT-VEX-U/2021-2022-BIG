@@ -1,6 +1,12 @@
 #pragma once
-#include "../core/include/utils/motion_profile_base.h"
 
+typedef struct
+{
+    double pos;
+    double vel;
+    double accel;
+
+} motion_t;
 
 /**
  * Trapezoid Profile
