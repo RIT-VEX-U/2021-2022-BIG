@@ -9,7 +9,7 @@
  * @param ff_cfg Definitions of kS, kV, and kA
  */
 MotionController::MotionController(double max_v, double accel, PID::pid_config_t &pid_cfg, FeedForward::ff_config_t &ff_cfg)
-: max_v(max_v), accel(accel), pid_cfg(pid_cfg), ff_cfg(ff_cfg), pid(pid_cfg), ff(ff_cfg), profile(max_v, accel)
+: max_v(max_v), accel(accel), pid_cfg(pid_cfg), pid(pid_cfg), ff(ff_cfg), profile(max_v, accel)
 {}
 
 /**
@@ -38,4 +38,13 @@ double MotionController::update(double sensor_val)
     pid.update(sensor_val);
 
     return pid.get() +  ff.calculate(motion.vel, motion.accel);
+}
+
+/** 
+ * @return Whether or not the movement has finished, and the PID
+ * confirms it is on target
+ */
+bool MotionController::is_on_target()
+{
+    return (tmr.time(timeUnits::sec) > profile.get_movement_time()) && pid.is_on_target();
 }

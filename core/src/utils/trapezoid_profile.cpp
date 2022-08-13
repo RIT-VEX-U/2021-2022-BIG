@@ -52,12 +52,14 @@ motion_t TrapezoidProfile::calculate(double time_s)
     // Calculate the time spent during the acceleration / maximum velocity / deceleration stages
     double accel_time = max_v_local / accel_local;
     double max_vel_time = (delta_pos - (accel_local * accel_time * accel_time)) / max_v_local;
+    this->time = (2 * accel_time) + max_vel_time;
 
     // If the time during the "max velocity" state is negative, use an S profile
     if (max_vel_time < 0)
     {
         accel_time = sqrt(fabs(delta_pos / accel));
         max_vel_time = 0;
+        this->time = 2 * accel_time;
     }
 
     motion_t out;
@@ -111,3 +113,9 @@ motion_t TrapezoidProfile::calculate(double time_s)
     return out;
 
 }
+
+double TrapezoidProfile::get_movement_time()
+{
+    return time;
+}
+

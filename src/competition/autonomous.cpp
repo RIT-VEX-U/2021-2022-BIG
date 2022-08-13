@@ -34,8 +34,8 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
   // If going after the center goal, drive forward and cut to the right before rushing
   if(pos == CENTER)
   {
-    a.add([](){return drive.drive_to_point(28, 51, .5, 1, fwd);});
-    a.add([](){ return drive.turn_to_heading(33, .5); });
+    // a.add([](){return drive.drive_to_point(28, 51, .5, 1, fwd);});
+    // a.add([](){ return drive.turn_to_heading(33, .5); });
   }
   
   // Initial rush (drive forward w/ camera, close claw, back up)
@@ -48,14 +48,14 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
   {
     a.add_delay(100);
     a.add([](){ return lift_subsys.set_position(LOW);});
-    a.add([](){ return drive.drive_to_point(28, 51, .5, 1, directionType::rev);});
+    // a.add([](){ return drive.drive_to_point(28, 51, .5, 1, directionType::rev);});
   }
 
   // Score the goal behind the line, further back if we're not going after the AWP
-  if(awp_l == true)
-    a.add([](){return drive.drive_to_point(22, 33, .5, 1, directionType::rev);});
-  else
-    a.add([](){ return drive.drive_to_point(22, 16, .5, 1, directionType::rev);});
+  // if(awp_l == true)
+    // a.add([](){return drive.drive_to_point(22, 33, .5, 1, directionType::rev);});
+  // else
+    // a.add([](){ return drive.drive_to_point(22, 16, .5, 1, directionType::rev);});
 
 
   // Stop the auto early if we're not going for the auto win point
@@ -73,18 +73,18 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
   static timer all_goal_tmr;
 
   // 2 stage turning, it's bit tight back there
-  a.add([](){ return drive.drive_to_point(22, 12, .3, 1, directionType::rev);});
-  a.add([](){ all_goal_tmr.reset(); return drive.turn_to_heading(175, .5);});
-  a.add([](){ return drive.drive_to_point(35, 11.5, .3, 1, directionType::rev) || all_goal_tmr.time(sec) > 3; });
+  // a.add([](){ return drive.drive_to_point(22, 12, .3, 1, directionType::rev);});
+  // a.add([](){ all_goal_tmr.reset(); return drive.turn_to_heading(175, .5);});
+  // a.add([](){ return drive.drive_to_point(35, 11.5, .3, 1, directionType::rev) || all_goal_tmr.time(sec) > 3; });
 
   // Grab the goal, begin the conveyor and start driving away
   a.add(rear_claw::close);
   a.add_delay(100);
   a.add_async([](){ conveyor::start(); vexDelay(1000); conveyor::stop(); return true;});
-  a.add([](){ return drive.drive_to_point(24, 18.5, .3, 1, directionType::fwd);});
+  // a.add([](){ return drive.drive_to_point(24, 18.5, .3, 1, directionType::fwd);});
 
   // Turn toward the field in preperation for driver control
-  a.add([](){ return drive.turn_to_heading(45, .5); });
+  // a.add([](){ return drive.turn_to_heading(45, .5); });
   
   // If we're stopping at the left-side goal
   if (!awp_r)
@@ -96,11 +96,11 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
 
   // Drop off the goal
   a.add(rear_claw::open);
-  a.add([](){ return drive.drive_to_point(30, 31, .3, 1, directionType::fwd); });
-  a.add([](){ return drive.turn_to_heading(180, .5); });
+  // a.add([](){ return drive.drive_to_point(30, 31, .3, 1, directionType::fwd); });
+  // a.add([](){ return drive.turn_to_heading(180, .5); });
 
   // Drive across the field
-  a.add([](){ return drive.drive_to_point(100, 30, .5, 1, directionType::rev); });
+  // a.add([](){ return drive.drive_to_point(100, 30, .5, 1, directionType::rev); });
   a.add([](){ return automation::drive_to_goal(.35, [](){ return rear_switch.pressing() == 1;}, automation::ANY, directionType::rev); });
   // a.add([](){ return drive.drive_to_point(122, 36, .2, 1, directionType::rev); });
   a.add([](){ drive.drive_tank(-.15, -.15); vexDelay(1000); drive.stop(); return true;});
@@ -110,8 +110,8 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
 
   // Turn toward the rings
   a.add([](){ lift_subsys.set_position(UP); return true;}); 
-  a.add([](){ return drive.drive_to_point(118, 36, .3, 1, directionType::fwd); });
-  a.add([](){ return drive.turn_to_heading(270, .5); });
+  // a.add([](){ return drive.drive_to_point(118, 36, .3, 1, directionType::fwd); });
+  // a.add([](){ return drive.turn_to_heading(270, .5); });
 
   // Match timer, make sure we drop the goal at the end
   a.add_async([](){
@@ -124,21 +124,21 @@ void auto_rush_goal(GoalPosition pos, bool awp_l, bool awp_r)
   static timer col_tmr;
   a.add(conveyor::start);
   a.add_delay(1000);
-  a.add([](){ return drive.drive_to_point(114, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
+  // a.add([](){ return drive.drive_to_point(114, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
   a.add([](){ drive.reset_auto(); return true; });
-  a.add([](){ col_tmr.reset(); return drive.drive_to_point(115, 36, .4, 1, directionType::rev); });
+  // a.add([](){ col_tmr.reset(); return drive.drive_to_point(115, 36, .4, 1, directionType::rev); });
   a.add_delay(1000);
-  a.add([](){ return drive.drive_to_point(115, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
+  // a.add([](){ return drive.drive_to_point(115, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
   a.add([](){ drive.reset_auto(); return true; });
-  a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 36, .4, 1, directionType::rev); });
+  // a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 36, .4, 1, directionType::rev); });
   a.add_delay(1000);
-  a.add([](){ return drive.drive_to_point(118, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
+  // a.add([](){ return drive.drive_to_point(118, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
   a.add([](){ drive.reset_auto(); return true; });
-  a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 36, .4, 1, directionType::rev); });
+  // a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 36, .4, 1, directionType::rev); });
   a.add_delay(1000);
-  a.add([](){ return drive.drive_to_point(118, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
+  // a.add([](){ return drive.drive_to_point(118, 11, .3, 1, directionType::fwd) || col_tmr.time(sec) > 3; });
   a.add([](){ drive.reset_auto(); return true; });
-  a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 24, .4, 1, directionType::rev); });
+  // a.add([](){ col_tmr.reset(); return drive.drive_to_point(118, 24, .4, 1, directionType::rev); });
 
   // Turn around & drop
 
@@ -165,11 +165,11 @@ void auto_simple_qual()
 
   // Start with the fork facing the goal. Drive torwards it, pick it up, deposit preloads
   a.add(rear_claw::open);
-  a.add([](){ return drive.drive_to_point(0, 0, .3, 1, directionType::rev); });
+  // a.add([](){ return drive.drive_to_point(0, 0, .3, 1, directionType::rev); });
   a.add_delay(100);
   a.add(rear_claw::open);
   a.add(conveyor::start);
-  a.add([](){ return drive.drive_to_point(0, 0, .3, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, .3, 1, directionType::fwd); });
   a.add_delay(3000);
   a.add(conveyor::stop);
 
@@ -187,7 +187,7 @@ void skills()
 
   // Drive backwards and grab the alliance goal
   a.add(rear_claw::open);
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
   a.add(rear_claw::close);
   
   // Drive in an arc toward the rings and collect them
@@ -199,85 +199,85 @@ void skills()
     {.x=0, .y=0, .dir=deg2rad(0), .mag=50},
     {.x=0, .y=0, .dir=deg2rad(0), .mag=50}
   };
-  a.add([](){ return drive.pure_pursuit(path1, 12, NORMAL, 20, directionType::fwd); });
+  // a.add([](){ return drive.pure_pursuit(path1, 12, NORMAL, 20, directionType::fwd); });
 
   // Stop collecting rings, backup, turn toward the center goal and grab it
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
   a.add([](){ return lift_subsys.set_position(DOWN); });
-  a.add([](){ return drive.turn_to_heading(90, .5); });
+  // a.add([](){ return drive.turn_to_heading(90, .5); });
   a.add(conveyor::stop);
   a.add(front_claw::open);
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
   a.add(front_claw::close);
 
   // Take the center goal to the corner of the field
-  a.add([](){ return drive.drive_to_point(0, 0, FAST, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, FAST, 1, directionType::fwd); });
   a.add(front_claw::open);
 
   // Back up
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
-  a.add([](){ return drive.turn_to_heading(0, NORMAL); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
+  // a.add([](){ return drive.turn_to_heading(0, NORMAL); });
 
   // Switch the alliance goal from the rear claw to the front
   a.add(rear_claw::open);
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
-  a.add([](){ return drive.turn_to_heading(180, NORMAL); });
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
+  // a.add([](){ return drive.turn_to_heading(180, NORMAL); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
   a.add(front_claw::close);
-  a.add([](){ return drive.turn_to_heading(0, NORMAL); });
+  // a.add([](){ return drive.turn_to_heading(0, NORMAL); });
 
   // Drive to the platform while rasing the lift and place the alliance goal
   a.add([](){ lift_subsys.set_position(UP); return true; });
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
-  a.add([](){ return drive.turn_to_heading(90, SLOW); });
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
+  // a.add([](){ return drive.turn_to_heading(90, SLOW); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
   a.add(front_claw::open);
 
   // Back up, turn and drive backwards towards the other alliance goal and grab it
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::rev); });
-  a.add([](){ return drive.turn_to_heading(0, NORMAL); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::rev); });
+  // a.add([](){ return drive.turn_to_heading(0, NORMAL); });
   a.add([](){ lift_subsys.set_position(DOWN); return true; });
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
   a.add(rear_claw::close);
 
   // turn toward the line of rings and start collecting them, then back up again
   a.add([](){ lift_subsys.set_position(DRIVING); return true; });
-  a.add([](){ return drive.turn_to_heading(270, NORMAL); });
+  // a.add([](){ return drive.turn_to_heading(270, NORMAL); });
   a.add(conveyor::start);
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::rev); });
   a.add(conveyor::stop);
   a.add([](){ lift_subsys.set_position(DOWN); return true; });
 
   // Drive towards and grab the other neutral goal with the front claw
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
   a.add(front_claw::close);
 
   // Drive to the platform, and drop off the neutral goal
   a.add([](){ lift_subsys.set_position(UP); return true; });
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
-  a.add([](){ return drive.turn_to_heading(270, SLOW); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
+  // a.add([](){ return drive.turn_to_heading(270, SLOW); });
   a.add(front_claw::open);
 
   // Back up and switch the alliance goal from back to front
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
-  a.add([](){ return drive.turn_to_heading(0, NORMAL); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
+  // a.add([](){ return drive.turn_to_heading(0, NORMAL); });
   a.add([](){ lift_subsys.set_position(DOWN); return true; });
   a.add(rear_claw::open);
-  a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
-  a.add([](){ return drive.turn_to_heading(180, NORMAL); });
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, NORMAL, 1, directionType::fwd); });
+  // a.add([](){ return drive.turn_to_heading(180, NORMAL); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
   a.add(front_claw::close);
 
   // Line up and place second goal on the platform
   a.add([](){ lift_subsys.set_position(UP); return true; });
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::rev); });
-  a.add([](){ return drive.turn_to_heading(270, SLOW); });
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::rev); });
+  // a.add([](){ return drive.turn_to_heading(270, SLOW); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::fwd); });
   a.add(front_claw::open);
 
   // Back up to get away from the platform, and finish the auto
-  a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::rev); });
+  // a.add([](){ return drive.drive_to_point(0, 0, SLOW, 1, directionType::rev); });
   a.add([](){ return lift_subsys.set_position(DOWN); });
 
   // a.run(true);

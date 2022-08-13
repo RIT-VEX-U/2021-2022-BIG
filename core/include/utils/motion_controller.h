@@ -51,11 +51,16 @@ class MotionController
      */
     double update(double sensor_val);
 
+    /** 
+     * @return Whether or not the movement has finished, and the PID
+     * confirms it is on target
+     */
+    bool is_on_target();
+
     private: 
 
     double max_v, accel;
     PID::pid_config_t &pid_cfg;
-    FeedForward::ff_config_t &ff_cfg;
 
     PID pid;
     FeedForward ff;

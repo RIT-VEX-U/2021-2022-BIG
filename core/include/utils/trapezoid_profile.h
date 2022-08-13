@@ -54,9 +54,12 @@ class TrapezoidProfile
 
     void set_max_v(double max_v);
 
+    double get_movement_time();
+
     private:
     double start, end;
     double max_v, accel;
+    double time;
     
 
 };

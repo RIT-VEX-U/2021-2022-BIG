@@ -2,7 +2,7 @@
 
 TankDrive::TankDrive(motor_group &left_motors, motor_group &right_motors, robot_specs_t &config, OdometryTank *odom)
     : left_motors(left_motors), right_motors(right_motors),
-     drive_pid(config.drive_pid), turn_pid(config.turn_pid), correction_pid(config.correction_pid), odometry(odom), config(config)
+     correction_pid(config.correction_pid), odometry(odom), config(config)
 {
 
 }
@@ -73,10 +73,8 @@ void TankDrive::drive_arcade(double forward_back, double left_right, int power)
  * @param correction How much the robot should correct for being off angle
  * @param dir Whether the robot is travelling forwards or backwards
  */
-bool TankDrive::drive_forward(double inches, double speed, double correction, directionType dir)
+bool TankDrive::drive_forward(double inches, MotionController &motion, directionType dir)
 {
-  static position_t pos_setpt;
-
   // We can't run the auto drive function without odometry
   if(odometry == NULL)
   {
@@ -85,25 +83,42 @@ bool TankDrive::drive_forward(double inches, double speed, double correction, di
     return true;
   }
 
-  // Generate a point X inches forward of the current position, on first startup
+  static position_t start_pos;
+  
+  // Decide whether to go forwards or backwards
+  int dir_sign = (dir == directionType::rev) ? -1 : 1;
+  inches *= dir_sign;
+
+  // On the first run of the function, initialize the motion profile and correction w/ a target
   if (!func_initialized)
   {
-    saved_pos = odometry->get_position();
-    drive_pid.reset();
+    start_pos = odometry->get_position();
 
-    // Use vector math to get an X and Y
-    Vector current_pos({saved_pos.x , saved_pos.y});
-    Vector delta_pos(deg2rad(saved_pos.rot), inches);
-    Vector setpt_vec = current_pos + delta_pos;
-
-    // Save the new X and Y values
-    pos_setpt = {.x=setpt_vec.get_x(), .y=setpt_vec.get_y()};
+    motion.init(0, inches);    
+    correction_pid.set_target(0);
+    correction_pid.reset();
 
     func_initialized = true;
   }
 
-  // Call the drive_to_point with updated point values
-  return drive_to_point(pos_setpt.x, pos_setpt.y, speed, correction, dir);
+  // Update the motion profile with the distance from the start point
+  position_t cur_pos = odometry->get_position();
+  correction_pid.update(OdometryBase::rot_diff(cur_pos, start_pos));
+
+  double out = motion.update(dir_sign * OdometryBase::pos_diff(odometry->get_position(), start_pos));
+  double correction = correction_pid.get();
+
+  drive_tank(out - correction, out + correction, 1, false);
+
+  // Function end: reset for the next run
+  if (motion.is_on_target())
+  {
+    stop();
+    func_initialized = false;
+    return true;
+  }
+  
+  return false;
 }
 
 /**
@@ -112,7 +127,7 @@ bool TankDrive::drive_forward(double inches, double speed, double correction, di
  * 
  * Uses a PID loop for it's control.
  */
-bool TankDrive::turn_degrees(double degrees, double percent_speed)
+bool TankDrive::turn_degrees(double degrees, MotionController &motion)
 {
   // We can't run the auto drive function without odometry
   if(odometry == NULL)
@@ -122,27 +137,27 @@ bool TankDrive::turn_degrees(double degrees, double percent_speed)
     return true;
   }
 
+  static position_t start_pos;
+
   // On the first run of the funciton, reset the gyro position and PID
   if (!func_initialized)
   {
-    saved_pos = odometry->get_position();
-    turn_pid.reset();
-
-    turn_pid.set_limits(-fabs(percent_speed), fabs(percent_speed));
-    turn_pid.set_target(0);
+    start_pos = odometry->get_position();
+    motion.init(-degrees, 0);
 
     func_initialized = true;
   }
-  double heading = odometry->get_position().rot - saved_pos.rot;
+  
+  double heading = odometry->get_position().rot - start_pos.rot;
   double delta_heading = OdometryBase::smallest_angle(heading, degrees);
-  turn_pid.update(delta_heading);
+  double out = motion.update(delta_heading);
 
   // printf("heading: %f, delta_heading: %f\n", heading, delta_heading);
 
-  drive_tank(turn_pid.get(), -turn_pid.get());
+  drive_tank(out, -out);
 
   // If the robot is at it's target, return true
-  if (turn_pid.is_on_target())
+  if (motion.is_on_target())
   {
     drive_tank(0, 0);
     func_initialized = false;
@@ -158,7 +173,7 @@ bool TankDrive::turn_degrees(double degrees, double percent_speed)
   *
   * Returns whether or not the robot has reached it's destination.
   */
-bool TankDrive::drive_to_point(double x, double y, double speed, double correction_speed, vex::directionType dir)
+bool TankDrive::drive_to_point(double x, double y, MotionController &motion, vex::directionType dir)
 {
   // We can't run the auto drive function without odometry
   if(odometry == NULL)
@@ -167,19 +182,21 @@ bool TankDrive::drive_to_point(double x, double y, double speed, double correcti
     fflush(stderr);
     return true;
   }
+
+
   
   if(!func_initialized)
   {
     // Reset the control loops
-    drive_pid.reset();
     correction_pid.reset();
 
-    drive_pid.set_limits(-fabs(speed), fabs(speed));
-    correction_pid.set_limits(-fabs(correction_speed), fabs(correction_speed));
+    double initial_dist = OdometryBase::pos_diff(odometry->get_position(), {.x=x, .y=y});
+    if (dir == directionType::rev)
+      initial_dist *= -1;
 
-    // Set the targets to 0, because we update with the change in distance and angle between the current point
-    // and the new point.
-    drive_pid.set_target(0);
+    motion.init(-initial_dist, 0);
+
+    correction_pid.set_limits(-1, 1);
     correction_pid.set_target(0);
 
     // point_orientation_deg = atan2(y - odometry->get_position().y, x - odometry->get_position().x) * 180.0 / PI;
@@ -239,7 +256,7 @@ bool TankDrive::drive_to_point(double x, double y, double speed, double correcti
 
   // Update the PID controllers with new information
   correction_pid.update(delta_heading);
-  drive_pid.update(sign * -1 * dist_left);
+  double motion_rval = motion.update(sign * -1 * dist_left);
 
   // Disable correction when we're close enough to the point
   double correction = 0;
@@ -247,27 +264,24 @@ bool TankDrive::drive_to_point(double x, double y, double speed, double correcti
     correction = correction_pid.get();
 
   // Reverse the drive_pid output if we're going backwards
-  double drive_pid_rval;
   if(dir == directionType::rev)
-    drive_pid_rval = drive_pid.get() * -1;
-  else
-    drive_pid_rval = drive_pid.get();
+     motion_rval *= -1;
 
   // Combine the two pid outputs
-  double lside = drive_pid_rval + correction;
-  double rside = drive_pid_rval - correction;
+  double lside = motion_rval + correction;
+  double rside = motion_rval - correction;
 
   // limit the outputs between -1 and +1
   lside = (lside > 1) ? 1 : (lside < -1) ? -1 : lside;
   rside = (rside > 1) ? 1 : (rside < -1) ? -1 : rside;
 
-  drive_tank(lside, rside);
+  drive_tank(lside, rside, 1, false);
 
   printf("dist: %f\n", sign * -1 * dist_left);
   fflush(stdout);
 
   // Check if the robot has reached it's destination
-  if(drive_pid.is_on_target())
+  if(motion.is_on_target())
   {
     stop();
     func_initialized = false;
@@ -281,7 +295,7 @@ bool TankDrive::drive_to_point(double x, double y, double speed, double correcti
  * Turn the robot in place to an exact heading relative to the field.
  * 0 is forward, and 0->360 is clockwise.
  */
-bool TankDrive::turn_to_heading(double heading_deg, double speed)
+bool TankDrive::turn_to_heading(double heading_deg, MotionController &motion)
 {
   // We can't run the auto drive function without odometry
   if(odometry == NULL)
@@ -293,27 +307,24 @@ bool TankDrive::turn_to_heading(double heading_deg, double speed)
 
   if(!func_initialized)
   {
-    turn_pid.reset();
-    turn_pid.set_limits(-fabs(speed), fabs(speed));
-
-    // Set the target to zero, and the input will be a delta.
-    turn_pid.set_target(0);
+    double initial_diff = OdometryBase::smallest_angle(odometry->get_position().rot, heading_deg);
+    motion.init(-initial_diff, 0);
 
     func_initialized = true;
   }
 
   // Get the difference between the new heading and the current, and decide whether to turn left or right.
   double delta_heading = OdometryBase::smallest_angle(odometry->get_position().rot, heading_deg);
-  turn_pid.update(delta_heading);
+  double rval = motion.update(delta_heading);
 
   printf("~TURN~ delta: %f\n", delta_heading);
   // printf("delta heading: %f, pid: %f\n", delta_heading, turn_pid.get());
   fflush(stdout);
 
-  drive_tank(turn_pid.get(), -turn_pid.get());
+  drive_tank(rval, -rval);
 
   // When the robot has reached it's angle, return true.
-  if(turn_pid.is_on_target())
+  if(motion.is_on_target())
   {
     func_initialized = false;
     stop();
@@ -332,7 +343,7 @@ double TankDrive::modify_inputs(double input, int power)
   return (power % 2 == 0 ? (input < 0 ? -1 : 1) : 1) * pow(input, power);
 }
 
-bool TankDrive::pure_pursuit(std::vector<PurePursuit::hermite_point> path, double radius, double speed, double res, directionType dir) {
+bool TankDrive::pure_pursuit(std::vector<PurePursuit::hermite_point> path, double radius, MotionController &motion, double res, directionType dir) {
   is_pure_pursuit = true;
   std::vector<Vector::point_t> smoothed_path = PurePursuit::smooth_path_hermite(path, res);
 
@@ -344,7 +355,7 @@ bool TankDrive::pure_pursuit(std::vector<PurePursuit::hermite_point> path, doubl
   if(is_last_point)
     is_pure_pursuit = false;
 
-  bool retval = drive_to_point(lookahead.x, lookahead.y, speed, 1, dir);
+  bool retval = drive_to_point(lookahead.x, lookahead.y, motion, dir);
 
   if(is_last_point)
     return retval;

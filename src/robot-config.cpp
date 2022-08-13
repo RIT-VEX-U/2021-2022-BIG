@@ -41,26 +41,6 @@ robot_specs_t robot_cfg = {
   .odom_gear_ratio = 1.03,//2.333333, // inches
   .dist_between_wheels = 9.75, // inches
   .drive_correction_cutoff = 12, //inches
-  .drive_pid = (PID::pid_config_t) 
-  {
-    .p = .2,
-    .i = .1,
-    .d = .02,
-    // .f = 0,
-    // .k = .05,
-    .deadband = .5,
-    .on_target_time = .1
-  },
-  .turn_pid = (PID::pid_config_t)
-  {
-    .p = 0.06,
-    .i = 0.05,
-    .d = 0.004,
-    // .k = .005,
-    // .f = 0,
-    .deadband = 2,
-    .on_target_time = 0.1
-  },
   .correction_pid = (PID::pid_config_t)
   {
     .p = 0.02,

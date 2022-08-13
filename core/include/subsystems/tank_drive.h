@@ -9,7 +9,8 @@
 #include "../core/include/subsystems/odometry/odometry_tank.h"
 #include "../core/include/robot_specs.h"
 #include <vector>
-#include "../core/src/utils/pure_pursuit.cpp"
+#include "../core/include/utils/pure_pursuit.h"
+#include "../core/include/utils/motion_controller.h"
 
 using namespace vex;
 
@@ -52,7 +53,7 @@ public:
    * @param correction How much the robot should correct for being off angle
    * @param dir Whether the robot is travelling forwards or backwards
    */
-  bool drive_forward(double inches, double speed, double correction, directionType dir);
+  bool drive_forward(double inches, MotionController &motion, directionType dir);
 
   /**
    * Autonomously turn the robot X degrees to the right (negative for left), with a maximum motor speed
@@ -60,19 +61,19 @@ public:
    * 
    * Uses a PID loop for it's control.
    */
-  bool turn_degrees(double degrees, double percent_speed);
+  bool turn_degrees(double degrees, MotionController &motion);
 
   /**
    * Use odometry to automatically drive the robot to a point on the field.
    * X and Y is the final point we want the robot.
    */
-  bool drive_to_point(double x, double y, double speed, double correction_speed, vex::directionType direction=vex::directionType::fwd);
+  bool drive_to_point(double x, double y, MotionController &motion, vex::directionType direction=vex::directionType::fwd);
 
   /**
    * Turn the robot in place to an exact heading relative to the field.
    * 0 is forward, and 0->360 is clockwise.
    */
-  bool turn_to_heading(double heading_deg, double speed);
+  bool turn_to_heading(double heading_deg, MotionController &motion);
 
   /**
    * Reset the initialization for autonomous drive functions
@@ -93,19 +94,15 @@ public:
    * @param speed Robot's maximum speed throughout the path, between 0 and 1.0
    * @param res The number of points to use along the path; the hermite curve is split up into "res" individual points.
    */
-  bool pure_pursuit(std::vector<PurePursuit::hermite_point> path, double radius, double speed, double res, directionType dir=fwd);
+  bool pure_pursuit(std::vector<PurePursuit::hermite_point> path, double radius, MotionController &motion, double res, directionType dir=fwd);
 
 private:
   motor_group &left_motors;
   motor_group &right_motors;
 
-  PID drive_pid;
-  PID turn_pid;
   PID correction_pid;
 
   OdometryTank *odometry;
-
-  position_t saved_pos;
 
   robot_specs_t &config;
 

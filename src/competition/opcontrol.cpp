@@ -10,8 +10,8 @@ void tuning(bool btn)
   static bool reset = true;
   if(btn)
   {
-    if(reset && drive.drive_to_point(0, 24, .7, 1, fwd))
-      reset = false;    
+    // if(reset && drive.drive_to_point(0, 24, .7, 1, fwd))
+    //   reset = false;    
   }else
   {
     drive.reset_auto();

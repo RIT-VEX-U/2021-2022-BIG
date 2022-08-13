@@ -16,9 +16,6 @@ typedef struct
   double dist_between_wheels;
 
   double drive_correction_cutoff;
-
-  PID::pid_config_t drive_pid;
-  PID::pid_config_t turn_pid;
   PID::pid_config_t correction_pid;
 
 } robot_specs_t;

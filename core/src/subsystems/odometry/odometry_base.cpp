@@ -58,6 +58,7 @@ double OdometryBase::pos_diff(position_t start_pos, position_t end_pos)
 
 /**
  * Get the change in rotation between two points
+ * pos1.rot - pos2.rot
  */
 double OdometryBase::rot_diff(position_t &pos1, position_t &pos2)
 {
