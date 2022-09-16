@@ -30,20 +30,16 @@ void TankDrive::stop()
  * 
  * left_motors and right_motors are in "percent": -1.0 -> 1.0
  */
-void TankDrive::drive_tank(double left, double right, int power, bool isdriver)
+void TankDrive::drive_tank(double left, double right, int power)
 {
-  left = modify_inputs(left, power);
-  right = modify_inputs(right, power);
-
-  if(isdriver == false)
-  {
-    left_motors.spin(directionType::fwd, left * 12, voltageUnits::volt);
-    right_motors.spin(directionType::fwd, right * 12, voltageUnits::volt);
-  }else
-  {
-    left_motors.spin(directionType::fwd, left * 100.0, percentUnits::pct);
-    right_motors.spin(directionType::fwd, right * 100.0, percentUnits::pct);
+  if(power != 1) {
+    left = modify_inputs(left, power);
+    right = modify_inputs(right, power);
   }
+
+  left_motors.spin(directionType::fwd, left * 12, voltageUnits::volt);
+  right_motors.spin(directionType::fwd, right * 12, voltageUnits::volt);
+
 }
 
 /**
@@ -329,7 +325,9 @@ bool TankDrive::turn_to_heading(double heading_deg, double speed)
  */
 double TankDrive::modify_inputs(double input, int power)
 {
-  return (power % 2 == 0 ? (input < 0 ? -1 : 1) : 1) * pow(input, power);
+  // if power is even and the input is negative, multiply result by negative one
+  if(power % 2 == 0 && input < 0) return pow(input, power) * -1;
+  return pow(input, power);
 }
 
 bool TankDrive::pure_pursuit(std::vector<PurePursuit::hermite_point> path, double radius, double speed, double res, directionType dir) {
