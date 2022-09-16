@@ -64,7 +64,7 @@ public:
 
   /**
    * Use odometry to automatically drive the robot to a point on the field.
-   * X and Y is the final point we want the robot.
+   * X and Y, in inches, is the final point we want the robot.
    */
   bool drive_to_point(double x, double y, double speed, double correction_speed, vex::directionType direction=vex::directionType::fwd);
 
