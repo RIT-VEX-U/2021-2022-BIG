@@ -14,6 +14,7 @@ class CommandController {
 
   void add(AutoCommand cmd);
   void add_delay(int ms);
+  void run();
 
   private:
     std::queue<AutoCommand> command_queue;
