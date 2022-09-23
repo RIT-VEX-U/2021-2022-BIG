@@ -4,10 +4,8 @@
  *    Command wrapper class for the drive_forward function in the TankDrive class
  */
 
-#pragma once
-
 #include "vex.h"
-#include "../core/include/drive_forward_command.h"
+#include "../core/include/utils/command_structure/drive_forward_command.h"
 
 using namespace vex;
 

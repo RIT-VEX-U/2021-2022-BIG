@@ -7,10 +7,8 @@
  *    repeat until there are no more commmands in the queue
  */
 
-#pragma once
-
-#include "../core/include/command_controller.h"
-#include "../core/include/delay_command.h"
+#include "../core/include/utils/command_structure/command_controller.h"
+#include "../core/include/utils/command_structure/delay_command.h"
 
 /**
  * Adds a command to the queue
